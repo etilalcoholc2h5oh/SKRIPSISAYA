@@ -1365,8 +1365,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                                     loading="lazy"
                                     onError={(e) => {
                                       const target = e.currentTarget;
-                                      if (target.src !== photo.url) {
+                                      if (target.dataset.failedOnce !== '1' && photo.url && target.src !== photo.url) {
+                                        target.dataset.failedOnce = '1';
                                         target.src = photo.url;
+                                      } else {
+                                        target.src = 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=700&auto=format&fit=crop&q=80';
                                       }
                                     }}
                                   />

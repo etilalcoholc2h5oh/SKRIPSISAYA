@@ -33,14 +33,14 @@ interface VisualItem {
   defaultIndoTemplate?: (arabicText: string) => string;
 }
 
-// Deeply curated realistic photographic library matching all Class 11 MA themes and vocabulary
+// Deeply curated hyper-realistic photographic library matching all Class 11 MA themes and vocabulary
 const REALISTIC_IMAGE_COLLECTION: VisualItem[] = [
   // ==========================================
   // 1. KESEHATAN, RUMAH SAKIT & MEDIS (الصحة والمستشفى)
   // ==========================================
   {
     id: 'hospital_building',
-    keywordsArabic: ['مستشفي', 'مستشفيات', 'طوارئ', 'اسعاف', 'مستوصف'],
+    keywordsArabic: ['مستشفي', 'مستشفيات', 'طوارئ', 'اسعاف', 'مستوصف', 'مركز صحي'],
     keywordsIndo: ['rumah sakit', 'rs', 'gedung rumah sakit', 'ruang perawatan', 'ugd', 'ambulans'],
     title: 'Gedung Rumah Sakit & Layanan Kesehatan',
     icon: '🏥',
@@ -52,11 +52,11 @@ const REALISTIC_IMAGE_COLLECTION: VisualItem[] = [
     keywordsIndo: ['stetoskop', 'memeriksa dengan stetoskop', 'cek detak jantung', 'tensi', 'termometer', 'suhu tubuh'],
     title: 'Pemeriksaan Menggunakan Stetoskop',
     icon: '🩺',
-    url: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=700&auto=format&fit=crop&q=80'
+    url: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=700&auto=format&fit=crop&q=80'
   },
   {
     id: 'doctor_examining',
-    keywordsArabic: ['طبيب', 'طبيبه', 'يفحص', 'فحص', 'استشاره', 'يعالج', 'عياده', 'طبيب الاسنان'],
+    keywordsArabic: ['طبيب', 'طبيبه', 'يفحص', 'فحص', 'استشاره', 'يعالج', 'عياده', 'طبيب الاسنان', 'كشف'],
     keywordsIndo: ['dokter', 'memeriksa', 'konsultasi dokter', 'pemeriksaan medis', 'mengobati', 'klinik'],
     title: 'Pemeriksaan & Konsultasi Dokter',
     icon: '👨‍⚕️',
@@ -132,19 +132,27 @@ const REALISTIC_IMAGE_COLLECTION: VisualItem[] = [
   },
   {
     id: 'clothing_fashion',
-    keywordsArabic: ['ملابس', 'ثوب', 'قميص', 'بنطلون', 'فستان', 'حجاب', 'ازياء', 'مقاس'],
-    keywordsIndo: ['pakaian', 'baju', 'kaos', 'kemeja', 'celana', 'busana', 'toko baju', 'fashion'],
+    keywordsArabic: ['ملابس', 'قسم الملابس', 'ثوب', 'قميص', 'بنطلون', 'فستان', 'حجاب', 'ازياء', 'مقاس'],
+    keywordsIndo: ['pakaian', 'bagian pakaian', 'baju', 'kaos', 'kemeja', 'celana', 'busana', 'toko baju', 'fashion'],
     title: 'Memilih Pakaian & Busana',
     icon: '👕',
     url: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=700&auto=format&fit=crop&q=80'
   },
   {
+    id: 'discount_sale',
+    keywordsArabic: ['تخفيض', 'تخفيضات', 'تخفيض كبير', 'تخفيضا كبيرا', 'خصم', 'عروض', 'تنزيلات', 'اوكازيون'],
+    keywordsIndo: ['diskon', 'potongan harga', 'diskon besar', 'sale', 'promo', 'harga hemat'],
+    title: 'Potongan Harga & Diskon Spesial di Toko',
+    icon: '🏷️',
+    url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&auto=format&fit=crop&q=80'
+  },
+  {
     id: 'cashier_payment',
-    keywordsArabic: ['كاشير', 'امين الصندوق', 'دفع', 'يدفع', 'حساب', 'فاتوره', 'طابور'],
+    keywordsArabic: ['كاشير', 'امين الصندوق', 'دفع', 'يدفع', 'حساب', 'فاتوره', 'طابور', 'دفعت الثمن'],
     keywordsIndo: ['kasir', 'meja kasir', 'membayar', 'antrean kasir', 'struk pembayaran', 'nota'],
     title: 'Pembayaran di Meja Kasir',
     icon: '💳',
-    url: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=700&auto=format&fit=crop&q=80'
+    url: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=700&auto=format&fit=crop&q=80'
   },
   {
     id: 'money_rupiah',
@@ -155,12 +163,12 @@ const REALISTIC_IMAGE_COLLECTION: VisualItem[] = [
     url: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=700&auto=format&fit=crop&q=80'
   },
   {
-    id: 'discount_sale',
-    keywordsArabic: ['تخفيض', 'تخفيضات', 'خصم', 'عروض', 'تنزيلات'],
-    keywordsIndo: ['diskon', 'potongan harga', 'sale', 'promo', 'harga hemat'],
-    title: 'Potongan Harga & Diskon Spesial',
-    icon: '🏷️',
-    url: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&auto=format&fit=crop&q=80'
+    id: 'return_home_happy',
+    keywordsArabic: ['رجعنا', 'رجعنا الي البيت', 'رجعنا مسرورين', 'عدنا', 'العوده الي البيت', 'فرحانين', 'مسرورين', 'سعداء'],
+    keywordsIndo: ['kembali ke rumah', 'pulang ke rumah', 'senang', 'gembira', 'membawa belanjaan', 'pulang bersama'],
+    title: 'Kembali Pulang ke Rumah dengan Senang',
+    icon: '🏡',
+    url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=700&auto=format&fit=crop&q=80'
   },
   {
     id: 'seller_buyer',
@@ -509,8 +517,17 @@ const GENERAL_FALLBACKS = [
 const ARABIC_PHRASE_DICTIONARY: { arabic: string; indo: string }[] = [
   { arabic: 'ذهبت الي المستشفي', indo: 'Saya pergi ke rumah sakit' },
   { arabic: 'ذهبت مع امي الي السوق المركزي', indo: 'Saya pergi bersama ibu ke supermarket' },
+  { arabic: 'ذهبت مع امي الي السوق', indo: 'Saya pergi bersama ibu ke pasar' },
   { arabic: 'ذهبت الي السوق المركزي', indo: 'Saya pergi ke pasar swalayan' },
   { arabic: 'ذهبت الي السوق التقليدي', indo: 'Saya pergi ke pasar tradisional' },
+  { arabic: 'توجهنا الي قسم الملابس', indo: 'Kami menuju ke bagian pakaian' },
+  { arabic: 'توجهت الي قسم الملابس', indo: 'Saya menuju ke bagian pakaian' },
+  { arabic: 'وكان عليه تخفيض كبير', indo: 'Dan terdapat potongan harga (diskon) yang besar' },
+  { arabic: 'وكان عليه تخفيضا كبيرا', indo: 'Dan terdapat potongan harga (diskon) yang besar' },
+  { arabic: 'دفعت الثمن للكاشير نقدا', indo: 'Saya membayar harganya ke kasir secara tunai' },
+  { arabic: 'دفعت الثمن عند الكاشير', indo: 'Saya membayar harga belanjaan di kasir' },
+  { arabic: 'رجعنا الي البيت مسرورين', indo: 'Kami kembali pulang ke rumah dengan senang' },
+  { arabic: 'عدنا الي البيت مسرورين', indo: 'Kami kembali pulang ke rumah dengan gembira' },
   { arabic: 'ذهبت الي المدرسه', indo: 'Saya pergi ke sekolah' },
   { arabic: 'ذهبت الي المطار', indo: 'Saya pergi ke bandara' },
   { arabic: 'ذهبت الي الشاطئ', indo: 'Saya pergi ke pantai' },
@@ -528,7 +545,6 @@ const ARABIC_PHRASE_DICTIONARY: { arabic: string; indo: string }[] = [
   { arabic: 'اشتريت الفواكه والخضراوات', indo: 'Saya membeli buah-buahan dan sayuran' },
   { arabic: 'اشتريت التفاح والبرتقال', indo: 'Saya membeli apel dan jeruk' },
   { arabic: 'اشتريت الملابس الجديده', indo: 'Saya membeli pakaian baru' },
-  { arabic: 'دفعت الثمن عند الكاشير', indo: 'Saya membayar harga belanjaan di kasir' },
   { arabic: 'دفعت النقود نقدا', indo: 'Saya membayar uang secara tunai' },
   { arabic: 'وجدت تخفيضا كبيرا', indo: 'Saya mendapatkan diskon besar' },
   { arabic: 'ركبنا الطائره الي مكه', indo: 'Kami naik pesawat terbang ke Makkah' },
@@ -628,9 +644,14 @@ export function resolveQuickTranslation(arabicText: string): string {
 
   // Contextual word-based fallback translation builder
   const detectedParts: string[] = [];
-  if (norm.includes('ذهبت') || norm.includes('يذهب') || norm.includes('ذهب')) detectedParts.push('pergi');
+  if (norm.includes('ذهبت') || norm.includes('يذهب') || norm.includes('ذهب') || norm.includes('توجهنا') || norm.includes('توجهت')) detectedParts.push('pergi/menuju');
   if (norm.includes('مستشفي')) detectedParts.push('ke rumah sakit');
   if (norm.includes('سوق مركزي') || norm.includes('سوبرماركت')) detectedParts.push('ke supermarket');
+  if (norm.includes('سوق')) detectedParts.push('ke pasar');
+  if (norm.includes('ملابس')) detectedParts.push('ke bagian busana/pakaian');
+  if (norm.includes('تخفيض') || norm.includes('خصم')) detectedParts.push('mendapat potongan harga (diskon)');
+  if (norm.includes('كاشير') || norm.includes('دفعت')) detectedParts.push('membayar di kasir');
+  if (norm.includes('رجعنا') || norm.includes('عدنا') || norm.includes('بيت')) detectedParts.push('pulang ke rumah dengan gembira');
   if (norm.includes('طبيب')) detectedParts.push('bertemu dokter');
   if (norm.includes('فحص') || norm.includes('يفحص')) detectedParts.push('memeriksa');
   if (norm.includes('دواء') || norm.includes('صيدليه')) detectedParts.push('membeli obat di apotek');
@@ -674,3 +695,4 @@ export function generateInstantStoryboardLocally(draftText: string): StoryboardS
     };
   });
 }
+
