@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700&family=Quicksand:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Quicksand", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "Noto Naskh Arabic", "Amiri", "Cairo", serif;
+  
+  --color-peach-light: #FFF9F7;
+  --color-peach-blush: #FFEAE5;
+  --color-peach-soft: #FFD4CC;
+  --color-peach-warm: #FFB8AD;
+  --color-peach-accent: #FF9480;
+  --color-peach-deep: #E66650;
+  
+  --color-pink-light: #FFF4F5;
+  --color-pink-blush: #FFE0E4;
+  --color-pink-soft: #FFC0CB;
+  --color-pink-warm: #FFA2B4;
+  --color-pink-accent: #FF7B94;
+  
+  --color-charcoal-warm: #3D302F;
+  --color-charcoal-muted: #7E6C6B;
+  
+  --animate-fade-in: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@layer utilities {
+  .rtl-dir {
+    direction: rtl;
+  }
+  .ltr-dir {
+    direction: ltr;
+  }
+}
+
+/* Glassmorphism custom components */
+.glass-panel-peach {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-panel-pink {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Fluid Organic Blob Shapes */
+.organic-blob-1 {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+.organic-blob-2 {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+.organic-blob-3 {
+  border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;
+}
+
+/* Custom baseline helper for canvas background */
+.canvas-bg-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 148, 128, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 148, 128, 0.05) 1px, transparent 1px);
+}
+
+/* Base custom resets */
+html, body {
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+/* Dynamic scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #FFD4CC;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFB8AD;
+}
+

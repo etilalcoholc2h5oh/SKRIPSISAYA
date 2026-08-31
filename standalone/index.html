@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Kitabah Touch - Latihan Menulis Arab Madrasah Aliyah</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#FF9480" id="theme-meta" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              peach: {
+                light: '#FFF9F7',
+                blush: '#FFEAE5',
+                soft: '#FFD4CC',
+                warm: '#FFB8AD',
+                accent: '#FF9480',
+                deep: '#E66650',
+              },
+              pink: {
+                light: '#FFF4F5',
+                blush: '#FFE0E4',
+                soft: '#FFC0CB',
+                warm: '#FFA2B4',
+                accent: '#FF7B94',
+              },
+              charcoal: {
+                warm: '#3D302F',
+                muted: '#7E6C6B',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              arabic: ['"Cairo"', '"Plus Jakarta Sans"', 'serif']
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Custom CSS Styles -->
+    <style type="text/css">
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        scrollbar-width: thin;
+        overflow-x: hidden;
+      }
+      .font-arabic {
+        font-family: 'Cairo', sans-serif;
+      }
+      .canvas-bg-grid {
+        background-size: 32px 32px;
+        background-image: 
+          linear-gradient(to right, rgba(255, 148, 128, 0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 148, 128, 0.05) 1px, transparent 1px);
+      }
+      @keyframes slideUp {
+        from { transform: translate(-50%, 24px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+      }
+      .animate-slide-up-toast {
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.35s ease-out forwards;
+      }
+      /* Custom fine scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #FFD4CC;
+        border-radius: 99px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #FFB8AD;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-tr from-[#FFF2EF] via-[#FFF9F7] to-[#FFFDFD] text-charcoal-warm min-h-screen pb-24 antialiased selection:bg-peach-blush">
+    
+    <!-- Toast Capsule Container at Bottom center -->
+    <div id="toasts-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
+
+    <!-- Header layout -->
+    <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-peach-soft/20 shadow-[0_4px_30px_rgba(255,148,128,0.04)] px-4">
+      <div class="max-w-5xl mx-auto h-20 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-peach-accent to-pink-accent flex items-center justify-center shadow-[0_8px_20px_-4px_rgba(255,148,128,0.4)]">
+            <!-- Pen Tool Icon -->
+            <svg class="w-5 h-5 text-white stroke-[2.5px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-peach-deep to-pink-accent bg-clip-text text-transparent">
+              Kitabah Touch
+            </h1>
+            <p class="text-[10px] text-charcoal-muted font-bold tracking-widest uppercase">
+              Madrasah Aliyah Digital Insya'
+            </p>
+          </div>
+        </div>
+
+        <!-- Premium Sliding Tab bar for navigation -->
+        <div class="bg-peach-blush/40 p-1.5 rounded-full flex items-center gap-1 border border-peach-soft/35 select-none">
+          <button id="tab-workspace" class="px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 bg-gradient-to-r from-peach-accent to-pink-accent text-white shadow-md shadow-peach-accent/15 cursor-pointer">
+            Ruang Latihan
+          </button>
+          <button id="tab-history" class="px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 text-charcoal-muted hover:text-charcoal-warm flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Riwayat</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- App Container content -->
+    <main class="max-w-5xl mx-auto px-4 mt-8">
+      
+      <!-- VIEW 1: RUANG LATIHAN (WORKSPACE) -->
+      <div id="view-workspace" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in">
+        
+        <!-- Left Side themes selection options -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+          
+          <!-- Dropdown Theme selection -->
+          <div class="bg-white rounded-[2rem] p-7 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)]">
+            <span class="block text-[11px] font-extrabold uppercase text-pink-accent tracking-widest mb-3.5">
+              Tema Karangan (Insya')
+            </span>
+
+            <div class="relative">
+              <select id="theme-selector" class="w-full px-5 py-4 rounded-2xl bg-[#FFF9F7] border border-peach-soft text-charcoal-warm hover:border-peach-accent focus:border-peach-accent font-semibold text-sm outline-none cursor-pointer appearance-none transition-all duration-300">
+                <!-- Theme options mapped via JS -->
+              </select>
+              <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-peach-accent">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+
+            <!-- Hint instructions -->
+            <div class="mt-5 p-5 rounded-2xl bg-[#FFEFEA] border border-peach-soft/30 text-peach-deep">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 shrink-0 text-peach-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div>
+                  <h4 class="text-xs font-extrabold uppercase tracking-wide font-sans">Petunjuk Latihan</h4>
+                  <p id="theme-prompt" class="text-xs mt-1.5 leading-relaxed font-semibold">Petunjuk Latihan Menulis akan dimuat.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero cover showcase inside light pink framing -->
+          <div class="relative rounded-[2rem] overflow-hidden border border-peach-blush/45 bg-white shadow-[0_12px_40px_rgba(255,148,128,0.04)]">
+            <div class="relative h-52 w-full overflow-hidden">
+              <img id="theme-hero-img" src="" alt="Aesthetic" class="w-full h-full object-cover transition-transform duration-700 hover:scale-103" />
+              <div class="absolute inset-0 bg-gradient-to-t from-charcoal-warm/70 via-charcoal-warm/20 to-transparent"></div>
+              
+              <!-- RTL Arabic translation label overlay -->
+              <div class="absolute bottom-6 right-6 left-6 text-right" style="direction: rtl;">
+                <p id="theme-arabic-title" class="text-xl font-bold font-arabic text-peach-blush leading-snug drop-shadow-sm font-arabic"></p>
+                <p id="theme-indo-title" class="text-[11px] text-white/95 font-sans mt-1.5"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Helpful vocabulary list (Mufradat help) -->
+          <div class="bg-white rounded-[2rem] p-7 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)]">
+            <div class="flex justify-between items-center border-b border-dashed border-peach-soft/20 pb-4 mb-4 select-none">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-peach-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-charcoal-muted">
+                  Mufradat Bantuan
+                </h3>
+              </div>
+              <span class="text-[10px] bg-peach-blush text-peach-deep font-bold px-3 py-1 rounded-full select-none">
+                Ketuk Untuk Menyisipkan
+              </span>
+            </div>
+
+            <!-- Vocabulary Cards container -->
+            <div id="mufradat-grid" class="grid grid-cols-2 gap-3">
+              <!-- Elements injected by JS -->
+            </div>
+          </div>
+
+          <!-- Kiat Menulis tips card -->
+          <div class="bg-white rounded-[2rem] p-6 border border-peach-blush shadow-sm flex items-start gap-4">
+            <div class="p-3 bg-[#FFEFEA] rounded-2xl text-peach-accent shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wide">Praktik Menulis Mandiri</h4>
+              <p class="text-xs text-charcoal-muted mt-1 leading-relaxed font-sans">
+                Latihlah goresan tangan di kanvas digital, lalu cobalah merangkai kalimat Arab di bagian area ketik dengan meletakkan harakat menggunakan panel tombol bantu.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side canvas calligraphy and typing workspace (7 columns) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+          
+          <!-- Canvas Calligraphy tablet card -->
+          <div class="bg-white rounded-[2rem] p-7 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)] relative overflow-hidden">
+            
+            <!-- Tablet header tools toolbar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dashed border-peach-soft/20 pb-4 mb-4 select-none">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-peach-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4Z"/></svg>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-charcoal-muted">
+                  Papan Kaligrafi Tangan
+                </h3>
+              </div>
+
+              <!-- Tools button row -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="btn-toggle-grid" class="px-3.5 py-1.5 rounded-xl border text-[11px] font-bold bg-peach-accent text-white border-peach-accent transition-all cursor-pointer">
+                  Garis Bantu
+                </button>
+                <button id="btn-undo-stroke" class="p-2 rounded-xl border border-peach-soft bg-[#FFF9F7] hover:bg-peach-blush text-peach-accent transition-all cursor-pointer" title="Batalkan goresan">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button id="btn-clear-canvas" class="p-2 rounded-xl border border-peach-soft bg-[#FFF9F7] hover:bg-rose-50 text-rose-500 transition-all cursor-pointer" title="Kosongkan kanvas">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Style sliders brush settings -->
+            <div class="flex flex-wrap items-center justify-between gap-4 text-xs mb-4 select-none">
+              
+              <!-- Ink Colors pickers -->
+              <div class="flex items-center gap-2">
+                <span class="text-charcoal-muted font-bold font-sans">Tinta Kaligrafi:</span>
+                <div id="canvas-ink-picker" class="flex items-center gap-2 bg-[#FFF9F7] p-1 border border-peach-soft/55 rounded-full select-none">
+                  <button data-color="#FF9480" class="w-6 h-6 rounded-full cursor-pointer ring-2 ring-peach-accent ring-offset-2 scale-105" style="background-color: #FF9480;" title="Peach"></button>
+                  <button data-color="#FF7B94" class="w-6 h-6 rounded-full cursor-pointer opacity-70 hover:opacity-100" style="background-color: #FF7B94;" title="Pink"></button>
+                  <button data-color="#3D302F" class="w-6 h-6 rounded-full cursor-pointer opacity-70 hover:opacity-100" style="background-color: #3D302F;" title="Charcoal"></button>
+                </div>
+              </div>
+
+              <!-- Brush sizes option button pill list -->
+              <div class="flex items-center gap-2">
+                <span class="text-charcoal-muted font-bold font-sans">Ketebalan:</span>
+                <div id="canvas-brush-picker" class="flex items-center gap-1.5 bg-[#FFF9F7] p-1 border border-peach-soft/55 rounded-xl select-none">
+                  <button data-width="3" class="px-3 py-1 rounded-lg text-[11px] font-bold cursor-pointer text-charcoal-muted hover:text-charcoal-warm">Kecil</button>
+                  <button data-width="5" class="px-3 py-1 rounded-lg text-[11px] font-bold cursor-pointer bg-[#FFE7E2] text-peach-deep">Sedang</button>
+                  <button data-width="8" class="px-3 py-1 rounded-lg text-[11px] font-bold cursor-pointer text-charcoal-muted hover:text-charcoal-warm">Besar</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- HTML5 Interactive canvas container board layout -->
+            <div class="relative w-full rounded-2xl overflow-hidden border border-peach-soft bg-[#FFFDFD] shadow-inner">
+              <canvas id="digital-canvas" width="720" height="320" class="w-full h-[240px] cursor-crosshair relative z-10 touch-none block"></canvas>
+              <div id="canvas-grid-overlay" class="absolute inset-0 pointer-events-none canvas-bg-grid"></div>
+
+              <!-- Instruction call to action backdrop overlay label trigger -->
+              <div id="draw-helper-prompt" class="absolute inset-x-0 bottom-6 pointer-events-none flex flex-col items-center justify-center text-peach-accent/50 gap-1 select-none">
+                <svg class="w-5 h-5 animate-bounce mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                <span class="text-[11px] font-sans font-semibold">Tulis huruf Arab menggunakan Mouse atau Jarimu di sini</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-charcoal-muted text-[10px] mt-3 font-sans">
+              <span>Mendukung penuh masukan layar sentuh berbasis pen tablet maupun ponsel cerdas.</span>
+              <span class="font-bold text-peach-deep">Total: <span id="stroke-count-indicator">0</span> goresan</span>
+            </div>
+
+          </div>
+
+          <!-- Typing area composition box card layout -->
+          <div class="bg-white rounded-[2rem] p-7 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)]">
+            
+            <div class="flex justify-between items-center border-b border-dashed border-peach-soft/20 pb-4 mb-4 select-none">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-peach-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-charcoal-muted">
+                  Area Ketikan Arab (Digital Insya')
+                </h3>
+              </div>
+
+              <span class="text-[10px] font-mono font-bold text-charcoal-muted">
+                <span id="typed-length">0</span> Karakter
+              </span>
+            </div>
+
+            <!-- Quick Harakat Keyboard injectors bar layout -->
+            <div class="mb-4">
+              <span class="block text-[10px] font-extrabold uppercase tracking-widest text-[#FF7B94] mb-2 font-sans select-none">
+                Harakat & Karakter Cepat
+              </span>
+              <div id="harakat-board-shell" class="grid grid-cols-6 sm:grid-cols-12 gap-1.5 p-2 rounded-2xl bg-[#FFF9F7] border border-peach-soft/40 select-none">
+                <!-- Dynamically populated via JS -->
+              </div>
+            </div>
+
+            <!-- Typing textarea box -->
+            <div class="relative">
+              <textarea id="typed-composition-input" rows="5" dir="rtl" placeholder="اكتب موضع إنشائك هنا مستعينا بالمفردات..." class="w-full p-5 rounded-2xl bg-[#FFFDFD] border border-peach-soft font-arabic text-xl text-charcoal-warm placeholder-peach-soft/70 leading-loose outline-none focus:border-peach-accent focus:ring-2 focus:ring-peach-accent/10 transition-all font-bold tracking-wide text-right" style="direction: rtl; text-align: right;"></textarea>
+            </div>
+
+            <!-- Bottom workspace buttons controls list bar layout -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-dashed border-peach-soft/10 select-none">
+              <button id="btn-clear-textarea-text" class="text-xs font-bold text-charcoal-muted hover:text-pink-accent px-4 py-2 hover:bg-pink-light rounded-xl transition cursor-pointer">
+                Kosongkan Teks
+              </button>
+
+              <div class="flex items-center gap-2">
+                <!-- Copy Karangan -->
+                <button id="btn-copy-composition" class="px-5 py-3 rounded-full bg-[#FFF9F7] border border-peach-soft text-charcoal-warm text-xs font-bold font-sans hover:bg-peach-blush active:scale-95 duration-150 transition-all flex items-center gap-2 cursor-pointer">
+                  <svg class="w-4 h-4 text-peach-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  <span>Salin Karangan</span>
+                </button>
+
+                <!-- Permanent Save Trigger Button -->
+                <button id="btn-save-practice-draft" class="px-6 py-3.5 rounded-full bg-gradient-to-r from-peach-accent to-pink-accent hover:opacity-95 text-white text-xs font-extrabold flex items-center gap-2 tracking-wide active:scale-95 duration-150 transition-all shadow-[0_8px_20px_rgba(255,148,128,0.25)] cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                  <span>Simpan Latihan</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: SEJARAH PENULISAN (DEDICATED HISTORY DIRECTORY) -->
+      <div id="view-history" class="hidden flex flex-col gap-8 animate-fade-in">
+        
+        <!-- Statistics counter board cards layout -->
+        <div class="bg-white rounded-[2rem] p-8 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)] grid grid-cols-1 md:grid-cols-3 gap-6 text-center select-none">
+          
+          <div class="border-r border-dashed border-peach-soft/10 last:border-0 py-2">
+            <span class="block text-[11px] font-extrabold text-charcoal-muted uppercase tracking-widest mb-1">
+              Sesi Tersimpan
+            </span>
+            <span id="stats-total-sessions" class="text-3xl font-extrabold bg-gradient-to-r from-peach-deep to-pink-accent bg-clip-text text-transparent">
+              0 Sesi Latihan
+            </span>
+          </div>
+
+          <div class="border-r border-dashed border-peach-soft/10 last:border-0 py-2">
+            <span class="block text-[11px] font-extrabold text-charcoal-muted uppercase tracking-widest mb-1">
+              Total Karakter Diketik
+            </span>
+            <span id="stats-total-chars" class="text-3xl font-extrabold bg-gradient-to-r from-peach-deep to-pink-accent bg-clip-text text-transparent">
+              0 Karakter
+            </span>
+          </div>
+
+          <div class="py-2">
+            <span class="block text-[11px] font-extrabold text-charcoal-muted uppercase tracking-widest mb-1">
+              Sapuan Kaligrafi Aktif
+            </span>
+            <span id="stats-total-strokes" class="text-3xl font-extrabold bg-gradient-to-r from-peach-deep to-pink-accent bg-clip-text text-transparent">
+              0 Goresan
+            </span>
+          </div>
+
+        </div>
+
+        <!-- History cards grid box -->
+        <div class="bg-white rounded-[2rem] p-8 border border-peach-blush shadow-[0_16px_50px_rgba(255,148,128,0.06)] min-h-[400px]">
+          <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-dashed border-peach-soft/25 pb-5 mb-6 gap-4">
+            <div>
+              <h2 class="text-lg font-extrabold text-charcoal-warm">Daftar Sejarah Penulisan</h2>
+              <p class="text-xs text-charcoal-muted mt-1 font-medium select-none">
+                Semua draf dan visual sapuan kanvas Anda tersimpan aman secara otomatis di peranti ini.
+              </p>
+            </div>
+
+            <div class="text-[11px] text-peach-deep font-sans font-bold bg-[#FFEFEA] border border-peach-soft/40 px-4 py-2 rounded-full select-none">
+              Format Arab Kanan-ke-Kiri (RTL) Diaktifkan
+            </div>
+          </div>
+
+          <!-- History items flex or Grid -->
+          <div id="history-grid-box" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Dynamic History Cards injected by app.js -->
+          </div>
+
+          <!-- Empty slate display on empty history list archives -->
+          <div id="history-empty-status" class="hidden text-center py-20 flex flex-col items-center justify-center max-w-md mx-auto select-none">
+            <div class="w-16 h-16 rounded-full bg-[#FFEFEA] text-peach-accent flex items-center justify-center mb-5 shadow-sm">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-md font-extrabold text-charcoal-warm">Belum ada sejarah penulisan</h3>
+            <p class="text-xs text-charcoal-muted mt-2 leading-relaxed font-sans">
+              Arsip atau riwayat bimbingan latihan Anda masih kosong. Silakan masuk menu "Ruang Latihan" di atas, tuliskan karya kaligrafi dan tekan tombol "Simpan Latihan".
+            </p>
+            <button id="btn-empty-start-writing" class="mt-6 px-6 py-3 rounded-full bg-peach-accent hover:bg-peach-deep text-white text-xs font-bold transition-all shadow-md shadow-peach-accent/10 cursor-pointer">
+              Mulai Latihan Sekarang
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- FLOATING DIALOG MODAL PREVIEW DETAIL DRAWER SCREEN -->
+    <div id="details-preview-dialog-overlay" class="hidden fixed inset-0 bg-[#3D302F]/30 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all">
+      <div class="bg-white rounded-[2.5rem] border border-peach-blush max-w-2xl w-full p-8 shadow-2xl relative">
+        
+        <!-- Exit button modal -->
+        <button id="btn-close-preview-dialog" class="absolute top-6 right-6 p-2 rounded-full hover:bg-peach-blush text-charcoal-muted hover:text-charcoal-warm transition-all cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Topic theme titles and date updated details -->
+        <div class="border-b border-dashed border-peach-soft/20 pb-4 mb-6 select-none">
+          <span id="modal-theme-badge" class="text-xs font-extrabold px-3 py-1 rounded-full bg-peach-blush text-peach-deep border border-peach-soft/30">
+            Tema Latihan
+          </span>
+          <h3 class="text-lg font-extrabold text-charcoal-warm mt-2.5">
+            Detail Latihan Menulis
+          </h3>
+          <p id="modal-item-timestamp" class="text-xs text-charcoal-muted font-mono mt-1 font-semibold">Tercatat Tanggal</p>
+        </div>
+
+        <!-- Rendered results split board layout -->
+        <div class="flex flex-col gap-6">
+          
+          <!-- Drawing image thumbnail snapshot preview -->
+          <div id="modal-calligraphy-container" class="rounded-2xl border border-peach-soft/40 p-4 bg-[#FFF9F7] flex flex-col items-center justify-center relative shadow-sm select-none">
+            <span class="absolute top-2.5 left-4 text-[10px] font-extrabold uppercase tracking-widest text-[#FF7B94] font-sans">
+              Seni Kaligrafi Tulis Tangan
+            </span>
+            <img id="modal-calligraphy-img" src="" alt="Snapshot" class="w-full h-auto max-h-48 object-contain mt-3" />
+          </div>
+
+          <!-- Aligned Arabic typography render text panel -->
+          <div class="rounded-2xl border border-peach-soft/40 p-5 bg-[#FFEFEA] flex flex-col gap-1 select-text text-right font-arabic" style="direction: rtl;">
+            <span class="block text-[10px] font-extrabold uppercase tracking-widest text-peach-accent text-left font-sans" style="direction: ltr;">
+              Teks Karangan Terkomposisi (Insya')
+            </span>
+            <p id="modal-arabic-typography-text" class="text-2xl font-bold font-arabic leading-loose text-charcoal-warm mt-2 text-right break-words"></p>
+          </div>
+
+        </div>
+
+        <!-- Bottom modal dialog tool list bar layout -->
+        <div class="flex items-center justify-between mt-8 pt-5 border-t border-dashed border-peach-soft/20 select-none">
+          <button id="btn-modal-copy-text" class="px-5 py-2.5 rounded-full border border-peach-soft bg-[#FFF9F7] hover:bg-peach-blush text-charcoal-warm text-xs font-extrabold duration-150 transition-all flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4 text-peach-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span>Salin Teks</span>
+          </button>
+
+          <button id="btn-modal-load-work" class="px-5 py-2.5 rounded-full bg-peach-accent hover:bg-peach-deep text-white text-xs font-extrabold transition-all duration-150 active:scale-95 flex items-center gap-2 cursor-pointer shadow-md shadow-peach-accent/10">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            <span>Kembangkan / Edit</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <!-- Connect standalone logic bundle script link -->
+    <script src="app.js"></script>
+    <script>
+      // Service worker luring trigger logic for offline execution speed
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Standalone Service Worker active successfully on scope:', reg.scope))
+            .catch(err => console.log('Standalone Service Worker activation failure:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
