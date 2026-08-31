@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // For this educational prototype, we allow wide access but can scope it later.
+    // In a real app we'd use Firebase Auth to restrict access.
+    match /sessions/{sessionId} {
+      allow read, write: if true;
+      
+      match /students/{studentId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}
