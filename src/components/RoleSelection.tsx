@@ -70,21 +70,22 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   // Local Storage Saved Sessions
   const [savedTeacherSessions, setSavedTeacherSessions] = useState<SavedSessionItem[]>([]);
   const [savedStudentSessions, setSavedStudentSessions] = useState<SavedSessionItem[]>([]);
-  const [savedSoloSessions, setSavedSoloSessions] = useState<SavedSessionItem[]>([]);
 
   useEffect(() => {
     try {
+      // Latihan Mandiri tidak lagi menyimpan riwayat di perangkat, agar jawaban
+      // siswa sebelumnya tidak bisa dibuka (dicontek) siswa lain di perangkat yang sama.
+      // Bersihkan sisa data lama yang mungkin masih tersimpan.
+      localStorage.removeItem('kitabah_solo_sessions');
+
       const tSessions = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]').filter(Boolean);
       const sSessions = JSON.parse(localStorage.getItem('kitabah_student_sessions') || '[]').filter(Boolean);
-      const soloSessions = JSON.parse(localStorage.getItem('kitabah_solo_sessions') || '[]').filter(Boolean);
       const lastName = localStorage.getItem('kitabah_last_student_name') || '';
-      
+
       setSavedTeacherSessions(tSessions);
       setSavedStudentSessions(sSessions);
-      setSavedSoloSessions(soloSessions);
       if (lastName) {
         setStudentName(lastName);
-        setSoloStudentName(lastName);
       }
 
       if (tSessions.length === 0) {
@@ -127,21 +128,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   };
 
-  const saveSoloSessionToHistory = (sessionId: string, studentId: string, sName: string, themeId: string) => {
-    try {
-      const existing: SavedSessionItem[] = JSON.parse(localStorage.getItem('kitabah_solo_sessions') || '[]').filter(Boolean);
-      const filtered = existing.filter(item => !(item.sessionId === sessionId && item.studentId === studentId));
-      const updated = [
-        { sessionId, studentId, studentName: sName, themeId, timestamp: Date.now() },
-        ...filtered
-      ].slice(0, 10);
-      localStorage.setItem('kitabah_solo_sessions', JSON.stringify(updated));
-      setSavedSoloSessions(updated);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const removeTeacherSession = (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = savedTeacherSessions.filter(s => s.sessionId !== sessionId);
@@ -154,13 +140,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     const updated = savedStudentSessions.filter(s => !(s.sessionId === sessionId && s.studentId === studentId));
     localStorage.setItem('kitabah_student_sessions', JSON.stringify(updated));
     setSavedStudentSessions(updated);
-  };
-
-  const removeSoloSession = (studentId: string, sessionId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const updated = savedSoloSessions.filter(s => !(s.sessionId === sessionId && s.studentId === studentId));
-    localStorage.setItem('kitabah_solo_sessions', JSON.stringify(updated));
-    setSavedSoloSessions(updated);
   };
 
   const handleStudentJoin = async (e: React.FormEvent) => {
@@ -259,12 +238,10 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
 
   const handleStartSoloPractice = async (themeId: string) => {
     const sName = soloStudentName.trim() || 'Siswa Mandiri';
-    localStorage.setItem('kitabah_last_student_name', sName);
     setIsCreating(true);
     try {
       const sessionId = await createSession('Latihan Mandiri', themeId, '1234', true);
       const result = await joinSession(sessionId, sName);
-      saveSoloSessionToHistory(sessionId, result.studentId, sName, themeId);
       onJoinSession(result.cleanSessionId, result.studentId);
     } catch (err) {
       console.error(err);
@@ -286,7 +263,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
         <ChibiMascot
           variant="writer"
           size="lg"
-          quote="Ahlan wa Sahlan! Mari mengarang insya' muwajjah bersama Makuro."
+          quote="Ahlan wa Sahlan! Mari mengarang insya' muwajjah."
           subquote="Pilih Mode KBM bersama Guru atau Mode Latihan Mandiri untuk memulai."
           className="justify-center"
         />
@@ -352,7 +329,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-blue-200 dark:border-blue-800/60 shadow-md group-hover:scale-105 transition-transform">
                     <img 
                       src={chibiThinkingImg} 
-                      alt="Chibi Siswa Makuro" 
+                      alt="Ilustrasi siswa" 
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
@@ -380,7 +357,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-purple-200 dark:border-purple-800/60 shadow-md group-hover:scale-105 transition-transform">
                     <img 
                       src={chibiTeacherImg} 
-                      alt="Guru Chibi Makuro" 
+                      alt="Ilustrasi guru" 
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
@@ -837,62 +814,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               </span>
             </div>
           </div>
-
-          {/* Saved Solo Sessions */}
-          {savedSoloSessions.length > 0 && (
-            <div className="p-4 rounded-2xl bg-white dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2.5">
-              <div className="text-xs font-bold text-stone-600 dark:text-stone-300 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-500" /> Lanjutkan Latihan Mandiri Sebelumnya:
-                </span>
-                <span className="text-[11px] text-stone-400 font-normal">
-                  {savedSoloSessions.length} draf tersimpan
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {savedSoloSessions.map(item => {
-                  const themeObj = THEMES.find(t => t.id === item?.themeId);
-                  return (
-                    <div 
-                      key={item.sessionId}
-                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 flex items-center justify-between gap-2 text-xs"
-                    >
-                      <div className="truncate">
-                        <div className="font-bold text-stone-800 dark:text-stone-200 truncate">
-                          {themeObj?.titleIndo || 'Karangan Arab'}
-                        </div>
-                        <div className="text-[11px] text-stone-400 font-arabic truncate" dir="rtl">
-                          {themeObj?.titleArabic}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!item.studentId) {
-                              alert("Maaf, draf mandiri ini menggunakan format lama. Silakan hapus dan buat Latihan Mandiri baru.");
-                              return;
-                            }
-                            onJoinSession(item.sessionId, item.studentId);
-                          }}
-                          className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors"
-                        >
-                          Lanjut
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => removeSoloSession(item.studentId!, item.sessionId, e)}
-                          className="p-1.5 text-stone-400 hover:text-red-500 rounded-md"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* Theme Topic Selection Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

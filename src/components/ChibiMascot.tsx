@@ -21,17 +21,6 @@ export const CHIBI_IMAGES: Record<MascotVariant, string> = {
   vocabCard: chibiVocabCardImg,
 };
 
-const MASCOT_NAMES: Record<MascotVariant, string> = {
-  writer: 'Makuro',
-  cheer: 'Makuro',
-  thinking: 'Makuro',
-  teacher: 'Makuro Pengajar',
-  award: 'Makuro',
-  kitab: 'Makuro',
-  digitalPen: 'Makuro',
-  vocabCard: 'Makuro',
-};
-
 const SIZE_CLASSES = {
   xs: 'w-8 h-8',
   sm: 'w-12 h-12 sm:w-14 sm:h-14',
@@ -59,7 +48,6 @@ export const ChibiMascot: React.FC<ChibiMascotProps> = ({
   badge,
 }) => {
   const imgSrc = CHIBI_IMAGES[variant] || chibiWriterImg;
-  const mascotName = MASCOT_NAMES[variant] || 'Makuro';
 
   return (
     <div className={`flex items-start sm:items-center gap-3 w-full ${className}`}>
@@ -70,7 +58,7 @@ export const ChibiMascot: React.FC<ChibiMascotProps> = ({
           <div className={`relative ${SIZE_CLASSES[size]} rounded-full p-0.5 bg-white dark:bg-stone-900 border-2 border-amber-300 dark:border-amber-500/60 shadow-md overflow-hidden flex items-center justify-center shrink-0`}>
             <img
               src={imgSrc}
-              alt={mascotName}
+              alt="Maskot"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover rounded-full"
             />
@@ -86,9 +74,7 @@ export const ChibiMascot: React.FC<ChibiMascotProps> = ({
           <div className="hidden sm:block absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-r-[6px] border-r-white dark:border-r-stone-850" />
 
           <div className="flex items-center justify-between gap-2 mb-0.5">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 dark:text-amber-400">
-              <span>{mascotName}</span>
-            </div>
+            <div />
             {badge && (
               <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-bold text-[10px] rounded-md shrink-0">
                 {badge}
@@ -115,7 +101,6 @@ export const ChibiAvatar: React.FC<{
   className?: string;
 }> = ({ variant, size = 'sm', className = '' }) => {
   const imgSrc = CHIBI_IMAGES[variant] || chibiWriterImg;
-  const mascotName = MASCOT_NAMES[variant] || 'Makuro';
   const sizeMap = {
     xs: 'w-7 h-7',
     sm: 'w-9 h-9',
@@ -127,7 +112,7 @@ export const ChibiAvatar: React.FC<{
     <div className={`relative rounded-full p-0.5 bg-gradient-to-tr from-amber-400 to-indigo-400 shadow-sm shrink-0 ${className}`}>
       <img
         src={imgSrc}
-        alt={mascotName}
+        alt="Maskot"
         referrerPolicy="no-referrer"
         className={`${sizeMap[size]} rounded-full object-cover border border-white dark:border-stone-900`}
       />
