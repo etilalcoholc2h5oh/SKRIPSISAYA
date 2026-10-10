@@ -1,5 +1,5 @@
 import { collection, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp, firestore } from './firebase';
-import { THEMES } from '../data';
+import { THEMES, ThemeTopic } from '../data';
 
 export interface RubricScores {
   fikrah: number;    // Kesesuaian Isi & Gagasan (0-25)
@@ -33,24 +33,31 @@ export interface ClassSession {
   active: boolean;
   themeId: string;
   isSoloPractice?: boolean;
+  /** Tema buatan sendiri; disimpan di dokumen sesi supaya semua siswa di kelas ikut mendapatkannya. */
+  customTheme?: ThemeTopic;
   createdAt: any;
 }
 
-export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false) => {
+export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false, customTheme?: ThemeTopic | null) => {
   const prefix = isSoloPractice ? 'SL' : '';
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
   const sessionId = isSoloPractice ? `${prefix}${randomPart}` : Math.random().toString(36).substring(2, 8).toUpperCase();
   const pin = customPin?.trim() || Math.floor(1000 + Math.random() * 9000).toString();
   const sessionRef = doc(firestore, 'sessions', sessionId);
-  await setDoc(sessionRef, {
+  const payload: Record<string, any> = {
     id: sessionId,
     teacherName: teacherName.trim(),
     teacherPin: pin,
     active: true,
-    themeId: themeId || THEMES[0].id,
+    themeId: customTheme?.id || themeId || THEMES[0].id,
     isSoloPractice: isSoloPractice,
     createdAt: serverTimestamp()
-  });
+  };
+  if (customTheme) {
+    // Lewat JSON agar tidak ada nilai undefined (Firestore menolaknya).
+    payload.customTheme = JSON.parse(JSON.stringify(customTheme));
+  }
+  await setDoc(sessionRef, payload);
   return sessionId;
 };
 
@@ -94,6 +101,7 @@ export const joinSession = async (sessionId: string, studentName: string) => {
   if (sessionData?.themeId) {
     themeId = sessionData?.themeId;
   }
+  const themeTitle = sessionData?.customTheme?.titleIndo || THEMES.find(t => t.id === themeId)?.titleIndo || '';
 
   const studentId = Math.random().toString(36).substring(2, 9);
   const studentRef = doc(firestore, `sessions/${cleanSessionId}/students`, studentId);
@@ -114,7 +122,7 @@ export const joinSession = async (sessionId: string, studentName: string) => {
   };
 
   await setDoc(studentRef, initialData);
-  return { studentId, cleanSessionId, themeId };
+  return { studentId, cleanSessionId, themeId, themeTitle };
 };
 
 export const updateStudentProgress = async (sessionId: string, studentId: string, data: Partial<StudentProgress>) => {

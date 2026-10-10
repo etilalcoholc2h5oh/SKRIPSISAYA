@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
+import { THEMES, ThemeTopic, Mufradat, TarkibPattern, resolveTheme } from '../data';
+import { callAi, AiAction } from '../lib/ai';
+import { quickCheckMessage, quickIdeaMessage } from '../lib/localAssist';
 import { generateInstantStoryboardLocally, resolveScenePhoto, resolveQuickTranslation, StoryboardScene } from '../utils/visualResolver';
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, StudentProgress, ClassSession } from '../lib/db';
 import { ChibiMascot } from './ChibiMascot';
@@ -208,7 +210,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
   // Safe fallback resolution for Theme
   const resolvedThemeId = progress?.themeId || session?.themeId || THEMES[0].id;
-  const theme: ThemeTopic = THEMES.find(t => t.id === resolvedThemeId) || THEMES[0];
+  const theme: ThemeTopic = resolveTheme(resolvedThemeId, session?.customTheme);
 
   const borderColor = isDarkMode ? 'border-stone-800' : 'border-stone-200';
   const cardBg = isDarkMode ? 'bg-stone-900/60' : 'bg-white';
@@ -435,48 +437,47 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     setAiActionType(action);
     setAiSuggestion(null);
 
-    const customKey = localStorage.getItem('geminiApiKey') || '';
-    let endpoint = '/api/ai/suggest';
-    let body: any = { theme: theme.titleIndo, customApiKey: customKey };
+    let endpoint: AiAction = 'suggest';
+    let body: any = { theme: theme.titleIndo };
 
     const currentDraftText = localDraft || progress?.draft || '';
     const currentIdeas = progress?.ideas || localIdeas;
 
     if (action === 'ide') {
-      endpoint = '/api/ai/suggest';
+      endpoint = 'suggest';
       body.text = currentIdeas.filter(Boolean).join('. ') || currentDraftText || theme.prompt;
     } else if (action === 'harakat') {
-      endpoint = '/api/ai/harakat';
+      endpoint = 'harakat';
       body.text = currentDraftText;
     } else if (action === 'evaluasi') {
-      endpoint = '/api/ai/evaluate';
+      endpoint = 'evaluate';
       body.text = currentDraftText;
       body.ideas = currentIdeas;
       body.selectedMufradat = progress?.selectedMufradat;
     }
 
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (data.result) {
+      const ai = await callAi<string>(endpoint, body);
+      if (ai.ok && typeof ai.result === 'string') {
         if (action === 'harakat') {
           // Update local draft and Firestore with diacritics directly
-          setLocalDraft(data.result);
-          updateStudentProgress(sessionId, studentId, { draft: data.result });
+          setLocalDraft(ai.result);
+          updateStudentProgress(sessionId, studentId, { draft: ai.result });
           setAiSuggestion('Teks karanganmu telah berhasil dilengkapi harakat.');
         } else {
-          setAiSuggestion(data.result);
+          setAiSuggestion(ai.result);
         }
+      } else if (ai.unavailable && action === 'evaluasi') {
+        // AI tidak terjangkau: tetap beri umpan balik dasar agar siswa tidak buntu.
+        setAiSuggestion(quickCheckMessage(currentDraftText, theme, ai.error));
+      } else if (ai.unavailable && action === 'ide') {
+        setAiSuggestion(quickIdeaMessage(theme, ai.error));
       } else {
-        setAiSuggestion('Maaf, asisten AI sedang sibuk. Silakan coba lagi sebentar lagi.');
+        setAiSuggestion(ai.error || 'Maaf, asisten AI belum bisa menjawab. Coba lagi sebentar lagi.');
       }
     } catch (e) {
       console.error(e);
-      setAiSuggestion('Gagal menghubungi asisten AI. Periksa koneksi internet Anda.');
+      setAiSuggestion('Terjadi kesalahan saat memproses jawaban AI. Coba lagi.');
     } finally {
       setLoadingAi(false);
     }
@@ -488,18 +489,9 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     flushDraftImmediately();
     setLoadingRubric(true);
     setAiActionType('rubrik');
-    const customKey = localStorage.getItem('geminiApiKey') || '';
     try {
-      const res = await fetch('/api/ai/rubric', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToEvaluate,
-          theme: theme.titleIndo,
-          customApiKey: customKey
-        })
-      });
-      const data = await res.json();
+      const ai = await callAi<any>('rubric', { text: textToEvaluate, theme: theme.titleIndo });
+      const data = { result: ai.ok ? ai.result : null };
       if (data.result) {
         const rubric = {
           fikrah: data.result.fikrah ?? 20,
@@ -515,6 +507,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
           status: 'reviewed'
         });
         setAiSuggestion(`✅ Penilaian Rubrik AI Selesai! Skor Total: ${rubric.total}/100.`);
+      } else if (ai.unavailable) {
+        // Tanpa AI tidak ada skor yang dikarang: tampilkan pemeriksa cepat, nilai tetap dari guru.
+        setAiSuggestion(quickCheckMessage(textToEvaluate, theme, ai.error));
+      } else {
+        setAiSuggestion(ai.error || 'Penilaian rubrik AI belum berhasil. Coba lagi.');
       }
     } catch (err) {
       console.error(err);
@@ -1079,6 +1076,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               </div>
 
               {/* Section 2: Tarkib / Pola Kalimat */}
+              {(theme.tarkib || []).length > 0 && (
               <div className="space-y-3 sm:space-y-4 pt-4 border-t border-stone-200 dark:border-stone-800">
                 <h3 className="text-sm sm:text-base font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
                   <Type className="w-4 h-4 text-blue-500 shrink-0" /> Pola Kalimat / Kaidah Tarkib Rekomendasi
@@ -1123,6 +1121,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   })}
                 </div>
               </div>
+              )}
 
               {/* Navigation Action */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-stone-200 dark:border-stone-800">

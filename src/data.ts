@@ -944,5 +944,147 @@ export const THEMES: ThemeTopic[] = [
       'Menulis kata Haal dalam bentuk ma\'rifah dengan alif lam (seharusnya nakirah: مُتَعَاوِنِينَ bukan الْمُتَعَاوِنِينَ).',
       'Lupa menjazamkan fi\'il setelah laa nahiyah.'
     ]
+  },
+  {
+    id: 'safar',
+    titleArabic: 'السَّفَرُ وَوَسَائِلُ النَّقْلِ',
+    titleIndo: 'Safar: Persiapan & Sarana Transportasi',
+    grade: 'Kelas XI',
+    imageUrl: '',
+    prompt: 'Ceritakan pengalaman bepergianmu dari rumah ke kota lain: persiapan barang bawaan, membeli tiket, memilih kendaraan, keadaan di perjalanan, hingga tiba dengan selamat di tujuan.',
+    mufradat: [
+      { word: 'سَفَرٌ', meaning: 'Perjalanan / bepergian', pronunciation: 'Safarun', icon: '🧭', category: 'Materi' },
+      { word: 'مُسَافِرٌ', meaning: 'Musafir (orang yang bepergian)', pronunciation: 'Musaafirun', icon: '🚶', category: 'Tokoh' },
+      { word: 'مَحَطَّةٌ', meaning: 'Stasiun / terminal', pronunciation: 'Mahaththatun', icon: '🚉', category: 'Tempat' },
+      { word: 'حَافِلَةٌ', meaning: 'Bus', pronunciation: 'Haafilatun', icon: '🚌', category: 'Materi' },
+      { word: 'سَيَّارَةُ الْأُجْرَةِ', meaning: 'Taksi', pronunciation: 'Sayyaaratul ujrah', icon: '🚕', category: 'Materi' },
+      { word: 'سَفِينَةٌ', meaning: 'Kapal laut', pronunciation: 'Safiinatun', icon: '🚢', category: 'Materi' },
+      { word: 'تَذْكِرَةٌ', meaning: 'Tiket', pronunciation: 'Tadzkiratun', icon: '🎫', category: 'Materi' },
+      { word: 'حَقِيبَةٌ', meaning: 'Tas / koper', pronunciation: 'Haqiibatun', icon: '🧳', category: 'Materi' },
+      { word: 'خَرِيطَةٌ', meaning: 'Peta', pronunciation: 'Khariithatun', icon: '🗺️', category: 'Materi' },
+      { word: 'طَرِيقٌ', meaning: 'Jalan', pronunciation: 'Thariiqun', icon: '🛣️', category: 'Tempat' },
+      { word: 'زِحَامُ الْمُرُورِ', meaning: 'Kemacetan lalu lintas', pronunciation: 'Zihaamul muruur', icon: '🚦', category: 'Materi' },
+      { word: 'مَوْعِدُ الرِّحْلَةِ', meaning: 'Jadwal keberangkatan', pronunciation: 'Mau\'idur rihlah', icon: '⏰', category: 'Materi' },
+      { word: 'سَائِقٌ', meaning: 'Sopir / pengemudi', pronunciation: 'Saa\'iqun', icon: '🚘', category: 'Tokoh' },
+      { word: 'رَكِبَ', meaning: 'Naik (kendaraan)', pronunciation: 'Rakiba', icon: '🚏', category: 'Aktivitas' },
+      { word: 'وَصَلَ', meaning: 'Tiba / sampai', pronunciation: 'Washala', icon: '🏁', category: 'Aktivitas' }
+    ],
+    tarkib: [
+      {
+        name: 'Huruf Jar Min & Ila untuk Asal dan Tujuan (مِنْ ... إِلَى)',
+        patternArabic: 'مِنْ + مَكَانٌ مَجْرُورٌ + إِلَى + مَكَانٌ مَجْرُورٌ',
+        example: 'ذَهَبْتُ مِنْ بَيْتِي إِلَى الْمَحَطَّةِ بِسَيَّارَةِ الْأُجْرَةِ',
+        explanation: 'Huruf min menunjukkan titik awal perjalanan dan huruf ila menunjukkan tujuan; keduanya diikuti isim majrur (kasrah). Huruf bi (بِـ) dipakai untuk menyebut kendaraan yang digunakan.'
+      },
+      {
+        name: 'Fi\'il Amr & Laa Nahiyah untuk Nasihat Safar (الْأَمْرُ وَالنَّهْيُ)',
+        patternArabic: 'فِعْلُ الْأَمْرِ / لَا + فِعْلٌ مُضَارِعٌ مَجْزُومٌ',
+        example: 'تَأَكَّدْ مِنْ مَوْعِدِ الرِّحْلَةِ، وَلَا تَنْسَ التَّذْكِرَةَ',
+        explanation: 'Fi\'il amr dipakai untuk memberi saran atau perintah (berakhir sukun). Laa nahiyah menjazamkan fi\'il mudhari\' untuk larangan; jika fi\'ilnya berakhiran huruf \'illah, huruf itu dibuang (تَنْسَى menjadi لَا تَنْسَ).'
+      },
+      {
+        name: 'Kalimat Syarat dengan Idza (أُسْلُوبُ الشَّرْطِ بِـ إِذَا)',
+        patternArabic: 'إِذَا + فِعْلٌ مَاضٍ (فِعْلُ الشَّرْطِ) + جَوَابُ الشَّرْطِ',
+        example: 'إِذَا ازْدَحَمَ الطَّرِيقُ تَأَخَّرَتِ الْحَافِلَةُ عَنِ الْمَوْعِدِ',
+        explanation: 'Idza dipakai untuk kejadian yang biasa atau akan terjadi: "jika ..., maka ...". Fi\'il mengikuti jenis pelakunya; karena الْحَافِلَةُ muannats, fi\'ilnya menjadi تَأَخَّرَتْ.'
+      }
+    ],
+    contohInsya: 'فِي نِهَايَةِ الْأُسْبُوعِ سَافَرْتُ مَعَ أُسْرَتِي مِنْ جَاكَرْتَا إِلَى بَانْدُونْغ. قَبْلَ السَّفَرِ جَهَّزْنَا الْحَقَائِبَ وَاشْتَرَيْنَا التَّذَاكِرَ. ذَهَبْنَا إِلَى الْمَحَطَّةِ بِسَيَّارَةِ الْأُجْرَةِ، وَكَانَ الطَّرِيقُ مُزْدَحِمًا. وَصَلْنَا قَبْلَ مَوْعِدِ الْقِطَارِ بِنِصْفِ سَاعَةٍ، فَرَكِبْنَا الْقِطَارَ وَنَظَرْنَا مِنَ النَّافِذَةِ إِلَى الْمَنَاظِرِ الْجَمِيلَةِ. وَصَلْنَا بِسَلَامٍ، وَالْحَمْدُ لِلَّهِ.',
+    kesalahanUmum: [
+      'Menulis لَا تَنْسَى (dengan huruf ya/alif maqshurah) padahal setelah laa nahiyah huruf \'illah dibuang: yang benar لَا تَنْسَ.',
+      'Tertukar memakai مِنْ dan إِلَى: min untuk titik berangkat, ila untuk tujuan.',
+      'Tidak menyesuaikan fi\'il dengan kata muannats, misalnya تَأَخَّرَ الْحَافِلَةُ (seharusnya تَأَخَّرَتِ الْحَافِلَةُ).'
+    ]
   }
 ];
+
+// ============================================================
+// Tema kustom (dibuat sendiri oleh guru / siswa)
+// ============================================================
+
+export const CUSTOM_THEME_PREFIX = 'custom_';
+export const MAX_CUSTOM_MUFRADAT = 40;
+
+export interface CustomThemeInput {
+  titleIndo: string;
+  titleArabic?: string;
+  prompt: string;
+  mufradat: Mufradat[];
+}
+
+const cleanLine = (value: unknown, max: number): string =>
+  String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
+
+export const isCustomThemeId = (id?: string | null): boolean =>
+  typeof id === 'string' && id.startsWith(CUSTOM_THEME_PREFIX);
+
+/**
+ * Mengubah teks banyak baris menjadi daftar kosakata.
+ * Format per baris:  kata Arab = arti Indonesia = cara baca (cara baca boleh dikosongkan)
+ * Pemisah yang diterima: "=", "|", atau tab.
+ */
+export function parseMufradatLines(raw: string): Mufradat[] {
+  const items: Mufradat[] = [];
+  const seen = new Set<string>();
+  for (const line of String(raw ?? '').split(/\r?\n/)) {
+    const parts = line.split(/\s*(?:=|\||\t)\s*/).map((p) => p.trim());
+    const word = cleanLine(parts[0], 60);
+    const meaning = cleanLine(parts[1], 120);
+    if (!word || !meaning) continue;
+    if (seen.has(word)) continue;
+    seen.add(word);
+    items.push({
+      word,
+      meaning,
+      pronunciation: cleanLine(parts[2], 80),
+      category: 'Materi',
+      icon: '📝'
+    });
+    if (items.length >= MAX_CUSTOM_MUFRADAT) break;
+  }
+  return items;
+}
+
+export function mufradatToLines(list: Mufradat[]): string {
+  return (list || [])
+    .map((m) => [m.word, m.meaning, m.pronunciation].filter((v, i) => i < 2 || v).join(' = '))
+    .join('\n');
+}
+
+/** Membuat objek tema lengkap dari isian sederhana. Mengembalikan null jika belum layak dipakai. */
+export function buildCustomTheme(input: CustomThemeInput, existingId?: string): ThemeTopic | null {
+  const titleIndo = cleanLine(input.titleIndo, 100);
+  const prompt = cleanLine(input.prompt, 400);
+  const mufradat = (input.mufradat || []).slice(0, MAX_CUSTOM_MUFRADAT).map((m) => ({
+    word: cleanLine(m.word, 60),
+    meaning: cleanLine(m.meaning, 120),
+    pronunciation: cleanLine(m.pronunciation, 80),
+    category: 'Materi',
+    icon: '📝'
+  })).filter((m) => m.word && m.meaning);
+
+  if (!titleIndo || !prompt || mufradat.length < 2) return null;
+
+  const id = existingId && isCustomThemeId(existingId)
+    ? existingId
+    : `${CUSTOM_THEME_PREFIX}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+  return {
+    id,
+    titleArabic: cleanLine(input.titleArabic, 120) || titleIndo,
+    titleIndo,
+    grade: 'Tema Buatan Sendiri',
+    imageUrl: '',
+    prompt,
+    mufradat,
+    tarkib: [],
+    contohInsya: '',
+    kesalahanUmum: []
+  };
+}
+
+/** Mencari tema: dari sesi (tema kustom) lebih dulu, lalu daftar bawaan, terakhir tema pertama. */
+export function resolveTheme(themeId?: string | null, customTheme?: ThemeTopic | null): ThemeTopic {
+  if (customTheme && customTheme.id === themeId) return customTheme;
+  return THEMES.find((t) => t.id === themeId) || customTheme || THEMES[0];
+}
