@@ -114,7 +114,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
       const safeName = student.name.replace(/[^a-zA-Z0-9_-]/g, '_');
       const safeTheme = (theme.titleIndo || 'Karangan').replace(/[^a-zA-Z0-9_-]/g, '_');
       pdf.save(`Lembar_Insya_${safeName}_${safeTheme}.pdf`);
-      showToast('✓ Berhasil mengunduh file PDF!');
+      showToast('Berhasil mengunduh file PDF!');
     } catch (err) {
       console.error('Error generating PDF:', err);
       showToast('Gagal membuat file PDF. Silakan gunakan tombol Buka Tab Baru untuk cetak.');
@@ -168,7 +168,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
               <p class="text-xs text-slate-500">Gunakan tombol Cetak di bawah atau tekan Ctrl+P</p>
             </div>
             <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm flex items-center gap-2">
-              🖨️ Cetak / Simpan PDF
+              Cetak / Simpan PDF
             </button>
           </div>
           <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
@@ -227,7 +227,7 @@ Catatan: ${student.feedback || '-'}
 
     navigator.clipboard.writeText(text);
     setCopied(true);
-    showToast('✓ Teks lembar kerja berhasil disalin!');
+    showToast('Teks lembar kerja berhasil disalin!');
     setTimeout(() => setCopied(false), 2500);
   };
 

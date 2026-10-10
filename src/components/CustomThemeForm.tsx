@@ -23,7 +23,7 @@ export function parseVocabLines(text: string): Mufradat[] {
       word: aAr ? a : b,
       meaning: aAr ? b : a,
       pronunciation: '',
-      icon: '📝',
+      icon: '',
       category: 'Kosakata',
     });
     if (out.length >= MAX_VOCAB) break;

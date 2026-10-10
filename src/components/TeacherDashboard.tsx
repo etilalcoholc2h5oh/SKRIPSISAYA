@@ -20,8 +20,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
   const [selectedStudent, setSelectedStudent] = useState<StudentProgress | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedPin, setCopiedPin] = useState(false);
-  const [showPin, setShowPin] = useState(false);
   
   // Feedback & Rubric state
   const [feedbackText, setFeedbackText] = useState('');
@@ -90,12 +88,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleCopyPin = () => {
-    navigator.clipboard.writeText(session.teacherPin || '1234');
-    setCopiedPin(true);
-    setTimeout(() => setCopiedPin(false), 2000);
-  };
-
   const insertQuickFeedback = (text: string) => {
     setFeedbackText(prev => prev ? `${prev}\n- ${text}` : `- ${text}`);
   };
@@ -160,35 +152,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
             </button>
           </div>
 
-          {/* Teacher PIN Badge (Confidential) */}
-          <div className="flex items-center justify-between sm:justify-start gap-2.5 bg-purple-50 dark:bg-purple-950/40 p-3 rounded-xl sm:rounded-2xl border border-purple-200/80 dark:border-purple-900/60 flex-1">
-            <div>
-              <div className="text-[10px] uppercase tracking-wider font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1">
-                <Lock className="w-3 h-3" /> PIN Guru:
-              </div>
-              <div className="text-lg font-mono font-bold tracking-widest text-purple-900 dark:text-purple-200">
-                {showPin ? (session.teacherPin || '1234') : '••••'}
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowPin(!showPin)}
-                title={showPin ? "Sembunyikan PIN" : "Lihat PIN"}
-                className="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-200/50 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
-              >
-                {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-              <button
-                type="button"
-                onClick={handleCopyPin}
-                title="Salin PIN Pengajar"
-                className="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-200/50 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
-              >
-                {copiedPin ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

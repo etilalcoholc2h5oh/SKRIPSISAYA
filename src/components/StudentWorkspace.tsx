@@ -391,7 +391,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
         feedback: formatRubricFeedback(analysis),
         status: 'reviewed'
       });
-      setAiSuggestion(`✅ Penilaian otomatis selesai. Skor total: ${analysis.rubric.total}/100.`);
+      setAiSuggestion(`Penilaian otomatis selesai. Skor total: ${analysis.rubric.total}/100.`);
     } catch (err) {
       console.error(err);
       setAiSuggestion('Gagal menyimpan penilaian. Periksa koneksi internet Anda.');
@@ -556,7 +556,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <div className="space-y-0.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs sm:text-sm font-extrabold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                    🎉 Guru Telah Memberikan Nilai & Evaluasi!
+                    Guru Telah Memberikan Nilai & Evaluasi!
                   </span>
                   {progress.rubricScores && (
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-xs font-bold shadow-xs">
@@ -796,7 +796,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   variant="vocabCard"
                   size="sm"
                   quote="Pilih kosakata bergambar dan kaidah kalimat (tarkib) untuk karanganmu!"
-                  subquote="Klik kartu untuk memilih kata, dan tekan tombol suara 🔊 untuk mendengarkan cara membacanya."
+                  subquote="Klik kartu untuk memilih kata, dan tekan tombol suara untuk mendengarkan cara membacanya."
                   badge="Bank Kosakata"
                 />
               </div>
@@ -1378,7 +1378,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
                     {copyToast && (
                       <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 animate-fadeIn">
-                        ✓ Teks karangan berhasil disalin!
+                        Teks karangan berhasil disalin!
                       </span>
                     )}
                   </div>
@@ -1496,10 +1496,10 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   <div className="text-xs font-semibold text-amber-100">
                     {(() => {
                       const total = progress.rubricScores?.total || 0;
-                      if (total >= 90) return '🏆 ممتاز (Mumtaz / Sangat Istimewa)';
-                      if (total >= 80) return '✨ جيد جدا (Jayyid Jiddan / Sangat Baik)';
-                      if (total >= 70) return '👍 جيد (Jayyid / Baik)';
-                      return '📝 مقبول (Maqbul / Perlu Latihan Lagi)';
+                      if (total >= 90) return 'ممتاز (Mumtaz / Sangat Istimewa)';
+                      if (total >= 80) return 'جيد جدا (Jayyid Jiddan / Sangat Baik)';
+                      if (total >= 70) return 'جيد (Jayyid / Baik)';
+                      return 'مقبول (Maqbul / Perlu Latihan Lagi)';
                     })()}
                   </div>
                 </div>

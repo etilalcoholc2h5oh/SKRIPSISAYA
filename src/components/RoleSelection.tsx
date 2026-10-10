@@ -47,7 +47,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   const [teacherCustomTheme, setTeacherCustomTheme] = useState<ThemeTopic | null>(null);
   const [showTeacherThemeForm, setShowTeacherThemeForm] = useState(false);
   const [showSoloThemeForm, setShowSoloThemeForm] = useState(false);
-  const [teacherPin, setTeacherPin] = useState('1234');
+  const [teacherPin, setTeacherPin] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   // Teacher KBM Form - Existing
@@ -600,7 +600,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                             </option>
                           ))}
                           <option value="__custom__" className="dark:bg-stone-800">
-                            ✍️ Buat tema sendiri…
+                            Buat tema sendiri…
                           </option>
                         </select>
 
@@ -648,11 +648,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           </span>
                         </div>
                         <input 
-                          type="text" 
+                          type="password" autoComplete="new-password" 
                           required
                           value={teacherPin} 
                           onChange={e => setTeacherPin(e.target.value)} 
-                          placeholder="Contoh: 1234 atau GURU2026" 
+                          placeholder="Buat PIN rahasia" 
                           className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
                         />
                         <p className="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
@@ -697,7 +697,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                               required
                               value={existingTeacherPin} 
                               onChange={e => setExistingTeacherPin(e.target.value)} 
-                              placeholder="Masukkan PIN Guru (default: 1234)" 
+                              placeholder="Masukkan PIN Guru" 
                               className="w-full p-3.5 pr-11 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
                             />
                             <button
@@ -896,7 +896,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                     <div className="flex flex-wrap gap-1 pt-1">
                       {topic.mufradat.slice(0, 3).map((m) => (
                         <span key={m.word} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[11px] font-arabic font-semibold text-stone-600 dark:text-stone-300" dir="rtl">
-                          <span className="text-xs">{m.icon}</span>
                           <span>{m.word}</span>
                         </span>
                       ))}
