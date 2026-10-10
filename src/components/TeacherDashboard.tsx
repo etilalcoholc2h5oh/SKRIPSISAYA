@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores } from '../lib/db';
-import { THEMES } from '../data';
+import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores, resolveTheme } from '../lib/db';
 import { ChibiMascot } from './ChibiMascot';
 import { 
   MessageCircle, CheckCircle2, Search, Edit3, Copy, Check, 
@@ -103,7 +102,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
 
   const borderColor = isDarkMode ? 'border-stone-800' : 'border-stone-200';
   const cardBg = isDarkMode ? 'bg-stone-900/60' : 'bg-white';
-  const theme = THEMES.find(t => t.id === session?.themeId) || THEMES[0];
+  const theme = resolveTheme(session?.themeId, session);
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchQuery.toLowerCase())

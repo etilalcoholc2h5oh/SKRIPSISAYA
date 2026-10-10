@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createSession, joinSession, verifyTeacherAccess } from '../lib/db';
 import { THEMES, ThemeTopic } from '../data';
 import { ChibiMascot, ChibiAvatar, MascotVariant } from './ChibiMascot';
+import { CustomThemeForm } from './CustomThemeForm';
 import chibiWriterImg from '../assets/images/chibi_writer_1787208654329.jpg';
 import chibiTeacherImg from '../assets/images/chibi_teacher_1787208708138.jpg';
 import chibiCheerImg from '../assets/images/chibi_cheer_1787208676480.jpg';
@@ -52,6 +53,10 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   // Teacher KBM Form - Create
   const [teacherName, setTeacherName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0].id);
+  // Tema buatan sendiri (pilihan "__custom__" pada daftar tema)
+  const [teacherCustomTheme, setTeacherCustomTheme] = useState<ThemeTopic | null>(null);
+  const [showTeacherThemeForm, setShowTeacherThemeForm] = useState(false);
+  const [showSoloThemeForm, setShowSoloThemeForm] = useState(false);
   const [teacherPin, setTeacherPin] = useState('1234');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -178,8 +183,14 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     setIsCreating(true);
     try {
       const cleanPin = teacherPin.trim() || '1234';
-      const sessionId = await createSession(teacherName.trim(), selectedTheme, cleanPin, false);
-      saveTeacherSessionToHistory(sessionId, selectedTheme, teacherName.trim(), cleanPin);
+      const custom = selectedTheme === '__custom__' ? teacherCustomTheme : null;
+      if (selectedTheme === '__custom__' && !custom) {
+        setShowTeacherThemeForm(true);
+        return;
+      }
+      const themeId = custom ? custom.id : selectedTheme;
+      const sessionId = await createSession(teacherName.trim(), themeId, cleanPin, false, custom || undefined);
+      saveTeacherSessionToHistory(sessionId, themeId, teacherName.trim(), cleanPin);
       onCreateSession(sessionId);
     } catch (err) {
       console.error(err);
@@ -236,11 +247,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   };
 
-  const handleStartSoloPractice = async (themeId: string) => {
+  const handleStartSoloPractice = async (themeId: string, customTheme?: ThemeTopic) => {
     const sName = soloStudentName.trim() || 'Siswa Mandiri';
     setIsCreating(true);
     try {
-      const sessionId = await createSession('Latihan Mandiri', themeId, '1234', true);
+      const sessionId = await createSession('Latihan Mandiri', customTheme ? customTheme.id : themeId, '1234', true, customTheme);
       const result = await joinSession(sessionId, sName);
       onJoinSession(result.cleanSessionId, result.studentId);
     } catch (err) {
@@ -275,7 +286,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
             Selamat Datang di <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">Kitabah Insya'</span>
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-lg leading-relaxed">
-            Media interaktif menulis karangan bahasa Arab kurikulum <strong>MA Kelas XI (Kelas 11)</strong> berbasis <strong>Process-Genre Approach</strong> & Asisten AI.
+            Media interaktif menulis karangan bahasa Arab kurikulum <strong>MA Kelas XI (Kelas 11)</strong> berbasis <strong>Process-Genre Approach</strong> & Penilaian Otomatis Berbasis Aturan.
           </p>
         </div>
       </div>
@@ -527,7 +538,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                                   {item.studentName} <span className="font-mono text-blue-600 font-bold">({item.sessionId})</span>
                                 </div>
                                 <div className="text-stone-400 text-[11px]">
-                                  {themeObj?.titleIndo || 'Karangan Arab'}
+                                  {themeObj?.titleIndo || (item?.themeId?.startsWith('custom-') ? 'Tema Sendiri' : 'Karangan Arab')}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
@@ -626,7 +637,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                         </label>
                         <select 
                           value={selectedTheme} 
-                          onChange={e => setSelectedTheme(e.target.value)} 
+                          onChange={e => {
+                            const v = e.target.value;
+                            setSelectedTheme(v);
+                            setShowTeacherThemeForm(v === '__custom__' && !teacherCustomTheme);
+                          }} 
                           className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                           {THEMES.map(t => (
@@ -634,7 +649,43 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                               {t.titleIndo} ({t.titleArabic}) — {t.grade}
                             </option>
                           ))}
+                          <option value="__custom__" className="dark:bg-stone-800">
+                            ✍️ Buat tema sendiri…
+                          </option>
                         </select>
+
+                        {selectedTheme === '__custom__' && (
+                          showTeacherThemeForm ? (
+                            <div className="mt-3">
+                              <CustomThemeForm
+                                initial={teacherCustomTheme}
+                                submitLabel="Simpan Tema"
+                                onSubmit={(t) => {
+                                  setTeacherCustomTheme(t);
+                                  setShowTeacherThemeForm(false);
+                                }}
+                                onCancel={() => {
+                                  setShowTeacherThemeForm(false);
+                                  if (!teacherCustomTheme) setSelectedTheme(THEMES[0].id);
+                                }}
+                              />
+                            </div>
+                          ) : teacherCustomTheme && (
+                            <div className="mt-3 p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold text-stone-900 dark:text-white truncate">{teacherCustomTheme.titleIndo}</div>
+                                <div className="text-[11px] text-stone-500">{teacherCustomTheme.mufradat.length} kosakata • tema sendiri</div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setShowTeacherThemeForm(true)}
+                                className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/40"
+                              >
+                                Ubah
+                              </button>
+                            </div>
+                          )
+                        )}
                       </div>
 
                       <div>
@@ -738,7 +789,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                                       <span className="text-stone-400 font-normal">({item.teacherName || 'Guru'})</span>
                                     </div>
                                     <div className="text-stone-400 text-[11px]">
-                                      {themeObj?.titleIndo || 'Karangan Arab'}
+                                      {themeObj?.titleIndo || (item?.themeId?.startsWith('custom-') ? 'Tema Sendiri' : 'Karangan Arab')}
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -801,19 +852,39 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               </div>
             </div>
 
-            {/* AI Features Highlights */}
+            {/* Fitur bantuan menulis */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-emerald-200/60 dark:border-emerald-900/40 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookOpen className="w-3 h-3 text-emerald-600" /> Bantuan Ide Paragraf AI
+                <BookOpen className="w-3 h-3 text-emerald-600" /> Bantuan Ide & Kerangka Paragraf
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Koreksi Nahwu & Imla' Otomatis
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Cek Nahwu, Imla' & Harakat Otomatis
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookMarked className="w-3 h-3 text-emerald-600" /> Prediksi Nilai Rubrik Analitis AI
+                <BookMarked className="w-3 h-3 text-emerald-600" /> Penilaian Rubrik Analitis Otomatis
               </span>
             </div>
           </div>
+
+          {/* Buat tema sendiri */}
+          {showSoloThemeForm ? (
+            <CustomThemeForm
+              submitLabel="Mulai Menulis dengan Tema Ini"
+              onSubmit={(t) => {
+                setShowSoloThemeForm(false);
+                handleStartSoloPractice(t.id, t);
+              }}
+              onCancel={() => setShowSoloThemeForm(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowSoloThemeForm(true)}
+              className="w-full p-4 rounded-2xl border-2 border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-bold hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" /> Punya topik sendiri? Buat tema sendiri
+            </button>
+          )}
 
           {/* Theme Topic Selection Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

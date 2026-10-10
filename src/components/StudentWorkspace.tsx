@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
 import { generateInstantStoryboardLocally, resolveScenePhoto, resolveQuickTranslation, StoryboardScene } from '../utils/visualResolver';
-import { updateStudentProgress, subscribeToStudent, subscribeToSession, StudentProgress, ClassSession } from '../lib/db';
+import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
 import { ChibiMascot } from './ChibiMascot';
+import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
 import flowStepStartImg from '../assets/images/flow_step_start_1787210042818.jpg';
 import flowStepMainImg from '../assets/images/flow_step_main_1787210066046.jpg';
 import flowStepEndImg from '../assets/images/flow_step_end_1787210088142.jpg';
@@ -98,7 +99,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
   const [localIdeas, setLocalIdeas] = useState<string[]>(['', '', '']);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const ideasTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const visualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [loadingAi, setLoadingAi] = useState(false);
   const [loadingRubric, setLoadingRubric] = useState(false);
@@ -174,17 +174,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
       });
     }
 
-    // 2. Fast background AI translation refinement (debounce 1s)
-    if (visualTimeoutRef.current) {
-      clearTimeout(visualTimeoutRef.current);
-    }
-    visualTimeoutRef.current = setTimeout(() => {
-      handleUpdateVisual();
-    }, 1000);
-
-    return () => {
-      if (visualTimeoutRef.current) clearTimeout(visualTimeoutRef.current);
-    };
   }, [localDraft]);
 
   if (!progress) {
@@ -208,7 +197,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
   // Safe fallback resolution for Theme
   const resolvedThemeId = progress?.themeId || session?.themeId || THEMES[0].id;
-  const theme: ThemeTopic = THEMES.find(t => t.id === resolvedThemeId) || THEMES[0];
+  const theme: ThemeTopic = resolveTheme(resolvedThemeId, session);
 
   const borderColor = isDarkMode ? 'border-stone-800' : 'border-stone-200';
   const cardBg = isDarkMode ? 'bg-stone-900/60' : 'bg-white';
@@ -372,114 +361,20 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     }, 50);
   };
 
-  const handleUpdateVisual = async () => {
-    const textToEvaluate = localDraft || progress?.draft;
-    if (!textToEvaluate || textToEvaluate.trim().length < 3) return;
-    
-    // Guarantee instant local scenes
-    const localScenes = generateInstantStoryboardLocally(textToEvaluate);
-    if (localScenes.length > 0) {
-      setVisualStory(prev => {
-        if (prev.length === 0) return localScenes;
-        return prev;
-      });
-    }
-
-    setLoadingVisual(true);
-    const customKey = localStorage.getItem('geminiApiKey') || '';
-    try {
-      const res = await fetch('/api/ai/visual-prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToEvaluate,
-          customApiKey: customKey
-        })
-      });
-      const data = await res.json();
-      
-      let parsed: { arabic: string; indoMeaning?: string; sceneTitle?: string; visualSceneEn?: string; categoryIcon?: string }[] = [];
-      try {
-        const cleanJson = (data.result || "").replace(/```json/gi, '').replace(/```/g, '').trim();
-        parsed = JSON.parse(cleanJson);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const finalStory: StoryboardScene[] = parsed.map((item, idx) => {
-            const photo = resolveScenePhoto(item.arabic, item.indoMeaning, idx);
-            return {
-              arabic: item.arabic,
-              indoMeaning: item.indoMeaning || resolveQuickTranslation(item.arabic),
-              sceneTitle: item.sceneTitle || photo.title,
-              categoryIcon: item.categoryIcon || photo.icon,
-              imageUrl: photo.url
-            };
-          });
-          setVisualStory(finalStory);
-        } else {
-          throw new Error("Not an array");
-        }
-      } catch (parseErr) {
-        setVisualStory(localScenes);
-      }
-    } catch (err) {
-      console.error("Visual auto-sync:", err);
-      setVisualStory(localScenes);
-    } finally {
-      setLoadingVisual(false);
-    }
-  };
-
-  const handleAskAI = async (action: 'ide' | 'evaluasi' | 'harakat') => {
-    // Flush draft before sending to AI
+  // Pemeriksaan otomatis berbasis aturan (tanpa AI, tanpa internet). Aturannya ada di src/lib/analyzer.ts
+  const handleAssist = (action: 'ide' | 'evaluasi' | 'harakat') => {
     flushDraftImmediately();
-    setLoadingAi(true);
     setAiActionType(action);
-    setAiSuggestion(null);
-
-    const customKey = localStorage.getItem('geminiApiKey') || '';
-    let endpoint = '/api/ai/suggest';
-    let body: any = { theme: theme.titleIndo, customApiKey: customKey };
-
-    const currentDraftText = localDraft || progress?.draft || '';
+    const draftText = localDraft || progress?.draft || '';
     const currentIdeas = progress?.ideas || localIdeas;
+    const selected = progress?.selectedMufradat || [];
 
     if (action === 'ide') {
-      endpoint = '/api/ai/suggest';
-      body.text = currentIdeas.filter(Boolean).join('. ') || currentDraftText || theme.prompt;
-    } else if (action === 'harakat') {
-      endpoint = '/api/ai/harakat';
-      body.text = currentDraftText;
-    } else if (action === 'evaluasi') {
-      endpoint = '/api/ai/evaluate';
-      body.text = currentDraftText;
-      body.ideas = currentIdeas;
-      body.selectedMufradat = progress?.selectedMufradat;
+      setAiSuggestion(suggestIdeas({ ideas: currentIdeas, text: draftText, theme, selectedMufradat: selected }));
+      return;
     }
-
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (data.result) {
-        if (action === 'harakat') {
-          // Update local draft and Firestore with diacritics directly
-          setLocalDraft(data.result);
-          updateStudentProgress(sessionId, studentId, { draft: data.result });
-          setAiSuggestion('Teks karanganmu telah berhasil dilengkapi harakat.');
-        } else {
-          setAiSuggestion(data.result);
-        }
-      } else {
-        setAiSuggestion('Maaf, asisten AI sedang sibuk. Silakan coba lagi sebentar lagi.');
-      }
-    } catch (e) {
-      console.error(e);
-      setAiSuggestion('Gagal menghubungi asisten AI. Periksa koneksi internet Anda.');
-    } finally {
-      setLoadingAi(false);
-    }
+    const analysis = analyze({ text: draftText, theme, selectedMufradat: selected });
+    setAiSuggestion(action === 'harakat' ? formatHarakatReport(analysis) : formatEvaluation(analysis));
   };
 
   const handleRequestAiRubric = async () => {
@@ -488,37 +383,21 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     flushDraftImmediately();
     setLoadingRubric(true);
     setAiActionType('rubrik');
-    const customKey = localStorage.getItem('geminiApiKey') || '';
     try {
-      const res = await fetch('/api/ai/rubric', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToEvaluate,
-          theme: theme.titleIndo,
-          customApiKey: customKey
-        })
-      });
-      const data = await res.json();
-      if (data.result) {
-        const rubric = {
-          fikrah: data.result.fikrah ?? 20,
-          tarkib: data.result.tarkib ?? 20,
-          mufradat: data.result.mufradat ?? 20,
-          imla: data.result.imla ?? 20,
-          total: data.result.total ?? (data.result.fikrah + data.result.tarkib + data.result.mufradat + data.result.imla)
-        };
-        const fb = data.result.feedback || 'Evaluasi AI berhasil diperbarui.';
-        await updateStudentProgress(sessionId, studentId, {
-          rubricScores: rubric,
-          feedback: fb,
-          status: 'reviewed'
-        });
-        setAiSuggestion(`✅ Penilaian Rubrik AI Selesai! Skor Total: ${rubric.total}/100.`);
+      const analysis = analyze({ text: textToEvaluate, theme, selectedMufradat: progress?.selectedMufradat || [] });
+      if (analysis.words === 0) {
+        setAiSuggestion(formatRubricFeedback(analysis));
+        return;
       }
+      await updateStudentProgress(sessionId, studentId, {
+        rubricScores: analysis.rubric,
+        feedback: formatRubricFeedback(analysis),
+        status: 'reviewed'
+      });
+      setAiSuggestion(`✅ Penilaian otomatis selesai. Skor total: ${analysis.rubric.total}/100.`);
     } catch (err) {
       console.error(err);
-      setAiSuggestion('Gagal mendapatkan penilaian rubrik AI. Periksa koneksi internet Anda.');
+      setAiSuggestion('Gagal menyimpan penilaian. Periksa koneksi internet Anda.');
     } finally {
       setLoadingRubric(false);
     }
@@ -742,12 +621,12 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => handleAskAI('ide')}
+                  onClick={() => handleAssist('ide')}
                   disabled={loadingAi}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0"
                 >
                   <Lightbulb className="w-4 h-4" />
-                  {loadingAi && aiActionType === 'ide' ? 'Mencari Ide...' : 'Pancingan Ide AI'}
+                  {loadingAi && aiActionType === 'ide' ? 'Mencari Ide...' : 'Bantuan Ide'}
                 </button>
               </div>
 
@@ -842,12 +721,12 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 </div>
               )}
 
-              {/* AI Suggestion Box */}
+              {/* Kotak saran / hasil pemeriksaan */}
               {aiSuggestion && aiActionType === 'ide' && (
                 <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-2">
                   <div className="flex items-center justify-between text-amber-700 dark:text-amber-300 font-bold text-xs sm:text-sm">
                     <span className="flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4 text-amber-600" /> Saran Ide dari Asisten AI:
+                      <Lightbulb className="w-4 h-4 text-amber-600" /> Saran Ide untukmu:
                     </span>
                     <button onClick={() => setAiSuggestion(null)} className="text-stone-400 hover:text-stone-600 text-xs">
                       Tutup
@@ -1180,7 +1059,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
           >
             {/* Writing Studio Container */}
             <div className={`p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border ${borderColor} ${cardBg} shadow-sm space-y-4 sm:space-y-6`}>
-              {/* Studio Header & AI Actions */}
+              {/* Studio Header & Tombol Bantuan */}
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
@@ -1191,39 +1070,39 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   </p>
                 </div>
 
-                {/* AI Assistant Quick Tools - Responsive Row / Grid */}
+                {/* Tombol bantuan cepat - Responsive Row / Grid */}
                 <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
                   <button
                     type="button"
-                    onClick={() => handleAskAI('harakat')}
+                    onClick={() => handleAssist('harakat')}
                     disabled={loadingAi || !progress.draft}
-                    title="Lengkapi tulisan dengan harakat yang tepat"
+                    title="Periksa kelengkapan dan ketepatan harakat"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
                     <Wand2 className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{loadingAi && aiActionType === 'harakat' ? 'Memproses...' : 'Beri Harakat'}</span>
+                    <span className="truncate">{loadingAi && aiActionType === 'harakat' ? 'Memproses...' : 'Cek Harakat'}</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => handleAskAI('evaluasi')}
+                    onClick={() => handleAssist('evaluasi')}
                     disabled={loadingAi || !progress.draft}
                     title="Periksa tata bahasa, kaidah nahwu, dan kesesuaian makna"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{loadingAi && aiActionType === 'evaluasi' ? 'Menganalisis...' : 'Evaluasi AI'}</span>
+                    <span className="truncate">{loadingAi && aiActionType === 'evaluasi' ? 'Menganalisis...' : 'Cek Tulisan'}</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => handleAskAI('ide')}
+                    onClick={() => handleAssist('ide')}
                     disabled={loadingAi}
                     title="Bantuan ide jika kamu mengalami writer's block"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
                     <Lightbulb className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{loadingAi && aiActionType === 'ide' ? 'Berpikir...' : 'Ide AI'}</span>
+                    <span className="truncate">{loadingAi && aiActionType === 'ide' ? 'Berpikir...' : 'Ide'}</span>
                   </button>
                 </div>
               </div>
@@ -1234,7 +1113,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   variant="digitalPen"
                   size="sm"
                   quote="Rangkai kalimatmu menjadi paragraf insya'. Gunakan mode ketik atau tulis tangan dengan jari/stylus."
-                  subquote="Tersedia tombol harakat dan bantuan Asisten AI untuk memeriksa tata bahasa."
+                  subquote="Tersedia tombol cek harakat, cek tulisan, dan bantuan ide untuk memeriksa karanganmu."
                   badge="Studio Menulis"
                 />
               </div>
@@ -1322,7 +1201,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     className={`w-full min-h-[220px] sm:min-h-[320px] p-4 sm:p-6 rounded-xl sm:rounded-2xl border ${borderColor} bg-transparent resize-y focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic text-2xl sm:text-3xl leading-[2.3] sm:leading-[2.7] tracking-wide`}
                   />
 
-                  {/* Visualisasi AI Berkesinambungan */}
+                  {/* Visualisasi adegan berkesinambungan */}
                   {(localDraft || progress?.draft) && (
                     <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 shadow-xs">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
@@ -1417,7 +1296,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 />
               )}
 
-              {/* AI Suggestion Box */}
+              {/* Kotak saran / hasil pemeriksaan */}
               {aiSuggestion && aiActionType !== 'ide' && (
                 <div className={`p-4 sm:p-5 rounded-xl sm:rounded-2xl border space-y-2 ${
                   aiActionType === 'evaluasi' 
@@ -1429,7 +1308,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   }`}>
                     <span className="flex items-center gap-2">
                       <Bot className="w-4 h-4" /> 
-                      {aiActionType === 'evaluasi' ? 'Hasil Evaluasi Asisten AI:' : 'Saran Asisten AI:'}
+                      {aiActionType === 'evaluasi' ? 'Hasil Pemeriksaan Otomatis:' : aiActionType === 'harakat' ? 'Hasil Cek Harakat:' : 'Penilaian Otomatis:'}
                     </span>
                     <button onClick={() => setAiSuggestion(null)} className="text-stone-400 hover:text-stone-600 text-xs">
                       Tutup
@@ -1441,7 +1320,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 </div>
               )}
 
-              {/* Assessment Feedback & Rubric Card (For both KBM Teacher feedback and Solo AI Rubric) */}
+              {/* Assessment Feedback & Rubric Card (For both KBM Teacher feedback and Rubrik Otomatis Mandiri) */}
               {progress.feedback && (
                 <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-amber-50/90 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-900/60 space-y-3 sm:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1454,7 +1333,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                       <div>
                         <h3 className="font-bold text-sm sm:text-base text-amber-800 dark:text-amber-300 flex items-center gap-2">
                           <Award className="w-5 h-5 text-amber-600 shrink-0" /> 
-                          {isSolo ? 'Evaluasi & Rubrik Analitis AI (Mandiri)' : 'Umpan Balik & Evaluasi Guru'}
+                          {isSolo ? 'Evaluasi & Rubrik Otomatis (Mandiri)' : 'Umpan Balik & Evaluasi Guru'}
                         </h3>
                         <p className="text-[11px] text-stone-500">Hasil penilaian karangan insya' muwajjah</p>
                       </div>
@@ -1550,7 +1429,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl sm:rounded-2xl shadow-lg transition-all text-xs sm:text-sm disabled:opacity-40"
                       >
                         <Bot className="w-4 h-4" />
-                        {loadingRubric ? 'Meminta Penilaian...' : 'Minta Penilaian & Rubrik AI'}
+                        {loadingRubric ? 'Menghitung...' : 'Hitung Penilaian & Rubrik'}
                       </button>
                       <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-stone-500 dark:text-stone-400">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />

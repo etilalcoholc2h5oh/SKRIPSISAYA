@@ -1,5 +1,5 @@
 import { collection, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp, firestore } from './firebase';
-import { THEMES } from '../data';
+import { THEMES, ThemeTopic } from '../data';
 
 export interface RubricScores {
   fikrah: number;    // Kesesuaian Isi & Gagasan (0-25)
@@ -33,10 +33,11 @@ export interface ClassSession {
   active: boolean;
   themeId: string;
   isSoloPractice?: boolean;
+  customTheme?: ThemeTopic; // tema buatan guru/siswa; dipakai bila themeId tidak ada di THEMES
   createdAt: any;
 }
 
-export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false) => {
+export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false, customTheme?: ThemeTopic) => {
   const prefix = isSoloPractice ? 'SL' : '';
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
   const sessionId = isSoloPractice ? `${prefix}${randomPart}` : Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -47,8 +48,10 @@ export const createSession = async (teacherName: string, themeId: string, custom
     teacherName: teacherName.trim(),
     teacherPin: pin,
     active: true,
-    themeId: themeId || THEMES[0].id,
+    themeId: customTheme ? customTheme.id : (themeId || THEMES[0].id),
     isSoloPractice: isSoloPractice,
+    // Firestore menolak nilai undefined, jadi hanya disertakan bila ada.
+    ...(customTheme ? { customTheme } : {}),
     createdAt: serverTimestamp()
   });
   return sessionId;
@@ -160,4 +163,14 @@ export const subscribeToStudent = (sessionId: string, studentId: string, callbac
       callback(null);
     }
   });
+};
+
+// Cari tema berdasarkan id: bawaan dulu, lalu tema kustom milik sesi.
+export const resolveTheme = (themeId: string | undefined, session?: ClassSession | null): ThemeTopic => {
+  return (
+    THEMES.find(t => t.id === themeId) ||
+    (session?.customTheme && session.customTheme.id === themeId ? session.customTheme : undefined) ||
+    session?.customTheme ||
+    THEMES[0]
+  );
 };

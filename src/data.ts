@@ -422,6 +422,126 @@ export const THEMES: ThemeTopic[] = [
     ]
   },
   {
+    id: 'safar',
+    titleArabic: 'السَّفَرُ: الِاسْتِعْدَادُ وَآدَابُ الرِّحْلَةِ',
+    titleIndo: 'Safar (Bepergian): Persiapan & Adab Perjalanan',
+    grade: 'Kelas XI',
+    imageUrl: '',
+    prompt: 'Tuliskan karangan tentang sebuah perjalanan jauh yang pernah atau akan kamu lakukan (misalnya mudik atau pulang ke kampung halaman): persiapan sebelum berangkat, bekal dan barang bawaan, doa safar, keadaan di perjalanan, hingga tiba di tujuan.',
+    mufradat: [
+      {
+        word: 'سَفَرٌ',
+        meaning: 'Perjalanan / Bepergian',
+        pronunciation: 'Safarun',
+        icon: '🧳',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'مُسَافِرٌ',
+        meaning: 'Musafir (Orang yang Bepergian)',
+        pronunciation: 'Musaafirun',
+        icon: '🚶',
+        category: 'Tokoh'
+      },
+      {
+        word: 'طَرِيقٌ',
+        meaning: 'Jalan / Rute',
+        pronunciation: 'Thariiqun',
+        icon: '🛣️',
+        category: 'Tempat'
+      },
+      {
+        word: 'أَمْتِعَةٌ',
+        meaning: 'Barang Bawaan',
+        pronunciation: 'Amti\'atun',
+        icon: '🎒',
+        category: 'Benda'
+      },
+      {
+        word: 'زَادٌ',
+        meaning: 'Bekal Perjalanan',
+        pronunciation: 'Zaadun',
+        icon: '🍱',
+        category: 'Benda'
+      },
+      {
+        word: 'مَوْعِدُ الْمُغَادَرَةِ',
+        meaning: 'Jadwal Keberangkatan',
+        pronunciation: 'Maw\'idul mughaadarah',
+        icon: '🕒',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'مَحَطَّةٌ',
+        meaning: 'Terminal / Stasiun',
+        pronunciation: 'Mahaththatun',
+        icon: '🚏',
+        category: 'Tempat'
+      },
+      {
+        word: 'ازْدِحَامٌ',
+        meaning: 'Kemacetan / Keramaian',
+        pronunciation: 'Izdihaamun',
+        icon: '🚗',
+        category: 'Sifat'
+      },
+      {
+        word: 'اسْتِرَاحَةٌ',
+        meaning: 'Istirahat / Tempat Istirahat',
+        pronunciation: 'Istiraahatun',
+        icon: '☕',
+        category: 'Tempat'
+      },
+      {
+        word: 'دُعَاءُ السَّفَرِ',
+        meaning: 'Doa Safar (Doa Bepergian)',
+        pronunciation: 'Du\'aa\'us safar',
+        icon: '🤲',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'رَفِيقُ السَّفَرِ',
+        meaning: 'Teman Seperjalanan',
+        pronunciation: 'Rafiiqus safar',
+        icon: '🤝',
+        category: 'Tokoh'
+      },
+      {
+        word: 'الْوُصُولُ',
+        meaning: 'Kedatangan / Tiba',
+        pronunciation: 'Al-wushuulu',
+        icon: '🏁',
+        category: 'Kegiatan'
+      }
+    ],
+    tarkib: [
+      {
+        name: 'Isim Maushul (اسْمُ الْمَوْصُولِ: الَّذِي / الَّتِي)',
+        patternArabic: 'اسْمٌ مَعْرِفَةٌ + الَّذِي / الَّتِي + جُمْلَةُ الصِّلَةِ',
+        example: 'رَكِبْنَا الْحَافِلَةَ الَّتِي تَنْطَلِقُ مِنَ الْمَحَطَّةِ الرَّئِيسِيَّةِ',
+        explanation: 'Isim maushul menyambung kata sebelumnya dengan keterangan tambahan. Gunakan الَّذِي untuk mudzakkar dan الَّتِي untuk muannats, sesuai kata yang diterangkan.'
+      },
+      {
+        name: 'Jumlah Syarat dengan إِذَا',
+        patternArabic: 'إِذَا + فِعْلُ الشَّرْطِ + فَ + جَوَابُ الشَّرْطِ',
+        example: 'إِذَا أَرَدْتَ السَّفَرَ فَاحْرِصْ عَلَى تَرْتِيبِ أَمْتِعَتِكَ',
+        explanation: 'إِذَا berarti "jika/apabila". Dipakai untuk menyatakan nasihat atau urutan persiapan perjalanan: jika melakukan A maka lakukan B.'
+      },
+      {
+        name: 'Hal (الْحَالُ): Menjelaskan Keadaan',
+        patternArabic: 'فِعْلٌ + فَاعِلٌ + حَالٌ مَنْصُوبٌ',
+        example: 'وَصَلْنَا إِلَى الْقَرْيَةِ مُتْعَبِينَ وَلَكِنَّنَا سُعَدَاءُ',
+        explanation: 'Hal menjelaskan keadaan pelaku saat perbuatan terjadi (di sini: lelah). Hal berstatus manshub, jadi jamak mudzakkar salim memakai akhiran ـِينَ.'
+      }
+    ],
+    contohInsya: 'فِي نِهَايَةِ الْعَامِ الدِّرَاسِيِّ، قَرَّرَتْ أُسْرَتِي السَّفَرَ إِلَى قَرْيَةِ جَدِّي. قَبْلَ الْمُغَادَرَةِ، رَتَّبْتُ أَمْتِعَتِي وَحَمَلْتُ زَادًا كَافِيًا. رَكِبْنَا الْحَافِلَةَ الَّتِي تَنْطَلِقُ مِنَ الْمَحَطَّةِ الرَّئِيسِيَّةِ، وَقَرَأْنَا دُعَاءَ السَّفَرِ. فِي الطَّرِيقِ، رَأَيْنَا ازْدِحَامًا شَدِيدًا، فَاسْتَرَحْنَا فِي مَحَطَّةِ الِاسْتِرَاحَةِ. وَصَلْنَا إِلَى الْقَرْيَةِ مُتْعَبِينَ وَلَكِنَّنَا سُعَدَاءُ بِلِقَاءِ الْأَهْلِ.',
+    kesalahanUmum: [
+      'Menggunakan الَّذِي untuk kata muannats (misal: الْحَافِلَةُ الَّذِي), padahal seharusnya الْحَافِلَةُ الَّتِي.',
+      'Menulis hal dengan rafa\' (مُتْعَبُونَ) padahal hal harus manshub (مُتْعَبِينَ).',
+      'Lupa fa\' (فَ) pada jawab syarat berbentuk perintah setelah إِذَا.'
+    ]
+  },
+  {
     id: 'hajj',
     titleArabic: 'الْحَجُّ وَالْعُمْرَةُ',
     titleIndo: 'Ibadah Haji & Umrah',
