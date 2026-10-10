@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
 import { generateInstantStoryboardLocally, resolveScenePhoto, resolveQuickTranslation, StoryboardScene } from '../utils/visualResolver';
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
-import { ChibiMascot } from './ChibiMascot';
+import { Callout } from './Callout';
 import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
 
 import { 
@@ -629,9 +629,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
               {/* Mascot Guidance for Step 1 */}
               <div className="p-3 sm:p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40">
-                <ChibiMascot
-                  variant="thinking"
-                  size="sm"
+                <Callout
                   quote="Petakan 3 alur ceritamu dulu! Mulai dari pembuka, inti kegiatan, hingga penutup."
                   subquote="Boleh tulis dalam bahasa Indonesia dulu, nanti kita rangkai bersama ke bahasa Arab yang tepat."
                   badge="Tips Ide"
@@ -792,9 +790,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
               {/* Mascot Guidance for Step 2 */}
               <div className="p-3.5 sm:p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/50">
-                <ChibiMascot
-                  variant="vocabCard"
-                  size="sm"
+                <Callout
                   quote="Pilih kosakata bergambar dan kaidah kalimat (tarkib) untuk karanganmu!"
                   subquote="Klik kartu untuk memilih kata, dan tekan tombol suara untuk mendengarkan cara membacanya."
                   badge="Bank Kosakata"
@@ -1095,9 +1091,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
               {/* Mascot Guidance for Step 3 */}
               <div className="p-3 sm:p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/70 dark:border-emerald-900/40">
-                <ChibiMascot
-                  variant="digitalPen"
-                  size="sm"
+                <Callout
                   quote="Rangkai kalimatmu menjadi paragraf insya'. Gunakan mode ketik atau tulis tangan dengan jari/stylus."
                   subquote="Tersedia tombol cek harakat, cek tulisan, dan bantuan ide untuk memeriksa karanganmu."
                   badge="Studio Menulis"
@@ -1311,9 +1305,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-amber-50/90 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-900/60 space-y-3 sm:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <ChibiMascot
-                        variant="award"
-                        size="xs"
+                      <Callout
                         badge="Mumtaz"
                       />
                       <div>

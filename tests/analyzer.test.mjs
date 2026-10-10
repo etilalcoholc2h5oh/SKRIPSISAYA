@@ -167,3 +167,30 @@ test('ketahanan: 300 teks acak tidak membuat error dan skor tetap valid', () => 
     for (const k of ['fikrah', 'tarkib', 'mufradat', 'imla']) assert.ok(Number.isInteger(r[k]) && r[k] >= 0 && r[k] <= 25);
   }
 });
+
+test('peta tulisan: kosakata tema, kata penghubung, dan kesalahan diberi penanda yang sejalan dengan temuan', async () => {
+  const { annotateText } = await import('../src/lib/analyzer.ts');
+  const text = 'ذَهَبْتُ إِلَى الْمَحَطَّةُ. ثُمَّ رَكِبْنَا الْحَافِلَةَ الَّذِي تَنْطَلِقُ. وَصَلْنَا الي القريه.';
+  const a = analyze({ text, theme: safar });
+  const m = annotateText(text, safar, a.findings);
+  assert.equal(m.length, 3);
+  const flat = m.flatMap((s) => s.words);
+  const byText = (t) => flat.find((w) => stripHarakat(w.text).replace(/[.]/g, '') === t);
+  // hanya kata yang salah yang merah (إِلَى sendiri benar)
+  assert.equal(byText('المحطة').kind, 'error');
+  assert.equal(byText('إلى').kind, 'plain');
+  assert.equal(byText('ثم').kind, 'connector');
+  assert.equal(byText('الذي').kind, 'error');
+  assert.equal(byText('الحافلة').kind, 'plain'); // bukan kosakata tema Safar
+  assert.equal(byText('الي').kind, 'error');
+  assert.equal(byText('القريه').kind, 'error');
+  assert.equal(m[0].wordCount, 3);
+  // kosakata tema ditandai
+  const ok = analyze({ text: safar.contohInsya, theme: safar });
+  const mm = annotateText(safar.contohInsya, safar, ok.findings).flatMap((s) => s.words);
+  assert.ok(mm.some((w) => w.kind === 'vocab'));
+  assert.equal(mm.filter((w) => w.kind === 'error').length, 0);
+  // teks kosong atau non-Arab
+  assert.deepEqual(annotateText('', safar, []), []);
+  assert.deepEqual(annotateText('hello world', safar, []), []);
+});

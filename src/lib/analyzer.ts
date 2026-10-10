@@ -907,3 +907,87 @@ export function suggestIdeas(input: { ideas: string[]; text: string; theme: Them
 
   return lines.length > 0 ? lines.join('\n\n') : 'Tulis dulu satu atau dua gagasanmu, lalu tekan tombol ini lagi untuk mendapat saran.';
 }
+
+// ---------------------------------------------------------------------------
+// Peta tulisan: tiap kata diberi penanda untuk tampilan "Peta Tulisan".
+// Memakai kosakata, daftar kata penghubung, dan temuan yang sama dengan penilaian,
+// sehingga warna di peta selalu sejalan dengan skor.
+// ---------------------------------------------------------------------------
+
+export type MarkKind = 'vocab' | 'connector' | 'error' | 'plain';
+
+export interface MarkedWord {
+  text: string; // persis seperti ditulis siswa (tanda baca yang menempel ikut)
+  kind: MarkKind;
+  note?: string; // alasan, bila kind = 'error'
+}
+
+export interface MarkedSentence {
+  words: MarkedWord[];
+  wordCount: number;
+}
+
+export function annotateText(text: string, theme: ThemeTopic, findings: Finding[]): MarkedSentence[] {
+  const themeNorms = new Set<string>();
+  for (const e of buildVocab(theme)) for (const a of e.alts) for (const tk of a) themeNorms.add(tk);
+
+  // Kata yang ditandai salah. Bila selisihnya hanya harakat, cocokkan persis (dengan harakat);
+  // bila selisihnya ejaan, cocokkan bentuk tanpa harakat dan tanpa ال.
+  const bare = (w: string) => stripHarakat(w).replace(/^ال/, '');
+  const exactNote = new Map<string, string>();
+  const bareNote = new Map<string, string>();
+  for (const f of findings) {
+    if (f.kind === 'campur') continue;
+    const wt = tokenize(f.wrong);
+    const rt = f.right ? tokenize(f.right) : [];
+    wt.forEach((w, i) => {
+      const r = rt.length === wt.length ? rt[i] : undefined;
+      if (r !== undefined && r === w) return; // kata ini benar, hanya kata lain di frasa yang salah
+      if (r !== undefined && stripHarakat(r) === stripHarakat(w)) {
+        if (!exactNote.has(w)) exactNote.set(w, f.reason);
+      } else if (!bareNote.has(bare(w))) {
+        bareNote.set(bare(w), f.reason);
+      }
+    });
+  }
+
+  const singleConn = new Set(CONNECTORS.filter((c) => !c.id.includes(' ')).map((c) => c.id));
+  const phraseConn = CONNECTORS.filter((c) => c.id.includes(' ')).map((c) => c.id.split(' '));
+  const isConn = (core: string) =>
+    singleConn.has(core) || ((core[0] === 'و' || core[0] === 'ف') && singleConn.has(core.slice(1)));
+
+  const pieces = text.match(/[^.!?؟۔\n]+[.!?؟۔]*/g) || [];
+  const out: MarkedSentence[] = [];
+  for (const sentence of pieces) {
+    if (!AR_LETTER.test(sentence)) continue;
+    const parts = sentence.split(/\s+/).filter(Boolean);
+    const cores = parts.map((p) => {
+      const t = tokenize(p)[0];
+      return t ? normalizeAr(t) : '';
+    });
+
+    // posisi yang termasuk frasa penghubung (mis. "في النهاية")
+    const inPhrase = new Set<number>();
+    for (const ph of phraseConn) {
+      for (let i = 0; i + ph.length <= cores.length; i++) {
+        const ok = ph.every((w, k) => (k === 0 ? cores[i] === w || cores[i].slice(1) === w : cores[i + k] === w));
+        if (ok) for (let k = 0; k < ph.length; k++) inPhrase.add(i + k);
+      }
+    }
+
+    let wordCount = 0;
+    const words: MarkedWord[] = parts.map((p, i) => {
+      const core = cores[i];
+      if (!core) return { text: p, kind: 'plain' };
+      wordCount++;
+      const raw = tokenize(p)[0];
+      const note = exactNote.get(raw) ?? bareNote.get(bare(raw));
+      if (note) return { text: p, kind: 'error', note };
+      if (isConn(core) || inPhrase.has(i)) return { text: p, kind: 'connector' };
+      if (!FUNCTION_WORDS.has(core) && [...stems(core)].some((s) => themeNorms.has(s))) return { text: p, kind: 'vocab' };
+      return { text: p, kind: 'plain' };
+    });
+    out.push({ words, wordCount });
+  }
+  return out;
+}

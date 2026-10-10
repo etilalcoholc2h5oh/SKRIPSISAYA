@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores, resolveTheme } from '../lib/db';
-import { ChibiMascot } from './ChibiMascot';
+import { Callout } from './Callout';
 import { 
   MessageCircle, CheckCircle2, Search, Edit3, Copy, Check, 
   Award, Users, Eye, PenTool, Send, FileText, Download,
@@ -105,9 +105,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
       {/* Teacher Header Card with Mascot */}
       <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border ${borderColor} ${cardBg} shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <ChibiMascot
-            variant="teacher"
-            size="sm"
+          <Callout
             quote="Ahlan wa Sahlan Ustadz/Ustadzah! Pantau tulisan siswa secara langsung di bawah ini."
             badge="Guru"
           />
@@ -186,9 +184,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
           <div className="flex-1 overflow-y-auto p-2.5 sm:p-3 space-y-2 max-h-[500px] lg:max-h-[650px]">
             {filteredStudents.length === 0 ? (
               <div className="p-6 sm:p-8 text-center text-stone-400 text-xs space-y-3 flex flex-col items-center justify-center">
-                <ChibiMascot
-                  variant="cheer"
-                  size="sm"
+                <Callout
                   quote="Menunggu siswa bergabung ke kelas..."
                   subquote={`Beri tahu kode kelas ${session.id} ke siswa ya!`}
                 />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createSession, joinSession, verifyTeacherAccess } from '../lib/db';
 import { THEMES, ThemeTopic } from '../data';
-import { ChibiMascot, ChibiAvatar, MascotVariant } from './ChibiMascot';
+import { Callout } from './Callout';
 import { CustomThemeForm } from './CustomThemeForm';
 import { 
   Users, BookOpen, Sparkles, ArrowRight, AlertCircle, BookMarked, 
@@ -261,9 +261,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     <div className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4 space-y-6 sm:space-y-8">
       {/* Hero Title with Mascot */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-6 text-center md:text-left">
-        <ChibiMascot
-          variant="writer"
-          size="lg"
+        <Callout
           quote="Ahlan wa Sahlan! Mari mengarang insya' muwajjah."
           subquote="Pilih Mode KBM bersama Guru atau Mode Latihan Mandiri untuk memulai."
           className="justify-center"
@@ -779,9 +777,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
           {/* Header Info Mandiri with Cheer Mascot */}
           <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <ChibiMascot
-                variant="kitab"
-                size="md"
+              <Callout
                 quote="Semangat belajar menulis mandiri! Kamu pasti bisa menghasilkan insya' yang mumtaz."
                 subquote="Pilih tema di bawah dan mulailah merangkai kalimat indahmu."
                 badge="Semangat"
@@ -855,12 +851,9 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
             />
           </div>
 
-          {/* 7 Themes Grid with Chibi Mascot Illustrations */}
+          {/* Daftar tema */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSoloThemes.map((topic, idx) => {
-              const chibiVariants: MascotVariant[] = ['writer', 'kitab', 'thinking', 'digitalPen', 'cheer', 'award', 'teacher'];
-              const currentVariant = chibiVariants[idx % chibiVariants.length];
-
               return (
                 <div 
                   key={topic.id}
@@ -869,7 +862,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <ChibiAvatar variant={currentVariant} size="xs" />
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
                           {topic.grade}
                         </span>
