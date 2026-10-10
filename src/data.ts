@@ -33,7 +33,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'التَّسَوُّقُ (فِي السُّوقِ التَّقْلِيدِيِّ وَالْمَرْكَزِيِّ)',
     titleIndo: 'Berbelanja di Pasar Tradisional & Supermarket',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_tasawwuq_1785595437548.jpg',
     prompt: 'Tuliskan karangan singkat tentang pengalamanmu berbelanja kebutuhan di pasar tradisional atau supermarket (سُوق مَرْكَزِيّ), barang yang kamu beli, dan bagaimana proses tawar-menawar atau pembayarannya.',
     mufradat: [
       { 
@@ -164,7 +163,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'الصِّحَّةُ وَالرِّعَايَةُ الصِّحِّيَّةُ',
     titleIndo: 'Kesehatan & Layanan Medis',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_sihhah_1785595448086.jpg',
     prompt: 'Tuliskan karangan tentang pengalaman berobat atau memeriksakan kesehatan di klinik/rumah sakit, nasihat dokter untuk pola hidup sehat, serta peran apotek dalam menyediakan obat.',
     mufradat: [
       { 
@@ -295,7 +293,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'السَّفَرُ وَالسِّيَاحَةُ',
     titleIndo: 'Bepergian & Pariwisata',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_siyahah_1785595459670.jpg',
     prompt: 'Tuliskan karangan tentang rencana atau pengalaman wisatamu saat liburan ke destinasi alam atau kota bersejarah, pemesanan tiket, dan keindahan tempat yang dikunjungi.',
     mufradat: [
       { 
@@ -677,7 +674,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'تِكْنُولُوجِيَا الْإِعْلَامِ وَالِاتِّصَالِ',
     titleIndo: 'Teknologi Informasi & Komunikasi',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_tiknulujiya_1785595472733.jpg',
     prompt: 'Jelaskan bagaimana kamu memanfaatkan teknologi informasi, internet, komputer, dan smartphone untuk menunjang kegiatan belajarmu sehari-hari secara positif.',
     mufradat: [
       { 

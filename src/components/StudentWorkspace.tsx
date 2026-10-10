@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
-import { generateInstantStoryboardLocally, resolveScenePhoto, resolveQuickTranslation, StoryboardScene } from '../utils/visualResolver';
+import { TextMap } from './TextMap';
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
 import { Callout } from './Callout';
 import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
@@ -8,8 +8,8 @@ import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, s
 import { 
   Lightbulb, CheckCircle2, Type, Send, Wand2, Volume2, 
   BookOpen, Plus, Search, HelpCircle, ArrowLeft, ArrowRight, 
-  Award, Check, PenTool, Keyboard, RefreshCw, AlertCircle, Lock,
-  Copy, Printer, Bot, Share2, Compass, GraduationCap, Heart, Image, Sparkles
+  Award, Check, X, PenTool, Keyboard, RefreshCw, AlertCircle, Lock,
+  Copy, Printer, Bot, Share2, Compass, GraduationCap, Heart, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HandwritingCanvas } from './HandwritingCanvas';
@@ -102,8 +102,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [aiActionType, setAiActionType] = useState<'ide' | 'evaluasi' | 'harakat' | 'rubrik' | null>(null);
 
-  const [visualStory, setVisualStory] = useState<StoryboardScene[]>([]);
-  const [loadingVisual, setLoadingVisual] = useState(false);
 
   const [mufradatSearch, setMufradatSearch] = useState('');
   const [customWord, setCustomWord] = useState('');
@@ -143,35 +141,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
       unsubSession();
     };
   }, [sessionId, studentId]);
-
-  // Live, instant, 0-latency storyboard synchronization
-  useEffect(() => {
-    const text = localDraft || progress?.draft || '';
-    if (!text || text.trim().length < 3) {
-      setVisualStory([]);
-      return;
-    }
-    
-    // 1. Instant local visual resolution with 0 latency
-    const instantScenes = generateInstantStoryboardLocally(text);
-    if (instantScenes.length > 0) {
-      setVisualStory(prev => {
-        // Retain existing refined translations if sentences match
-        return instantScenes.map((newScene, idx) => {
-          const matchingPrev = prev[idx];
-          if (matchingPrev && matchingPrev.arabic === newScene.arabic && matchingPrev.indoMeaning) {
-            return {
-              ...newScene,
-              indoMeaning: matchingPrev.indoMeaning,
-              sceneTitle: matchingPrev.sceneTitle || newScene.sceneTitle
-            };
-          }
-          return newScene;
-        });
-      });
-    }
-
-  }, [localDraft]);
 
   if (!progress) {
     return (
@@ -526,7 +495,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               onClick={() => setStepLockWarning(null)}
               className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 font-bold text-xs shrink-0 px-2 py-0.5"
             >
-              ✕
+              <X className="w-3.5 h-3.5" />
             </button>
           </motion.div>
         )}
@@ -856,7 +825,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                             <div className={`w-4 h-4 rounded-full flex items-center justify-center border text-[10px] font-bold transition-transform ${
                               isSelected ? 'bg-purple-600 border-purple-600 text-white shadow-xs scale-110' : 'border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800'
                             }`}>
-                              {isSelected ? '✓' : ''}
+                              {isSelected ? <Check className="w-3 h-3" /> : null}
                             </div>
                           </div>
 
@@ -1181,90 +1150,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     className={`w-full min-h-[220px] sm:min-h-[320px] p-4 sm:p-6 rounded-xl sm:rounded-2xl border ${borderColor} bg-transparent resize-y focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic text-2xl sm:text-3xl leading-[2.3] sm:leading-[2.7] tracking-wide`}
                   />
 
-                  {/* Visualisasi adegan berkesinambungan */}
-                  {(localDraft || progress?.draft) && (
-                    <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 shadow-xs">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-sm sm:text-base">
-                          <Image className="w-5 h-5 text-blue-600 dark:text-blue-400" /> 
-                          <span>Visualisasi Papan Cerita Karangan (Alur Kronologis)</span>
-                        </div>
-                        <div className="flex items-center gap-2 self-end sm:self-auto">
-                          <div className={`text-xs px-3 py-1.5 rounded-lg font-medium shadow-xs flex items-center gap-1.5 ${loadingVisual ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'}`}>
-                            {loadingVisual ? (
-                              <>
-                                <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
-                                <span>Menyempurnakan Terjemahan...</span>
-                              </>
-                            ) : (
-                              <>
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span>Sinkron Otomatis (Real-Time)</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {visualStory.length > 0 ? (
-                        <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin">
-                          {visualStory.map((segment, idx) => {
-                            const photo = resolveScenePhoto(segment.arabic, segment.indoMeaning, idx);
-                            const activeImgUrl = segment.imageUrl || photo.url;
-                            const title = segment.sceneTitle || photo.title;
-                            const icon = segment.categoryIcon || photo.icon || '🎬';
-                            return (
-                              <div key={idx} className="min-w-[280px] sm:min-w-[320px] max-w-[360px] shrink-0 snap-center rounded-2xl overflow-hidden bg-white dark:bg-stone-900 border border-blue-200/90 dark:border-blue-900/70 flex flex-col shadow-sm hover:shadow-md transition-all">
-                                <div className="h-44 sm:h-52 w-full bg-stone-100 dark:bg-stone-800 relative overflow-hidden group">
-                                  <img 
-                                    src={activeImgUrl}
-                                    alt={title}
-                                    referrerPolicy="no-referrer"
-                                    className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                                    loading="lazy"
-                                    onError={(e) => {
-                                      const target = e.currentTarget;
-                                      if (target.dataset.failedOnce !== '1' && photo.url && target.src !== photo.url) {
-                                        target.dataset.failedOnce = '1';
-                                        target.src = photo.url;
-                                      } else {
-                                        target.src = 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=700&auto=format&fit=crop&q=80';
-                                      }
-                                    }}
-                                  />
-                                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-stone-900/85 backdrop-blur-xs text-white flex items-center gap-1.5 text-xs font-bold shadow-md max-w-[90%]">
-                                    <span className="text-sm">{icon}</span>
-                                    <span className="shrink-0">Adegan {idx + 1}</span>
-                                    {title && (
-                                      <span className="text-[11px] font-normal text-stone-200 border-l border-stone-600 pl-1.5 truncate">
-                                        {title}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="p-3.5 bg-white dark:bg-stone-900 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-2">
-                                  <p className="font-arabic text-lg sm:text-xl font-bold text-stone-900 dark:text-white leading-relaxed text-right" dir="rtl">
-                                    {segment.arabic}
-                                  </p>
-                                  {segment.indoMeaning ? (
-                                    <p className="text-xs text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-800/70 px-2.5 py-2 rounded-lg border border-stone-100 dark:border-stone-800 text-left leading-relaxed">
-                                      <span className="font-semibold text-blue-600 dark:text-blue-400 mr-1">Arti:</span>
-                                      {segment.indoMeaning}
-                                    </p>
-                                  ) : null}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="w-full h-24 sm:h-32 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 border border-dashed border-blue-200 dark:border-blue-800 flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-medium px-4 text-center gap-1">
-                          <p className="font-bold">Papan Cerita Visual Belum Dimuat</p>
-                          <p className="text-stone-500 dark:text-stone-400 text-[11px]">Tulis kalimat karangan dalam bahasa Arab di kotak atas, lalu klik "Segarkan Visual" atau tunggu beberapa detik agar adegan cerita muncul secara berurutan.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <TextMap text={localDraft || progress?.draft || ''} theme={theme} selectedMufradat={progress?.selectedMufradat} />
                 </div>
               ) : (
                 <HandwritingCanvas
@@ -1469,7 +1355,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 onClick={() => setIsScoreModalOpen(false)}
                 className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center text-stone-500 font-bold transition-colors"
               >
-                ✕
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
