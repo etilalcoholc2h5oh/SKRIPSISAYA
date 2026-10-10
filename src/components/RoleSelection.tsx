@@ -5,7 +5,7 @@ import { Callout } from './Callout';
 import { CustomThemeForm } from './CustomThemeForm';
 import { 
   Users, BookOpen, Sparkles, ArrowRight, AlertCircle, BookMarked, 
-  Key, PlusCircle, Clock, Trash2, ShieldCheck, Lock, Eye, EyeOff,
+  Key, PlusCircle, Clock, Trash2, ShieldCheck, Lock,
   GraduationCap, PenTool, CheckCircle2, Compass, Layers
 } from 'lucide-react';
 
@@ -18,7 +18,6 @@ interface SavedSessionItem {
   sessionId: string;
   themeId: string;
   teacherName?: string;
-  teacherPin?: string;
   studentName?: string;
   studentId?: string;
   timestamp: number;
@@ -53,7 +52,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   // Teacher KBM Form - Existing
   const [existingTeacherCode, setExistingTeacherCode] = useState('');
   const [existingTeacherPin, setExistingTeacherPin] = useState('');
-  const [showExistingPin, setShowExistingPin] = useState(false);
   const [isEnteringExisting, setIsEnteringExisting] = useState(false);
   const [existingCodeError, setExistingCodeError] = useState<string | null>(null);
 
@@ -73,7 +71,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
       // Bersihkan sisa data lama yang mungkin masih tersimpan.
       localStorage.removeItem('kitabah_solo_sessions');
 
-      const tSessions = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]').filter(Boolean);
+      // Hapus PIN yang dulu sempat tersimpan di perangkat.
+      const tSessions = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]')
+        .filter(Boolean)
+        .map(({ teacherPin: _legacyPin, ...rest }: any) => rest);
+      localStorage.setItem('kitabah_teacher_sessions', JSON.stringify(tSessions));
       const sSessions = JSON.parse(localStorage.getItem('kitabah_student_sessions') || '[]').filter(Boolean);
       const lastName = localStorage.getItem('kitabah_last_student_name') || '';
 
@@ -93,12 +95,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   }, []);
 
-  const saveTeacherSessionToHistory = (sessionId: string, themeId: string, tName: string, pin?: string) => {
+  const saveTeacherSessionToHistory = (sessionId: string, themeId: string, tName: string) => {
     try {
       const existing: SavedSessionItem[] = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]').filter(Boolean);
       const filtered = existing.filter(item => item.sessionId !== sessionId);
       const updated = [
-        { sessionId, themeId, teacherName: tName, teacherPin: pin, timestamp: Date.now() },
+        { sessionId, themeId, teacherName: tName, timestamp: Date.now() },
         ...filtered
       ].slice(0, 10);
       localStorage.setItem('kitabah_teacher_sessions', JSON.stringify(updated));
@@ -180,7 +182,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
       }
       const themeId = custom ? custom.id : selectedTheme;
       const sessionId = await createSession(teacherName.trim(), themeId, cleanPin, false, custom || undefined);
-      saveTeacherSessionToHistory(sessionId, themeId, teacherName.trim(), cleanPin);
+      saveTeacherSessionToHistory(sessionId, themeId, teacherName.trim());
       onCreateSession(sessionId);
     } catch (err) {
       console.error(err);
@@ -204,7 +206,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
         return;
       }
       const session = result.session!;
-      saveTeacherSessionToHistory(cleanCode, session?.themeId || "", session.teacherName || 'Guru', session.teacherPin);
+      saveTeacherSessionToHistory(cleanCode, session?.themeId || "", session.teacherName || 'Guru');
       onCreateSession(cleanCode);
     } catch (err: any) {
       console.error(err);
@@ -214,27 +216,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   };
 
-  const handleResumeTeacherSession = async (item: SavedSessionItem) => {
-    setIsEnteringExisting(true);
+  const handleResumeTeacherSession = (item: SavedSessionItem) => {
+    // PIN tidak disimpan di perangkat, jadi guru mengetik ulang PIN-nya.
     setExistingCodeError(null);
     setExistingTeacherCode(item.sessionId);
-    if (item.teacherPin) {
-      setExistingTeacherPin(item.teacherPin);
-    }
-    try {
-      const result = await verifyTeacherAccess(item.sessionId, item.teacherPin || '');
-      if (!result.valid) {
-        setTeacherTab('existing');
-        setExistingCodeError(result.message || 'Silakan masukkan PIN Guru Anda untuk melanjutkan.');
-        return;
-      }
-      onCreateSession(item.sessionId);
-    } catch (err: any) {
-      console.error(err);
-      setExistingCodeError(err.message || 'Gagal membuka kelas guru.');
-    } finally {
-      setIsEnteringExisting(false);
-    }
+    setExistingTeacherPin('');
+    setTeacherTab('existing');
   };
 
   const handleStartSoloPractice = async (themeId: string, customTheme?: ThemeTopic) => {
@@ -691,20 +678,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           </div>
                           <div className="relative">
                             <input 
-                              type={showExistingPin ? "text" : "password"} 
+                              type="password" autoComplete="off" 
                               required
                               value={existingTeacherPin} 
                               onChange={e => setExistingTeacherPin(e.target.value)} 
                               placeholder="Masukkan PIN Guru" 
                               className="w-full p-3.5 pr-11 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
                             />
-                            <button
-                              type="button"
-                              onClick={() => setShowExistingPin(!showExistingPin)}
-                              className="absolute right-3.5 top-3.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                            >
-                              {showExistingPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
                           </div>
                         </div>
 

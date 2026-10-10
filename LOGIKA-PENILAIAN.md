@@ -62,6 +62,7 @@ Penjagaan agar tidak salah tandai: `مَنِ الْمُعَلِّمُ` ("siapa g
 
 - **Bantuan Ide**: mencocokkan gagasan siswa dengan kosakata tema, lalu menyarankan kata penghubung, pola kalimat tema (dengan contoh dan penjelasannya), dan kosakata yang belum dipakai.
 - **Cek Harakat**: menampilkan bentuk berharakat dari kamus tema untuk kata yang belum berharakat. Draf siswa **tidak diubah otomatis**, karena harakat akhir tergantung konteks kalimat.
+- **Peta Tulisan**: menampilkan karangan per kalimat dengan penanda kosakata tema (hijau), kata penghubung (biru), dan kata yang perlu diperiksa (garis merah bergelombang beserta alasannya). Dihitung dari mesin yang sama (`annotateText`), tanpa gambar.
 - **Tema sendiri**: guru atau siswa mengisi judul, arahan, dan kosakata (`كِتَابٌ = buku`). Tema tersimpan di sesi dan dinilai dengan mesin yang sama.
 
 ## 5. Batasan (jujur)
@@ -77,4 +78,4 @@ Penjagaan agar tidak salah tandai: `مَنِ الْمُعَلِّمُ` ("siapa g
 npm test
 ```
 
-Butuh Node 22.18+ (memuat berkas `.ts` langsung). Pengujian mencakup: contoh karangan semua tema tidak memicu temuan palsu, tiap aturan di atas, penjagaan kasus benar, input kosong atau non-Arab, determinisme, dan 300 teks acak.
+Butuh Node 22.18+ (memuat berkas `.ts` langsung). Pengujian mencakup: peta tulisan, contoh karangan semua tema tidak memicu temuan palsu, tiap aturan di atas, penjagaan kasus benar, input kosong atau non-Arab, determinisme, dan 300 teks acak.

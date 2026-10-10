@@ -19,7 +19,7 @@ export interface ThemeTopic {
   titleArabic: string;
   titleIndo: string;
   grade: string;
-  imageUrl: string;
+  imageUrl?: string;
   prompt: string;
   mufradat: Mufradat[];
   tarkib: TarkibPattern[];
