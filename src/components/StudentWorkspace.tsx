@@ -4,9 +4,6 @@ import { generateInstantStoryboardLocally, resolveScenePhoto, resolveQuickTransl
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
 import { ChibiMascot } from './ChibiMascot';
 import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
-import flowStepStartImg from '../assets/images/flow_step_start_1787210042818.jpg';
-import flowStepMainImg from '../assets/images/flow_step_main_1787210066046.jpg';
-import flowStepEndImg from '../assets/images/flow_step_end_1787210088142.jpg';
 
 import { 
   Lightbulb, CheckCircle2, Type, Send, Wand2, Volume2, 
@@ -650,7 +647,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     subtitle: 'Muqaddimah / Awal Cerita',
                     hint: 'Contoh: Di pagi hari yang cerah kami berkumpul (في الصباح الباكر)',
                     helpText: 'Tuliskan waktu kejadian, suasana, atau persiapan awal.',
-                    img: flowStepStartImg,
                     badgeColor: 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
                   },
                   { 
@@ -659,7 +655,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     subtitle: 'Inti Kegiatan & Aksi',
                     hint: 'Contoh: Kami belajar dan berdiskusi di kelas (نتعلم ونتحاور في الفصل)',
                     helpText: 'Tuliskan aktivitas utama yang dilakukan.',
-                    img: flowStepMainImg,
                     badgeColor: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
                   },
                   { 
@@ -668,20 +663,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     subtitle: 'Khatimah / Kesan & Akhir',
                     hint: 'Contoh: Kami pulang dengan perasaan gembira (رجعنا مسرورين)',
                     helpText: 'Tuliskan kesan, waktu selesai, atau hikmah kegiatan.',
-                    img: flowStepEndImg,
                     badgeColor: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
                   }
-                ].map(({ index, title, subtitle, hint, helpText, img, badgeColor }) => (
+                ].map(({ index, title, subtitle, hint, helpText, badgeColor }) => (
                   <div key={index} className="p-3 sm:p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/40 space-y-2.5">
                     <div className="flex items-start gap-3">
-                      <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-200 dark:border-stone-700 shadow-sm mt-0.5">
-                        <img 
-                          src={img} 
-                          alt={title} 
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5 mb-1">
                           <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${badgeColor}`}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PenTool, Moon, Sun, LogOut, BookOpen, Users, RefreshCw } from 'lucide-react';
+import { Moon, Sun, LogOut, BookOpen, Users, RefreshCw } from 'lucide-react';
 import { RoleSelection } from './components/RoleSelection';
 import { StudentWorkspace } from './components/StudentWorkspace';
 import { TeacherDashboard } from './components/TeacherDashboard';
@@ -95,9 +95,6 @@ export default function App() {
             onClick={handleLogout}
             className="flex items-center gap-2.5 text-left hover:opacity-90 transition-opacity shrink-0"
           >
-            <div className="bg-gradient-to-tr from-blue-500 to-purple-500 p-2 rounded-xl text-white shrink-0 shadow-sm">
-              <PenTool className="w-5 h-5" />
-            </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <h1 className="font-bold text-base sm:text-lg leading-none whitespace-nowrap">Kitabah Insya'</h1>

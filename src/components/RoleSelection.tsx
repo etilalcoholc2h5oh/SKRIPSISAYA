@@ -3,16 +3,6 @@ import { createSession, joinSession, verifyTeacherAccess } from '../lib/db';
 import { THEMES, ThemeTopic } from '../data';
 import { ChibiMascot, ChibiAvatar, MascotVariant } from './ChibiMascot';
 import { CustomThemeForm } from './CustomThemeForm';
-import chibiWriterImg from '../assets/images/chibi_writer_1787208654329.jpg';
-import chibiTeacherImg from '../assets/images/chibi_teacher_1787208708138.jpg';
-import chibiCheerImg from '../assets/images/chibi_cheer_1787208676480.jpg';
-import chibiThinkingImg from '../assets/images/chibi_thinking_1787208690035.jpg';
-import chibiKitabImg from '../assets/images/chibi_studying_kitab_1787209304570.jpg';
-import chibiDigitalPenImg from '../assets/images/chibi_digital_pen_1787209319158.jpg';
-import chibiAwardImg from '../assets/images/chibi_star_award_1787209287345.jpg';
-import flowStepStartImg from '../assets/images/flow_step_start_1787210042818.jpg';
-import flowStepMainImg from '../assets/images/flow_step_main_1787210066046.jpg';
-import flowStepEndImg from '../assets/images/flow_step_end_1787210088142.jpg';
 import { 
   Users, BookOpen, Sparkles, ArrowRight, AlertCircle, BookMarked, 
   Key, PlusCircle, Clock, Trash2, ShieldCheck, Lock, Eye, EyeOff,
@@ -337,14 +327,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                       Siswa
                     </span>
                   </div>
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-blue-200 dark:border-blue-800/60 shadow-md group-hover:scale-105 transition-transform">
-                    <img 
-                      src={chibiThinkingImg} 
-                      alt="Ilustrasi siswa" 
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
                   <span className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mb-1.5">Siswa</span>
                   <p className="text-xs sm:text-sm text-stone-500 leading-relaxed mb-2">
                     Masuk ke ruang menulis kelas dengan kode dari guru. Tulisanmu terhubung langsung ke panel penilaian guru.
@@ -365,14 +347,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                       <Lock className="w-3 h-3" /> PIN Guru
                     </span>
                   </div>
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-purple-200 dark:border-purple-800/60 shadow-md group-hover:scale-105 transition-transform">
-                    <img 
-                      src={chibiTeacherImg} 
-                      alt="Ilustrasi guru" 
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
                   <span className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mb-1.5">Guru</span>
                   <p className="text-xs sm:text-sm text-stone-500 leading-relaxed mb-2">
                     Buka kelas baru atau pantau kelas aktif, lihat progres menulis siswa secara live, dan berikan skor rubrik analitis.
@@ -390,14 +364,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-stone-600 dark:text-stone-300">
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepStartImg}
-                        alt="Guru Buat Kode"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         1. Guru Buat Kode
@@ -409,14 +375,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   </div>
 
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepMainImg}
-                        alt="Siswa Menulis"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         2. Siswa Menulis
@@ -428,14 +386,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   </div>
 
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepEndImg}
-                        alt="Penilaian Real-time"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         3. Penilaian Real-time
