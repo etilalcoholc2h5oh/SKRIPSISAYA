@@ -172,73 +172,56 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
     } catch (err) {
       console.error('Error generating PDF:', err);
       const msg = err instanceof Error ? err.message : String(err);
-      showToast(`Gagal membuat PDF (${msg.slice(0, 80)}). Gunakan tombol Buka Tab Cetak.`);
+      console.error('PDF otomatis gagal:', msg);
+      showToast('PDF otomatis gagal, membuka dialog cetak. Pilih "Simpan sebagai PDF".');
+      handleOpenInNewTab();
     } finally {
       setIsGeneratingPdf(false);
     }
   };
 
-  // 2. Open printable standalone document in new window/tab
+  // 2. Cetak lewat dialog cetak browser (di HP: pilih "Simpan sebagai PDF"). Tidak memakai html2canvas,
+  // jadi tetap bekerja walau pembuatan PDF otomatis gagal. Memakai iframe tersembunyi, tanpa pop-up.
   const handleOpenInNewTab = () => {
-    if (!printContentRef.current) return;
-    const contentHtml = printContentRef.current.innerHTML;
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      // If popup blocked, fallback to direct print
+    const el = printContentRef.current;
+    if (!el) return;
+    try {
+      const headStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+        .map((n) => n.outerHTML)
+        .join('\n');
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('aria-hidden', 'true');
+      iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+      document.body.appendChild(iframe);
+      const doc = iframe.contentDocument;
+      const win = iframe.contentWindow;
+      if (!doc || !win) throw new Error('iframe');
+      doc.open();
+      doc.write(`<!DOCTYPE html><html lang="id"><head><meta charset="utf-8" />
+<title>Lembar Karangan Insya' - ${student.name.replace(/[<>&"]/g, '')}</title>
+${headStyles}
+<style>
+  html, body { background: #ffffff !important; margin: 0; }
+  body > div { border: 0 !important; box-shadow: none !important; max-width: none !important; min-height: 0 !important; padding: 0 !important; }
+  @page { size: A4; margin: 15mm; }
+</style></head><body>${el.outerHTML}</body></html>`);
+      doc.close();
+      const go = () => {
+        try {
+          win.focus();
+          win.print();
+        } catch (e) {
+          console.error(e);
+          showToast('Gagal membuka dialog cetak.');
+        }
+        setTimeout(() => iframe.remove(), 60000);
+      };
+      // beri waktu agar stylesheet dan font termuat
+      setTimeout(go, 700);
+    } catch (e) {
+      console.error(e);
       window.print();
-      return;
     }
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="id">
-        <head>
-          <meta charset="utf-8" />
-          <title>Lembar Kerja Insya' - ${student.name}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-          <script src="https://cdn.tailwindcss.com"></script>
-          <style>
-            body { 
-              font-family: 'Plus Jakarta Sans', sans-serif; 
-              background-color: #ffffff;
-              color: #0f172a;
-              padding: 20px;
-            }
-            .font-arabic { font-family: 'Amiri', serif; }
-            @media print {
-              body { background-color: #ffffff; padding: 0; }
-              .no-print { display: none !important; }
-              @page { margin: 15mm; size: A4; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="max-w-3xl mx-auto mb-6 flex items-center justify-between no-print bg-white p-4 rounded-xl shadow-md border border-slate-200">
-            <div>
-              <h2 class="font-bold text-slate-800 text-base">Pratinjau Cetak Lembar Insya'</h2>
-              <p class="text-xs text-slate-500">Gunakan tombol Cetak di bawah atau tekan Ctrl+P</p>
-            </div>
-            <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm flex items-center gap-2">
-              Cetak / Simpan PDF
-            </button>
-          </div>
-          <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-            ${contentHtml}
-          </div>
-          <script>
-            // Auto trigger print after short delay
-            setTimeout(() => {
-              window.print();
-            }, 800);
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
   };
 
   // 3. Direct Print
@@ -326,7 +309,7 @@ Catatan: ${student.feedback || '-'}
               title="Buka pratinjau cetak di tab baru browser"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Buka Tab Cetak</span>
+              <span>Cetak / Simpan PDF</span>
             </button>
 
             <button
