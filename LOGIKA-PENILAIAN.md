@@ -76,6 +76,14 @@ Dihitung di `src/lib/quests.ts` dari hasil `analyze()`, tanpa AI.
 - XP hanya bertambah sebesar selisih dari ronde terbaik di tema yang sama, sehingga klaim berulang tidak bisa menambang XP.
 - Yang disimpan di perangkat hanya angka (XP, lencana, nilai terbaik per tema), bukan isi karangan.
 
+## 4d. Latihan sebelum menulis
+
+Di Langkah 2 (kosakata), siswa bisa berlatih dulu, di `src/lib/warmup.ts`, tanpa AI:
+
+- **Tebak arti**: 5 kosakata tema, 4 pilihan arti (pengecoh diambil dari kosakata lain di tema yang sama). 4 XP per jawaban benar.
+- **Susun kalimat**: kata dari kalimat contoh karangan tema diacak, siswa menyusunnya kembali. 8 XP per kalimat benar.
+- Soal tetap per kode sesi dan bisa diganti lewat "Soal baru". XP hanya bertambah sebesar selisih dari hasil terbaik di tema itu.
+
 ## 4c. Mode KBM (guru dan kelas)
 
 Mendigitalkan pekerjaan guru yang biasanya manual, di `src/lib/recap.ts`, tanpa AI.

@@ -10,6 +10,7 @@ interface GameState {
   badges: string[];
   best: Record<string, { xp: number; stars: number }>; // per tema
   rounds: number;
+  warm?: Record<string, number>; // XP terbaik latihan per tema dan jenis
 }
 
 const empty = (): GameState => ({ xp: 0, badges: [], best: {}, rounds: 0 });
@@ -71,4 +72,16 @@ export function claimRound(themeId: string, quests: Quest[], total: number): Cla
     improved: gain > 0,
     state: s,
   };
+}
+
+// XP latihan (tebak arti, susun kalimat). Sama seperti ronde: hanya selisih dari hasil terbaik yang dihitung.
+export function claimWarmup(themeId: string, game: string, xp: number): { gained: number; state: GameState } {
+  const s = loadGame();
+  const key = `${themeId}:${game}`;
+  const prev = (s.warm || {})[key] || 0;
+  const gained = Math.max(0, xp - prev);
+  s.warm = { ...(s.warm || {}), [key]: Math.max(prev, xp) };
+  s.xp += gained;
+  save(s);
+  return { gained, state: s };
 }

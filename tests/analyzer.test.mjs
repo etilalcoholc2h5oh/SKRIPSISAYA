@@ -235,3 +235,22 @@ test('rekap kelas: saran nilai, CSV, statistik', async () => {
   assert.equal(st.graded, 1);
   assert.equal(st.average, 80);
 });
+
+test('latihan: tebak arti dan susun kalimat', async () => {
+  const { makeMeaningQuiz, makeOrderItems } = await import('../src/lib/warmup.ts');
+  for (const th of THEMES) {
+    const qs = makeMeaningQuiz(th, 'S1');
+    assert.ok(qs.length >= 2, th.id);
+    for (const q of qs) {
+      assert.ok(q.options.includes(q.answer));
+      assert.equal(new Set(q.options).size, q.options.length); // tanpa pilihan ganda sama
+    }
+    assert.deepEqual(qs, makeMeaningQuiz(th, 'S1')); // stabil
+    const items = makeOrderItems(th, 'S1');
+    for (const it of items) {
+      assert.deepEqual(it.shuffled.slice().sort(), it.words.slice().sort());
+      assert.notEqual(it.shuffled.join(' '), it.words.join(' '));
+    }
+  }
+  assert.deepEqual(makeOrderItems({ ...THEMES[0], contohInsya: '' }, 'x'), []);
+});

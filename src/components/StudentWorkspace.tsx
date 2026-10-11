@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
 import { TextMap } from './TextMap';
 import { QuestPanel } from './QuestPanel';
+import { WarmUp } from './WarmUp';
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
 import { Callout } from './Callout';
 import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
@@ -954,6 +955,8 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   })}
                 </div>
               </div>
+
+              <WarmUp theme={theme} seed={sessionId} />
 
               {/* Navigation Action */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-stone-200 dark:border-stone-800">
