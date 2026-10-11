@@ -212,3 +212,26 @@ test('gamifikasi: misi, level, XP', async () => {
   assert.equal(stars(40), 0);
   assert.equal(roundXp(empty, 0), 0);
 });
+
+test('rekap kelas: saran nilai, CSV, statistik', async () => {
+  const { buildRecap, recapToCsv, classStats, suggestFor } = await import('../src/lib/recap.ts');
+  const theme = THEMES.find((t) => t.id === 'safar') || THEMES[0];
+  const mk = (name, draft, status, rubricScores) => ({ id: name, name, draft, status, rubricScores, selectedMufradat: [] });
+  const students = [
+    mk('Budi', theme.contohInsya, 'submitted'),
+    mk('Ani', '', 'draft'),
+    mk('Citra', theme.contohInsya, 'reviewed', { fikrah: 20, tarkib: 20, mufradat: 20, imla: 20, total: 80 }),
+  ];
+  const rows = buildRecap(students, theme);
+  assert.deepEqual(rows.map((r) => r.name), ['Ani', 'Budi', 'Citra']); // urut abjad
+  assert.equal(rows[0].total, ''); // tanpa teks: tidak ada nilai palsu
+  assert.ok(rows[1].total > 0 && rows[1].predikat.includes('saran otomatis') && !rows[1].dinilaiGuru);
+  assert.equal(rows[2].total, 80);
+  assert.equal(suggestFor(students[1], theme), null);
+  const csv = recapToCsv(rows);
+  assert.ok(csv.startsWith('﻿"No","Nama"'));
+  assert.equal(csv.split('\r\n').length, 4);
+  const st = classStats(rows);
+  assert.equal(st.graded, 1);
+  assert.equal(st.average, 80);
+});

@@ -76,6 +76,17 @@ Dihitung di `src/lib/quests.ts` dari hasil `analyze()`, tanpa AI.
 - XP hanya bertambah sebesar selisih dari ronde terbaik di tema yang sama, sehingga klaim berulang tidak bisa menambang XP.
 - Yang disimpan di perangkat hanya angka (XP, lencana, nilai terbaik per tema), bukan isi karangan.
 
+## 4c. Mode KBM (guru dan kelas)
+
+Mendigitalkan pekerjaan guru yang biasanya manual, di `src/lib/recap.ts`, tanpa AI.
+
+- **Isi nilai otomatis**: satu klik mengisi 4 aspek rubrik dan catatan dari karangan siswa. Guru memeriksa, menyesuaikan, lalu mengirim. Penilai akhir tetap guru.
+- **Nilai otomatis untuk semua yang sudah kirim**: menilai sekaligus semua siswa berstatus "Sudah kirim" yang belum dinilai.
+- **Rekap Nilai Kelas**: tabel nama, status, jumlah kata, 4 aspek, total (urut abjad), rata-rata, tertinggi, terendah. Angka abu-abu = saran otomatis yang belum dikirim guru.
+- **Unduh rekap (CSV)**: dibuka langsung di Excel, menggantikan rekap manual di buku nilai.
+- Karangan tulisan tangan tidak bisa dibaca mesin, sehingga nilainya diisi guru secara manual (tanpa nilai bawaan palsu).
+- Siswa KBM juga mendapat panel misi (kata tantangan, XP, bintang). Hasil permainan hanya di perangkat siswa dan tidak mengubah nilai dari guru.
+
 ## 5. Batasan (jujur)
 
 - Mesin **tidak memahami makna**. Kesesuaian dengan tema hanya diukur dari kosakata tema yang dipakai.

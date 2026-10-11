@@ -1126,15 +1126,13 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* Writing Interface */}
               {(progress.writingMode || 'type') === 'type' ? (
                 <div className="space-y-3">
-                  {isSolo && (
-                    <QuestPanel
-                      text={localDraft || progress?.draft || ''}
-                      theme={theme}
-                      seed={sessionId}
-                      selectedMufradat={progress?.selectedMufradat}
-                      onClaim={handleRequestAiRubric}
-                    />
-                  )}
+                  <QuestPanel
+                    text={localDraft || progress?.draft || ''}
+                    theme={theme}
+                    seed={sessionId}
+                    selectedMufradat={progress?.selectedMufradat}
+                    onClaim={isSolo ? handleRequestAiRubric : undefined}
+                  />
 
                   {/* Diacritics Bar */}
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 sm:gap-1.5 p-1.5 sm:p-2 bg-stone-50 dark:bg-stone-850 rounded-xl border border-stone-200 dark:border-stone-800">
