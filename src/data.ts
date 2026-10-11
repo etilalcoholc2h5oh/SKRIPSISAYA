@@ -19,7 +19,7 @@ export interface ThemeTopic {
   titleArabic: string;
   titleIndo: string;
   grade: string;
-  imageUrl: string;
+  imageUrl?: string;
   prompt: string;
   mufradat: Mufradat[];
   tarkib: TarkibPattern[];
@@ -33,7 +33,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'التَّسَوُّقُ (فِي السُّوقِ التَّقْلِيدِيِّ وَالْمَرْكَزِيِّ)',
     titleIndo: 'Berbelanja di Pasar Tradisional & Supermarket',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_tasawwuq_1785595437548.jpg',
     prompt: 'Tuliskan karangan singkat tentang pengalamanmu berbelanja kebutuhan di pasar tradisional atau supermarket (سُوق مَرْكَزِيّ), barang yang kamu beli, dan bagaimana proses tawar-menawar atau pembayarannya.',
     mufradat: [
       { 
@@ -41,7 +40,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Supermarket / Swalayan', 
         pronunciation: 'Suuqun markaziyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=300&auto=format&fit=crop&q=80',
-        icon: '🛒', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -49,7 +48,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pasar Tradisional', 
         pronunciation: 'Suuqun taqliidiyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=300&auto=format&fit=crop&q=80',
-        icon: '🏪', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -57,7 +56,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Bagian Pakaian', 
         pronunciation: 'Qismul malaabis', 
         imageUrl: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&auto=format&fit=crop&q=80',
-        icon: '👕', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -65,7 +64,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Bagian Makanan & Buah', 
         pronunciation: 'Qismul ma\'kuulaat', 
         imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&auto=format&fit=crop&q=80',
-        icon: '🍎', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -73,7 +72,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Penjual', 
         pronunciation: 'Baa\'i\'un', 
         imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=300&auto=format&fit=crop&q=80',
-        icon: '👨‍💼', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -81,7 +80,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pembeli / Pelanggan', 
         pronunciation: 'Musytarin', 
         imageUrl: 'https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=300&auto=format&fit=crop&q=80',
-        icon: '🛍️', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -89,7 +88,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kasir Pembayaran', 
         pronunciation: 'Amiinush shunduuq', 
         imageUrl: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=300&auto=format&fit=crop&q=80',
-        icon: '💳', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -97,7 +96,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Diskon / Potongan Harga', 
         pronunciation: 'Takhfiidhun / Khasymun', 
         imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300&auto=format&fit=crop&q=80',
-        icon: '🏷️', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -105,7 +104,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Harga Barang', 
         pronunciation: 'Tsamanun / Si\'run', 
         imageUrl: 'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=300&auto=format&fit=crop&q=80',
-        icon: '💵', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -113,7 +112,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Secara Tunai (Cash)', 
         pronunciation: 'Naqdan', 
         imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=300&auto=format&fit=crop&q=80',
-        icon: '💰', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -121,7 +120,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Murah Terjangkau', 
         pronunciation: 'Rakhiishun', 
         imageUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=300&auto=format&fit=crop&q=80',
-        icon: '🟢', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -129,7 +128,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Mahal / Premium', 
         pronunciation: 'Ghaalin', 
         imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&auto=format&fit=crop&q=80',
-        icon: '💎', 
+        icon: '', 
         category: 'Materi' 
       }
     ],
@@ -164,7 +163,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'الصِّحَّةُ وَالرِّعَايَةُ الصِّحِّيَّةُ',
     titleIndo: 'Kesehatan & Layanan Medis',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_sihhah_1785595448086.jpg',
     prompt: 'Tuliskan karangan tentang pengalaman berobat atau memeriksakan kesehatan di klinik/rumah sakit, nasihat dokter untuk pola hidup sehat, serta peran apotek dalam menyediakan obat.',
     mufradat: [
       { 
@@ -172,7 +170,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Rumah Sakit', 
         pronunciation: 'Mustasyfaa', 
         imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=300&auto=format&fit=crop&q=80',
-        icon: '🏥', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -180,7 +178,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Dokter', 
         pronunciation: 'Thabiibun', 
         imageUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80',
-        icon: '👨‍⚕️', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -188,7 +186,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Perawat', 
         pronunciation: 'Mumarridhatun', 
         imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=300&auto=format&fit=crop&q=80',
-        icon: '👩‍⚕️', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -196,7 +194,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pasien / Orang Sakit', 
         pronunciation: 'Mariidhun', 
         imageUrl: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&auto=format&fit=crop&q=80',
-        icon: '🤒', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -204,7 +202,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Apotek', 
         pronunciation: 'Shaidaliyyatun', 
         imageUrl: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=300&auto=format&fit=crop&q=80',
-        icon: '⚕️', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -212,7 +210,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Obat / Resep', 
         pronunciation: 'Dawaa\'un', 
         imageUrl: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&auto=format&fit=crop&q=80',
-        icon: '💊', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -220,7 +218,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Stetoskop', 
         pronunciation: 'Sammaa\'atuth thabiib', 
         imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=300&auto=format&fit=crop&q=80',
-        icon: '🩺', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -228,7 +226,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Klinik / Ruang Periksa', 
         pronunciation: '\'Iyaadatun', 
         imageUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=300&auto=format&fit=crop&q=80',
-        icon: '🚪', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -236,7 +234,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Demam & Sakit Kepala', 
         pronunciation: 'Hummaa wa shudaa\'', 
         imageUrl: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=300&auto=format&fit=crop&q=80',
-        icon: '🤕', 
+        icon: '', 
         category: 'Perasaan' 
       },
       { 
@@ -244,7 +242,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Termometer Suhu', 
         pronunciation: 'Miqyaasul haraarah', 
         imageUrl: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=300&auto=format&fit=crop&q=80',
-        icon: '🌡️', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -252,7 +250,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kesehatan & Kebugaran', 
         pronunciation: 'Shihhatun wa \'aafiyah', 
         imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&auto=format&fit=crop&q=80',
-        icon: '❤️', 
+        icon: '', 
         category: 'Perasaan' 
       },
       { 
@@ -260,7 +258,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pencegahan Penyakit', 
         pronunciation: 'Wiqaayatun', 
         imageUrl: 'https://images.unsplash.com/photo-1584744982491-665216d95f8b?w=300&auto=format&fit=crop&q=80',
-        icon: '🛡️', 
+        icon: '', 
         category: 'Aktivitas' 
       }
     ],
@@ -295,7 +293,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'السَّفَرُ وَالسِّيَاحَةُ',
     titleIndo: 'Bepergian & Pariwisata',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_siyahah_1785595459670.jpg',
     prompt: 'Tuliskan karangan tentang rencana atau pengalaman wisatamu saat liburan ke destinasi alam atau kota bersejarah, pemesanan tiket, dan keindahan tempat yang dikunjungi.',
     mufradat: [
       { 
@@ -303,7 +300,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Bandara Udara', 
         pronunciation: 'Mathaarun', 
         imageUrl: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=300&auto=format&fit=crop&q=80',
-        icon: '🛫', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -311,7 +308,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pesawat Terbang', 
         pronunciation: 'Thaa\'iratun', 
         imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=300&auto=format&fit=crop&q=80',
-        icon: '✈️', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -319,7 +316,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kereta Api', 
         pronunciation: 'Qithaarun', 
         imageUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=300&auto=format&fit=crop&q=80',
-        icon: '🚆', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -327,7 +324,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Paspor Perjalanan', 
         pronunciation: 'Jawaazus safar', 
         imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=300&auto=format&fit=crop&q=80',
-        icon: '🛂', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -335,7 +332,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Tiket Perjalanan', 
         pronunciation: 'Tadzkiratun', 
         imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=300&auto=format&fit=crop&q=80',
-        icon: '🎟️', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -343,7 +340,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Hotel Penginapan', 
         pronunciation: 'Funduqun', 
         imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&auto=format&fit=crop&q=80',
-        icon: '🏨', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -351,7 +348,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Koper Wisata', 
         pronunciation: 'Haqiibatus safar', 
         imageUrl: 'https://images.unsplash.com/photo-1581553680321-4fffae59fccd?w=300&auto=format&fit=crop&q=80',
-        icon: '🧳', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -359,7 +356,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pantai Laut', 
         pronunciation: 'Syaathi\'ul bahr', 
         imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&auto=format&fit=crop&q=80',
-        icon: '🏖️', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -367,7 +364,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Gunung Alam', 
         pronunciation: 'Jabalun', 
         imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&auto=format&fit=crop&q=80',
-        icon: '⛰️', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -375,7 +372,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Museum Bersejarah', 
         pronunciation: 'Mathafun', 
         imageUrl: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=300&auto=format&fit=crop&q=80',
-        icon: '🏛️', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -383,7 +380,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pemandangan Alami', 
         pronunciation: 'Manzharun thabi\'iyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&auto=format&fit=crop&q=80',
-        icon: '🌄', 
+        icon: '', 
         category: 'Wisata' 
       },
       { 
@@ -391,7 +388,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pemandu Wisata (Tour Guide)', 
         pronunciation: 'Daliilun siyaahiyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=300&auto=format&fit=crop&q=80',
-        icon: '🧭', 
+        icon: '', 
         category: 'Tokoh' 
       }
     ],
@@ -422,6 +419,126 @@ export const THEMES: ThemeTopic[] = [
     ]
   },
   {
+    id: 'safar',
+    titleArabic: 'السَّفَرُ: الِاسْتِعْدَادُ وَآدَابُ الرِّحْلَةِ',
+    titleIndo: 'Safar (Bepergian): Persiapan & Adab Perjalanan',
+    grade: 'Kelas XI',
+    imageUrl: '',
+    prompt: 'Tuliskan karangan tentang sebuah perjalanan jauh yang pernah atau akan kamu lakukan (misalnya mudik atau pulang ke kampung halaman): persiapan sebelum berangkat, bekal dan barang bawaan, doa safar, keadaan di perjalanan, hingga tiba di tujuan.',
+    mufradat: [
+      {
+        word: 'سَفَرٌ',
+        meaning: 'Perjalanan / Bepergian',
+        pronunciation: 'Safarun',
+        icon: '',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'مُسَافِرٌ',
+        meaning: 'Musafir (Orang yang Bepergian)',
+        pronunciation: 'Musaafirun',
+        icon: '',
+        category: 'Tokoh'
+      },
+      {
+        word: 'طَرِيقٌ',
+        meaning: 'Jalan / Rute',
+        pronunciation: 'Thariiqun',
+        icon: '',
+        category: 'Tempat'
+      },
+      {
+        word: 'أَمْتِعَةٌ',
+        meaning: 'Barang Bawaan',
+        pronunciation: 'Amti\'atun',
+        icon: '',
+        category: 'Benda'
+      },
+      {
+        word: 'زَادٌ',
+        meaning: 'Bekal Perjalanan',
+        pronunciation: 'Zaadun',
+        icon: '',
+        category: 'Benda'
+      },
+      {
+        word: 'مَوْعِدُ الْمُغَادَرَةِ',
+        meaning: 'Jadwal Keberangkatan',
+        pronunciation: 'Maw\'idul mughaadarah',
+        icon: '',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'مَحَطَّةٌ',
+        meaning: 'Terminal / Stasiun',
+        pronunciation: 'Mahaththatun',
+        icon: '',
+        category: 'Tempat'
+      },
+      {
+        word: 'ازْدِحَامٌ',
+        meaning: 'Kemacetan / Keramaian',
+        pronunciation: 'Izdihaamun',
+        icon: '',
+        category: 'Sifat'
+      },
+      {
+        word: 'اسْتِرَاحَةٌ',
+        meaning: 'Istirahat / Tempat Istirahat',
+        pronunciation: 'Istiraahatun',
+        icon: '',
+        category: 'Tempat'
+      },
+      {
+        word: 'دُعَاءُ السَّفَرِ',
+        meaning: 'Doa Safar (Doa Bepergian)',
+        pronunciation: 'Du\'aa\'us safar',
+        icon: '',
+        category: 'Kegiatan'
+      },
+      {
+        word: 'رَفِيقُ السَّفَرِ',
+        meaning: 'Teman Seperjalanan',
+        pronunciation: 'Rafiiqus safar',
+        icon: '',
+        category: 'Tokoh'
+      },
+      {
+        word: 'الْوُصُولُ',
+        meaning: 'Kedatangan / Tiba',
+        pronunciation: 'Al-wushuulu',
+        icon: '',
+        category: 'Kegiatan'
+      }
+    ],
+    tarkib: [
+      {
+        name: 'Isim Maushul (اسْمُ الْمَوْصُولِ: الَّذِي / الَّتِي)',
+        patternArabic: 'اسْمٌ مَعْرِفَةٌ + الَّذِي / الَّتِي + جُمْلَةُ الصِّلَةِ',
+        example: 'رَكِبْنَا الْحَافِلَةَ الَّتِي تَنْطَلِقُ مِنَ الْمَحَطَّةِ الرَّئِيسِيَّةِ',
+        explanation: 'Isim maushul menyambung kata sebelumnya dengan keterangan tambahan. Gunakan الَّذِي untuk mudzakkar dan الَّتِي untuk muannats, sesuai kata yang diterangkan.'
+      },
+      {
+        name: 'Jumlah Syarat dengan إِذَا',
+        patternArabic: 'إِذَا + فِعْلُ الشَّرْطِ + فَ + جَوَابُ الشَّرْطِ',
+        example: 'إِذَا أَرَدْتَ السَّفَرَ فَاحْرِصْ عَلَى تَرْتِيبِ أَمْتِعَتِكَ',
+        explanation: 'إِذَا berarti "jika/apabila". Dipakai untuk menyatakan nasihat atau urutan persiapan perjalanan: jika melakukan A maka lakukan B.'
+      },
+      {
+        name: 'Hal (الْحَالُ): Menjelaskan Keadaan',
+        patternArabic: 'فِعْلٌ + فَاعِلٌ + حَالٌ مَنْصُوبٌ',
+        example: 'وَصَلْنَا إِلَى الْقَرْيَةِ مُتْعَبِينَ وَلَكِنَّنَا سُعَدَاءُ',
+        explanation: 'Hal menjelaskan keadaan pelaku saat perbuatan terjadi (di sini: lelah). Hal berstatus manshub, jadi jamak mudzakkar salim memakai akhiran ـِينَ.'
+      }
+    ],
+    contohInsya: 'فِي نِهَايَةِ الْعَامِ الدِّرَاسِيِّ، قَرَّرَتْ أُسْرَتِي السَّفَرَ إِلَى قَرْيَةِ جَدِّي. قَبْلَ الْمُغَادَرَةِ، رَتَّبْتُ أَمْتِعَتِي وَحَمَلْتُ زَادًا كَافِيًا. رَكِبْنَا الْحَافِلَةَ الَّتِي تَنْطَلِقُ مِنَ الْمَحَطَّةِ الرَّئِيسِيَّةِ، وَقَرَأْنَا دُعَاءَ السَّفَرِ. فِي الطَّرِيقِ، رَأَيْنَا ازْدِحَامًا شَدِيدًا، فَاسْتَرَحْنَا فِي مَحَطَّةِ الِاسْتِرَاحَةِ. وَصَلْنَا إِلَى الْقَرْيَةِ مُتْعَبِينَ وَلَكِنَّنَا سُعَدَاءُ بِلِقَاءِ الْأَهْلِ.',
+    kesalahanUmum: [
+      'Menggunakan الَّذِي untuk kata muannats (misal: الْحَافِلَةُ الَّذِي), padahal seharusnya الْحَافِلَةُ الَّتِي.',
+      'Menulis hal dengan rafa\' (مُتْعَبُونَ) padahal hal harus manshub (مُتْعَبِينَ).',
+      'Lupa fa\' (فَ) pada jawab syarat berbentuk perintah setelah إِذَا.'
+    ]
+  },
+  {
     id: 'hajj',
     titleArabic: 'الْحَجُّ وَالْعُمْرَةُ',
     titleIndo: 'Ibadah Haji & Umrah',
@@ -434,7 +551,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Ka\'bah Al-Musyarrafah', 
         pronunciation: 'Al-Ka\'batul musyarrafah', 
         imageUrl: 'https://images.unsplash.com/photo-1565552684305-7e930504df90?w=300&auto=format&fit=crop&q=80',
-        icon: '🕋', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -442,7 +559,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Masjidil Haram Makkah', 
         pronunciation: 'Al-Masjidul haraam', 
         imageUrl: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&auto=format&fit=crop&q=80',
-        icon: '🕌', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -450,7 +567,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kain & Niat Ihram', 
         pronunciation: 'Ihraamun', 
         imageUrl: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&auto=format&fit=crop&q=80',
-        icon: '🕊️', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -458,7 +575,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Thawaf Keliling Ka\'bah', 
         pronunciation: 'Thawaafun', 
         imageUrl: 'https://images.unsplash.com/photo-1565552684305-7e930504df90?w=300&auto=format&fit=crop&q=80',
-        icon: '🔄', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -466,7 +583,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Sa\'i Shafa & Marwah', 
         pronunciation: 'Sa\'yun', 
         imageUrl: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=300&auto=format&fit=crop&q=80',
-        icon: '🚶', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -474,7 +591,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Wukuf di Padang Arafah', 
         pronunciation: 'Wuquufun bi \'arafaat', 
         imageUrl: 'https://images.unsplash.com/photo-1564769625624-9b51b7536968?w=300&auto=format&fit=crop&q=80',
-        icon: '⛺', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -482,7 +599,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Air Zamzam Berkah', 
         pronunciation: 'Maa\'u zamzam', 
         imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=300&auto=format&fit=crop&q=80',
-        icon: '💧', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -490,7 +607,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Masjid Nabawi Madinah', 
         pronunciation: 'Al-Masjidun nabawiyyu', 
         imageUrl: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300&auto=format&fit=crop&q=80',
-        icon: '🕌', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -498,7 +615,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Jamaah Haji', 
         pronunciation: 'Haajjun / Hujjaaj', 
         imageUrl: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&auto=format&fit=crop&q=80',
-        icon: '👥', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -506,7 +623,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Talbiyah (Labbaykallahumma)', 
         pronunciation: 'Talbiyatun', 
         imageUrl: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&auto=format&fit=crop&q=80',
-        icon: '✨', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -514,7 +631,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Lempar Jumrah di Mina', 
         pronunciation: 'Ramyul jamaraat', 
         imageUrl: 'https://images.unsplash.com/photo-1564769625624-9b51b7536968?w=300&auto=format&fit=crop&q=80',
-        icon: '🪨', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -522,7 +639,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Maqam Ibrahim', 
         pronunciation: 'Maqaamu Ibraahiim', 
         imageUrl: 'https://images.unsplash.com/photo-1565552684305-7e930504df90?w=300&auto=format&fit=crop&q=80',
-        icon: '✨', 
+        icon: '', 
         category: 'Tempat' 
       }
     ],
@@ -557,7 +674,6 @@ export const THEMES: ThemeTopic[] = [
     titleArabic: 'تِكْنُولُوجِيَا الْإِعْلَامِ وَالِاتِّصَالِ',
     titleIndo: 'Teknologi Informasi & Komunikasi',
     grade: 'Kelas XI',
-    imageUrl: '/images/theme_tiknulujiya_1785595472733.jpg',
     prompt: 'Jelaskan bagaimana kamu memanfaatkan teknologi informasi, internet, komputer, dan smartphone untuk menunjang kegiatan belajarmu sehari-hari secara positif.',
     mufradat: [
       { 
@@ -565,7 +681,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Smartphone / Ponsel Pintar', 
         pronunciation: 'Haatifun dzakiyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&auto=format&fit=crop&q=80',
-        icon: '📱', 
+        icon: '', 
         category: 'Perangkat' 
       },
       { 
@@ -573,7 +689,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Laptop / Komputer Jinjing', 
         pronunciation: 'Haasuubun mahmuul', 
         imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&auto=format&fit=crop&q=80',
-        icon: '💻', 
+        icon: '', 
         category: 'Perangkat' 
       },
       { 
@@ -581,7 +697,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Jaringan Internet Global', 
         pronunciation: 'Syabakatul internet', 
         imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&auto=format&fit=crop&q=80',
-        icon: '🌐', 
+        icon: '', 
         category: 'Teknologi' 
       },
       { 
@@ -589,7 +705,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Situs Web / Website', 
         pronunciation: 'Mauqi\'un iliktuuruuniyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&auto=format&fit=crop&q=80',
-        icon: '🖥️', 
+        icon: '', 
         category: 'Teknologi' 
       },
       { 
@@ -597,7 +713,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Media Sosial', 
         pronunciation: 'Wasaa\'ilut tawaashul', 
         imageUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&auto=format&fit=crop&q=80',
-        icon: '💬', 
+        icon: '', 
         category: 'Komunikasi' 
       },
       { 
@@ -605,7 +721,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Surel / Email', 
         pronunciation: 'Bariidun iliktuuruuniyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=300&auto=format&fit=crop&q=80',
-        icon: '📧', 
+        icon: '', 
         category: 'Komunikasi' 
       },
       { 
@@ -613,7 +729,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Aplikasi Pembelajaran', 
         pronunciation: 'Tathbliqun ta\'liimiyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&auto=format&fit=crop&q=80',
-        icon: '📲', 
+        icon: '', 
         category: 'Teknologi' 
       },
       { 
@@ -621,7 +737,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pencarian Informasi Digital', 
         pronunciation: 'Bahtsun \'anil ma\'luumaat', 
         imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=300&auto=format&fit=crop&q=80',
-        icon: '🔍', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -629,7 +745,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Layar Monitor', 
         pronunciation: 'Syaasyatun', 
         imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300&auto=format&fit=crop&q=80',
-        icon: '📺', 
+        icon: '', 
         category: 'Perangkat' 
       },
       { 
@@ -637,7 +753,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pesan Singkat (Chat)', 
         pronunciation: 'Risaalatun qashiiratun', 
         imageUrl: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=300&auto=format&fit=crop&q=80',
-        icon: '📨', 
+        icon: '', 
         category: 'Komunikasi' 
       },
       { 
@@ -645,7 +761,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Download / Unduh Berkas', 
         pronunciation: 'Tahmiilul malaffaat', 
         imageUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop&q=80',
-        icon: '📥', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -653,7 +769,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Bermanfaat & Cepat', 
         pronunciation: 'Mufiidun wa sarii\'un', 
         imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=80',
-        icon: '⚡', 
+        icon: '', 
         category: 'Materi' 
       }
     ],
@@ -696,7 +812,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Toleransi & Kerukunan', 
         pronunciation: 'Tasaamuhun', 
         imageUrl: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=300&auto=format&fit=crop&q=80',
-        icon: '🤝', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -704,7 +820,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Masjid Tempat Ibadah', 
         pronunciation: 'Masjidun', 
         imageUrl: 'https://images.unsplash.com/photo-1590076215667-875d4ef2d7ee?w=300&auto=format&fit=crop&q=80',
-        icon: '🕌', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -712,7 +828,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Gereja', 
         pronunciation: 'Kaniisatun', 
         imageUrl: 'https://images.unsplash.com/photo-1548625361-195679540b61?w=300&auto=format&fit=crop&q=80',
-        icon: '⛪', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -720,7 +836,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Candi / Rumah Ibadah', 
         pronunciation: 'Ma\'badun / Baitul \'ibaadah', 
         imageUrl: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300&auto=format&fit=crop&q=80',
-        icon: '🛕', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -728,7 +844,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Persatuan Bangsa (Bhinneka)', 
         pronunciation: 'Wahdatun wathaniyyah', 
         imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&auto=format&fit=crop&q=80',
-        icon: '🇮🇩', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -736,7 +852,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kedamaian & Keamanan', 
         pronunciation: 'Salaamun wa amnun', 
         imageUrl: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=300&auto=format&fit=crop&q=80',
-        icon: '🕊️', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -744,7 +860,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Masyarakat Majemuk', 
         pronunciation: 'Mujtama\'un', 
         imageUrl: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=300&auto=format&fit=crop&q=80',
-        icon: '👥', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -752,7 +868,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Warga Negara', 
         pronunciation: 'Muwaathinun', 
         imageUrl: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=300&auto=format&fit=crop&q=80',
-        icon: '👤', 
+        icon: '', 
         category: 'Tokoh' 
       },
       { 
@@ -760,7 +876,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Persaudaraan Kemanusiaan', 
         pronunciation: 'Ikhaa\'un insaaniyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&auto=format&fit=crop&q=80',
-        icon: '❤️', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -768,7 +884,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Gotong Royong & Saling Bantu', 
         pronunciation: 'Ta\'aawunun / Takaafulun', 
         imageUrl: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=300&auto=format&fit=crop&q=80',
-        icon: '🤲', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -776,7 +892,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Saling Menghormati', 
         pronunciation: 'Ihtiraamun mutabaadal', 
         imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
-        icon: '🌟', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -784,7 +900,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Agama-agama', 
         pronunciation: 'Diinun / Adyaan', 
         imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&auto=format&fit=crop&q=80',
-        icon: '📖', 
+        icon: '', 
         category: 'Nilai' 
       }
     ],
@@ -827,7 +943,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Lingkungan Bersih Sehat', 
         pronunciation: 'Bii\'atun nazhiifatun', 
         imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80',
-        icon: '🌱', 
+        icon: '', 
         category: 'Lingkungan' 
       },
       { 
@@ -835,7 +951,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kebersihan', 
         pronunciation: 'Nazhaafatun', 
         imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&auto=format&fit=crop&q=80',
-        icon: '✨', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -843,7 +959,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Pohon / Pepohonan Hijau', 
         pronunciation: 'Syajaratun / Asyjaar', 
         imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&auto=format&fit=crop&q=80',
-        icon: '🌳', 
+        icon: '', 
         category: 'Lingkungan' 
       },
       { 
@@ -851,7 +967,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Hutan Rindang', 
         pronunciation: 'Ghaabatun', 
         imageUrl: 'https://images.unsplash.com/photo-1511497584788-87676104235f?w=300&auto=format&fit=crop&q=80',
-        icon: '🌲', 
+        icon: '', 
         category: 'Tempat' 
       },
       { 
@@ -859,7 +975,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Daur Ulang Sampah', 
         pronunciation: 'Tadwiirun nifaayaat', 
         imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=300&auto=format&fit=crop&q=80',
-        icon: '♻️', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -867,7 +983,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Menanam Pohon (Reboisasi)', 
         pronunciation: 'Ziraa\'atul asyjaar', 
         imageUrl: 'https://images.unsplash.com/photo-1576085898323-218337e3e43c?w=300&auto=format&fit=crop&q=80',
-        icon: '🪴', 
+        icon: '', 
         category: 'Aktivitas' 
       },
       { 
@@ -875,7 +991,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Udara Segar & Murni', 
         pronunciation: 'Hawaa\'un naqiyyun', 
         imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&auto=format&fit=crop&q=80',
-        icon: '🍃', 
+        icon: '', 
         category: 'Lingkungan' 
       },
       { 
@@ -883,7 +999,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Polusi Udara / Asap', 
         pronunciation: 'Talawwutsul hawaa\'', 
         imageUrl: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=300&auto=format&fit=crop&q=80',
-        icon: '🏭', 
+        icon: '', 
         category: 'Lingkungan' 
       },
       { 
@@ -891,7 +1007,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Tempat Sampah', 
         pronunciation: 'Shunduuqul qumaamah', 
         imageUrl: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=300&auto=format&fit=crop&q=80',
-        icon: '🗑️', 
+        icon: '', 
         category: 'Materi' 
       },
       { 
@@ -899,7 +1015,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Perlindungan Konservasi Alam', 
         pronunciation: 'Himaayatuth thabii\'ah', 
         imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&auto=format&fit=crop&q=80',
-        icon: '🛡️', 
+        icon: '', 
         category: 'Nilai' 
       },
       { 
@@ -907,7 +1023,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Air Jernih Bersih', 
         pronunciation: 'Maa\'un shaafin', 
         imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300&auto=format&fit=crop&q=80',
-        icon: '🌊', 
+        icon: '', 
         category: 'Lingkungan' 
       },
       { 
@@ -915,7 +1031,7 @@ export const THEMES: ThemeTopic[] = [
         meaning: 'Kekeringan', 
         pronunciation: 'Jafaafun', 
         imageUrl: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300&auto=format&fit=crop&q=80',
-        icon: '🏜️', 
+        icon: '', 
         category: 'Lingkungan' 
       }
     ],

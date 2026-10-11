@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PenTool, Moon, Sun, Settings, X, LogOut, BookOpen, Users, RefreshCw } from 'lucide-react';
+import { Moon, Sun, LogOut, BookOpen, Users, RefreshCw } from 'lucide-react';
 import { RoleSelection } from './components/RoleSelection';
 import { StudentWorkspace } from './components/StudentWorkspace';
 import { TeacherDashboard } from './components/TeacherDashboard';
@@ -9,8 +9,6 @@ import { ClassSession, getSession } from './lib/db';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [customApiKey, setCustomApiKey] = useState('');
 
   // Routing State
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -21,9 +19,6 @@ export default function App() {
   const [isLoadingSession, setIsLoadingSession] = useState(false);
 
   useEffect(() => {
-    const savedKey = localStorage.getItem('geminiApiKey');
-    if (savedKey) setCustomApiKey(savedKey);
-
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains('dark'));
     };
@@ -100,9 +95,6 @@ export default function App() {
             onClick={handleLogout}
             className="flex items-center gap-2.5 text-left hover:opacity-90 transition-opacity shrink-0"
           >
-            <div className="bg-gradient-to-tr from-blue-500 to-purple-500 p-2 rounded-xl text-white shrink-0 shadow-sm">
-              <PenTool className="w-5 h-5" />
-            </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <h1 className="font-bold text-base sm:text-lg leading-none whitespace-nowrap">Kitabah Insya'</h1>
@@ -148,13 +140,6 @@ export default function App() {
               </button>
             )}
             <button 
-              onClick={() => setShowSettings(true)} 
-              className="p-2 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-              title="Pengaturan API Key"
-            >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <button 
               onClick={toggleDarkMode} 
               className="p-2 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               title="Mode Gelap / Terang"
@@ -185,43 +170,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Settings Modal */}
-      {showSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`${cardBg} border ${borderColor} rounded-2xl w-full max-w-md overflow-hidden shadow-2xl`}>
-            <div className="p-4 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-900">
-              <h2 className="font-bold text-lg flex items-center gap-2 text-blue-500">
-                <Settings className="w-5 h-5" /> Pengaturan
-              </h2>
-              <button onClick={() => setShowSettings(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-300">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6">
-              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
-                Gemini API Key Anda (Opsional)
-              </label>
-              <p className="text-xs text-stone-500 mb-4">
-                Jika Anda mengalami error limit atau kuota habis, Anda dapat menggunakan API Key Gemini milik Anda sendiri.
-              </p>
-              <input 
-                type="password" 
-                placeholder="AIzaSy..." 
-                value={customApiKey}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setCustomApiKey(val);
-                  localStorage.setItem('geminiApiKey', val);
-                }}
-                className={`w-full p-3 rounded-xl border ${borderColor} bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm`}
-              />
-              <button onClick={() => setShowSettings(false)} className="mt-6 w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition-colors">
-                Tutup & Simpan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

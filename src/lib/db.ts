@@ -1,5 +1,5 @@
 import { collection, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp, firestore } from './firebase';
-import { THEMES } from '../data';
+import { THEMES, ThemeTopic } from '../data';
 
 export interface RubricScores {
   fikrah: number;    // Kesesuaian Isi & Gagasan (0-25)
@@ -29,14 +29,23 @@ export interface StudentProgress {
 export interface ClassSession {
   id: string;
   teacherName: string;
-  teacherPin?: string;
+  teacherPin?: string; // data lama (teks biasa); sesi baru memakai teacherPinHash
+  teacherPinHash?: string;
   active: boolean;
   themeId: string;
   isSoloPractice?: boolean;
+  customTheme?: ThemeTopic; // tema buatan guru/siswa; dipakai bila themeId tidak ada di THEMES
   createdAt: any;
 }
 
-export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false) => {
+// PIN guru disimpan sebagai hash SHA-256 (bukan teks biasa) agar tidak terbaca di database.
+const hashPin = async (sessionId: string, pin: string): Promise<string> => {
+  const data = new TextEncoder().encode(`kitabah:${sessionId.toUpperCase()}:${pin.trim()}`);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+};
+
+export const createSession = async (teacherName: string, themeId: string, customPin?: string, isSoloPractice: boolean = false, customTheme?: ThemeTopic) => {
   const prefix = isSoloPractice ? 'SL' : '';
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
   const sessionId = isSoloPractice ? `${prefix}${randomPart}` : Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -45,10 +54,12 @@ export const createSession = async (teacherName: string, themeId: string, custom
   await setDoc(sessionRef, {
     id: sessionId,
     teacherName: teacherName.trim(),
-    teacherPin: pin,
+    teacherPinHash: await hashPin(sessionId, pin),
     active: true,
-    themeId: themeId || THEMES[0].id,
+    themeId: customTheme ? customTheme.id : (themeId || THEMES[0].id),
     isSoloPractice: isSoloPractice,
+    // Firestore menolak nilai undefined, jadi hanya disertakan bila ada.
+    ...(customTheme ? { customTheme } : {}),
     createdAt: serverTimestamp()
   });
   return sessionId;
@@ -60,11 +71,18 @@ export const verifyTeacherAccess = async (sessionId: string, enteredPin: string)
   if (!session) {
     return { valid: false, message: `Kelas dengan kode "${cleanId}" tidak ditemukan di database.` };
   }
-  // If session has teacherPin set, check it
-  if (session.teacherPin && session.teacherPin.trim() !== enteredPin.trim()) {
-    return { 
-      valid: false, 
-      message: 'PIN Pengajar salah! Siswa dilarang masuk ke panel guru. Hanya guru yang memiliki PIN resmi yang dapat mengakses.' 
+  // Sesi baru: bandingkan hash. Sesi lama: bandingkan PIN teks biasa.
+  const entered = enteredPin.trim();
+  let ok = true;
+  if (session.teacherPinHash) {
+    ok = (await hashPin(cleanId, entered)) === session.teacherPinHash;
+  } else if (session.teacherPin) {
+    ok = session.teacherPin.trim() === entered;
+  }
+  if (!ok) {
+    return {
+      valid: false,
+      message: 'PIN Pengajar salah! Hanya guru yang memiliki PIN yang dapat mengakses panel guru.'
     };
   }
   return { valid: true, session };
@@ -160,4 +178,14 @@ export const subscribeToStudent = (sessionId: string, studentId: string, callbac
       callback(null);
     }
   });
+};
+
+// Cari tema berdasarkan id: bawaan dulu, lalu tema kustom milik sesi.
+export const resolveTheme = (themeId: string | undefined, session?: ClassSession | null): ThemeTopic => {
+  return (
+    THEMES.find(t => t.id === themeId) ||
+    (session?.customTheme && session.customTheme.id === themeId ? session.customTheme : undefined) ||
+    session?.customTheme ||
+    THEMES[0]
+  );
 };

@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { createSession, joinSession, verifyTeacherAccess } from '../lib/db';
 import { THEMES, ThemeTopic } from '../data';
-import { ChibiMascot, ChibiAvatar, MascotVariant } from './ChibiMascot';
-import chibiWriterImg from '../assets/images/chibi_writer_1787208654329.jpg';
-import chibiTeacherImg from '../assets/images/chibi_teacher_1787208708138.jpg';
-import chibiCheerImg from '../assets/images/chibi_cheer_1787208676480.jpg';
-import chibiThinkingImg from '../assets/images/chibi_thinking_1787208690035.jpg';
-import chibiKitabImg from '../assets/images/chibi_studying_kitab_1787209304570.jpg';
-import chibiDigitalPenImg from '../assets/images/chibi_digital_pen_1787209319158.jpg';
-import chibiAwardImg from '../assets/images/chibi_star_award_1787209287345.jpg';
-import flowStepStartImg from '../assets/images/flow_step_start_1787210042818.jpg';
-import flowStepMainImg from '../assets/images/flow_step_main_1787210066046.jpg';
-import flowStepEndImg from '../assets/images/flow_step_end_1787210088142.jpg';
+import { Callout } from './Callout';
+import { CustomThemeForm } from './CustomThemeForm';
 import { 
   Users, BookOpen, Sparkles, ArrowRight, AlertCircle, BookMarked, 
-  Key, PlusCircle, Clock, Trash2, ShieldCheck, Lock, Eye, EyeOff,
+  Key, PlusCircle, Clock, Trash2, ShieldCheck, Lock,
   GraduationCap, PenTool, CheckCircle2, Compass, Layers
 } from 'lucide-react';
 
@@ -27,7 +18,6 @@ interface SavedSessionItem {
   sessionId: string;
   themeId: string;
   teacherName?: string;
-  teacherPin?: string;
   studentName?: string;
   studentId?: string;
   timestamp: number;
@@ -52,13 +42,16 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   // Teacher KBM Form - Create
   const [teacherName, setTeacherName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0].id);
-  const [teacherPin, setTeacherPin] = useState('1234');
+  // Tema buatan sendiri (pilihan "__custom__" pada daftar tema)
+  const [teacherCustomTheme, setTeacherCustomTheme] = useState<ThemeTopic | null>(null);
+  const [showTeacherThemeForm, setShowTeacherThemeForm] = useState(false);
+  const [showSoloThemeForm, setShowSoloThemeForm] = useState(false);
+  const [teacherPin, setTeacherPin] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   // Teacher KBM Form - Existing
   const [existingTeacherCode, setExistingTeacherCode] = useState('');
   const [existingTeacherPin, setExistingTeacherPin] = useState('');
-  const [showExistingPin, setShowExistingPin] = useState(false);
   const [isEnteringExisting, setIsEnteringExisting] = useState(false);
   const [existingCodeError, setExistingCodeError] = useState<string | null>(null);
 
@@ -70,21 +63,26 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   // Local Storage Saved Sessions
   const [savedTeacherSessions, setSavedTeacherSessions] = useState<SavedSessionItem[]>([]);
   const [savedStudentSessions, setSavedStudentSessions] = useState<SavedSessionItem[]>([]);
-  const [savedSoloSessions, setSavedSoloSessions] = useState<SavedSessionItem[]>([]);
 
   useEffect(() => {
     try {
-      const tSessions = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]').filter(Boolean);
+      // Latihan Mandiri tidak lagi menyimpan riwayat di perangkat, agar jawaban
+      // siswa sebelumnya tidak bisa dibuka (dicontek) siswa lain di perangkat yang sama.
+      // Bersihkan sisa data lama yang mungkin masih tersimpan.
+      localStorage.removeItem('kitabah_solo_sessions');
+
+      // Hapus PIN yang dulu sempat tersimpan di perangkat.
+      const tSessions = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]')
+        .filter(Boolean)
+        .map(({ teacherPin: _legacyPin, ...rest }: any) => rest);
+      localStorage.setItem('kitabah_teacher_sessions', JSON.stringify(tSessions));
       const sSessions = JSON.parse(localStorage.getItem('kitabah_student_sessions') || '[]').filter(Boolean);
-      const soloSessions = JSON.parse(localStorage.getItem('kitabah_solo_sessions') || '[]').filter(Boolean);
       const lastName = localStorage.getItem('kitabah_last_student_name') || '';
-      
+
       setSavedTeacherSessions(tSessions);
       setSavedStudentSessions(sSessions);
-      setSavedSoloSessions(soloSessions);
       if (lastName) {
         setStudentName(lastName);
-        setSoloStudentName(lastName);
       }
 
       if (tSessions.length === 0) {
@@ -97,12 +95,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   }, []);
 
-  const saveTeacherSessionToHistory = (sessionId: string, themeId: string, tName: string, pin?: string) => {
+  const saveTeacherSessionToHistory = (sessionId: string, themeId: string, tName: string) => {
     try {
       const existing: SavedSessionItem[] = JSON.parse(localStorage.getItem('kitabah_teacher_sessions') || '[]').filter(Boolean);
       const filtered = existing.filter(item => item.sessionId !== sessionId);
       const updated = [
-        { sessionId, themeId, teacherName: tName, teacherPin: pin, timestamp: Date.now() },
+        { sessionId, themeId, teacherName: tName, timestamp: Date.now() },
         ...filtered
       ].slice(0, 10);
       localStorage.setItem('kitabah_teacher_sessions', JSON.stringify(updated));
@@ -127,21 +125,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   };
 
-  const saveSoloSessionToHistory = (sessionId: string, studentId: string, sName: string, themeId: string) => {
-    try {
-      const existing: SavedSessionItem[] = JSON.parse(localStorage.getItem('kitabah_solo_sessions') || '[]').filter(Boolean);
-      const filtered = existing.filter(item => !(item.sessionId === sessionId && item.studentId === studentId));
-      const updated = [
-        { sessionId, studentId, studentName: sName, themeId, timestamp: Date.now() },
-        ...filtered
-      ].slice(0, 10);
-      localStorage.setItem('kitabah_solo_sessions', JSON.stringify(updated));
-      setSavedSoloSessions(updated);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const removeTeacherSession = (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = savedTeacherSessions.filter(s => s.sessionId !== sessionId);
@@ -154,13 +137,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     const updated = savedStudentSessions.filter(s => !(s.sessionId === sessionId && s.studentId === studentId));
     localStorage.setItem('kitabah_student_sessions', JSON.stringify(updated));
     setSavedStudentSessions(updated);
-  };
-
-  const removeSoloSession = (studentId: string, sessionId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const updated = savedSoloSessions.filter(s => !(s.sessionId === sessionId && s.studentId === studentId));
-    localStorage.setItem('kitabah_solo_sessions', JSON.stringify(updated));
-    setSavedSoloSessions(updated);
   };
 
   const handleStudentJoin = async (e: React.FormEvent) => {
@@ -199,8 +175,14 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     setIsCreating(true);
     try {
       const cleanPin = teacherPin.trim() || '1234';
-      const sessionId = await createSession(teacherName.trim(), selectedTheme, cleanPin, false);
-      saveTeacherSessionToHistory(sessionId, selectedTheme, teacherName.trim(), cleanPin);
+      const custom = selectedTheme === '__custom__' ? teacherCustomTheme : null;
+      if (selectedTheme === '__custom__' && !custom) {
+        setShowTeacherThemeForm(true);
+        return;
+      }
+      const themeId = custom ? custom.id : selectedTheme;
+      const sessionId = await createSession(teacherName.trim(), themeId, cleanPin, false, custom || undefined);
+      saveTeacherSessionToHistory(sessionId, themeId, teacherName.trim());
       onCreateSession(sessionId);
     } catch (err) {
       console.error(err);
@@ -224,7 +206,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
         return;
       }
       const session = result.session!;
-      saveTeacherSessionToHistory(cleanCode, session?.themeId || "", session.teacherName || 'Guru', session.teacherPin);
+      saveTeacherSessionToHistory(cleanCode, session?.themeId || "", session.teacherName || 'Guru');
       onCreateSession(cleanCode);
     } catch (err: any) {
       console.error(err);
@@ -234,37 +216,20 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     }
   };
 
-  const handleResumeTeacherSession = async (item: SavedSessionItem) => {
-    setIsEnteringExisting(true);
+  const handleResumeTeacherSession = (item: SavedSessionItem) => {
+    // PIN tidak disimpan di perangkat, jadi guru mengetik ulang PIN-nya.
     setExistingCodeError(null);
     setExistingTeacherCode(item.sessionId);
-    if (item.teacherPin) {
-      setExistingTeacherPin(item.teacherPin);
-    }
-    try {
-      const result = await verifyTeacherAccess(item.sessionId, item.teacherPin || '');
-      if (!result.valid) {
-        setTeacherTab('existing');
-        setExistingCodeError(result.message || 'Silakan masukkan PIN Guru Anda untuk melanjutkan.');
-        return;
-      }
-      onCreateSession(item.sessionId);
-    } catch (err: any) {
-      console.error(err);
-      setExistingCodeError(err.message || 'Gagal membuka kelas guru.');
-    } finally {
-      setIsEnteringExisting(false);
-    }
+    setExistingTeacherPin('');
+    setTeacherTab('existing');
   };
 
-  const handleStartSoloPractice = async (themeId: string) => {
+  const handleStartSoloPractice = async (themeId: string, customTheme?: ThemeTopic) => {
     const sName = soloStudentName.trim() || 'Siswa Mandiri';
-    localStorage.setItem('kitabah_last_student_name', sName);
     setIsCreating(true);
     try {
-      const sessionId = await createSession('Latihan Mandiri', themeId, '1234', true);
+      const sessionId = await createSession('Latihan Mandiri', customTheme ? customTheme.id : themeId, '1234', true, customTheme);
       const result = await joinSession(sessionId, sName);
-      saveSoloSessionToHistory(sessionId, result.studentId, sName, themeId);
       onJoinSession(result.cleanSessionId, result.studentId);
     } catch (err) {
       console.error(err);
@@ -283,10 +248,8 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     <div className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4 space-y-6 sm:space-y-8">
       {/* Hero Title with Mascot */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-6 text-center md:text-left">
-        <ChibiMascot
-          variant="writer"
-          size="lg"
-          quote="Ahlan wa Sahlan! Mari mengarang insya' muwajjah bersama Makuro."
+        <Callout
+          quote="Ahlan wa Sahlan! Mari mengarang insya' muwajjah."
           subquote="Pilih Mode KBM bersama Guru atau Mode Latihan Mandiri untuk memulai."
           className="justify-center"
         />
@@ -298,7 +261,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
             Selamat Datang di <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">Kitabah Insya'</span>
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-lg leading-relaxed">
-            Media interaktif menulis karangan bahasa Arab kurikulum <strong>MA Kelas XI (Kelas 11)</strong> berbasis <strong>Process-Genre Approach</strong> & Asisten AI.
+            Media interaktif menulis karangan bahasa Arab kurikulum <strong>MA Kelas XI (Kelas 11)</strong> berbasis <strong>Process-Genre Approach</strong> & Penilaian Otomatis Berbasis Aturan.
           </p>
         </div>
       </div>
@@ -349,14 +312,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                       Siswa
                     </span>
                   </div>
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-blue-200 dark:border-blue-800/60 shadow-md group-hover:scale-105 transition-transform">
-                    <img 
-                      src={chibiThinkingImg} 
-                      alt="Chibi Siswa Makuro" 
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
                   <span className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mb-1.5">Siswa</span>
                   <p className="text-xs sm:text-sm text-stone-500 leading-relaxed mb-2">
                     Masuk ke ruang menulis kelas dengan kode dari guru. Tulisanmu terhubung langsung ke panel penilaian guru.
@@ -377,14 +332,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                       <Lock className="w-3 h-3" /> PIN Guru
                     </span>
                   </div>
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden mb-3 sm:mb-4 border-2 border-purple-200 dark:border-purple-800/60 shadow-md group-hover:scale-105 transition-transform">
-                    <img 
-                      src={chibiTeacherImg} 
-                      alt="Guru Chibi Makuro" 
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
                   <span className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mb-1.5">Guru</span>
                   <p className="text-xs sm:text-sm text-stone-500 leading-relaxed mb-2">
                     Buka kelas baru atau pantau kelas aktif, lihat progres menulis siswa secara live, dan berikan skor rubrik analitis.
@@ -402,14 +349,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-stone-600 dark:text-stone-300">
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepStartImg}
-                        alt="Guru Buat Kode"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         1. Guru Buat Kode
@@ -421,14 +360,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   </div>
 
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepMainImg}
-                        alt="Siswa Menulis"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         2. Siswa Menulis
@@ -440,14 +371,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   </div>
 
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
-                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700/60">
-                      <img
-                        src={flowStepEndImg}
-                        alt="Penilaian Real-time"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <span className="font-bold text-blue-600 dark:text-blue-400 block text-xs sm:text-sm mb-1">
                         3. Penilaian Real-time
@@ -550,7 +473,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                                   {item.studentName} <span className="font-mono text-blue-600 font-bold">({item.sessionId})</span>
                                 </div>
                                 <div className="text-stone-400 text-[11px]">
-                                  {themeObj?.titleIndo || 'Karangan Arab'}
+                                  {themeObj?.titleIndo || (item?.themeId?.startsWith('custom-') ? 'Tema Sendiri' : 'Karangan Arab')}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
@@ -649,7 +572,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                         </label>
                         <select 
                           value={selectedTheme} 
-                          onChange={e => setSelectedTheme(e.target.value)} 
+                          onChange={e => {
+                            const v = e.target.value;
+                            setSelectedTheme(v);
+                            setShowTeacherThemeForm(v === '__custom__' && !teacherCustomTheme);
+                          }} 
                           className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                           {THEMES.map(t => (
@@ -657,7 +584,43 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                               {t.titleIndo} ({t.titleArabic}) — {t.grade}
                             </option>
                           ))}
+                          <option value="__custom__" className="dark:bg-stone-800">
+                            Buat tema sendiri…
+                          </option>
                         </select>
+
+                        {selectedTheme === '__custom__' && (
+                          showTeacherThemeForm ? (
+                            <div className="mt-3">
+                              <CustomThemeForm
+                                initial={teacherCustomTheme}
+                                submitLabel="Simpan Tema"
+                                onSubmit={(t) => {
+                                  setTeacherCustomTheme(t);
+                                  setShowTeacherThemeForm(false);
+                                }}
+                                onCancel={() => {
+                                  setShowTeacherThemeForm(false);
+                                  if (!teacherCustomTheme) setSelectedTheme(THEMES[0].id);
+                                }}
+                              />
+                            </div>
+                          ) : teacherCustomTheme && (
+                            <div className="mt-3 p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold text-stone-900 dark:text-white truncate">{teacherCustomTheme.titleIndo}</div>
+                                <div className="text-[11px] text-stone-500">{teacherCustomTheme.mufradat.length} kosakata • tema sendiri</div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setShowTeacherThemeForm(true)}
+                                className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/40"
+                              >
+                                Ubah
+                              </button>
+                            </div>
+                          )
+                        )}
                       </div>
 
                       <div>
@@ -670,11 +633,11 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           </span>
                         </div>
                         <input 
-                          type="text" 
+                          type="password" autoComplete="new-password" 
                           required
                           value={teacherPin} 
                           onChange={e => setTeacherPin(e.target.value)} 
-                          placeholder="Contoh: 1234 atau GURU2026" 
+                          placeholder="Buat PIN rahasia" 
                           className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
                         />
                         <p className="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
@@ -715,20 +678,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           </div>
                           <div className="relative">
                             <input 
-                              type={showExistingPin ? "text" : "password"} 
+                              type="password" autoComplete="off" 
                               required
                               value={existingTeacherPin} 
                               onChange={e => setExistingTeacherPin(e.target.value)} 
-                              placeholder="Masukkan PIN Guru (default: 1234)" 
+                              placeholder="Masukkan PIN Guru" 
                               className="w-full p-3.5 pr-11 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
                             />
-                            <button
-                              type="button"
-                              onClick={() => setShowExistingPin(!showExistingPin)}
-                              className="absolute right-3.5 top-3.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                            >
-                              {showExistingPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
                           </div>
                         </div>
 
@@ -761,7 +717,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                                       <span className="text-stone-400 font-normal">({item.teacherName || 'Guru'})</span>
                                     </div>
                                     <div className="text-stone-400 text-[11px]">
-                                      {themeObj?.titleIndo || 'Karangan Arab'}
+                                      {themeObj?.titleIndo || (item?.themeId?.startsWith('custom-') ? 'Tema Sendiri' : 'Karangan Arab')}
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -801,9 +757,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
           {/* Header Info Mandiri with Cheer Mascot */}
           <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <ChibiMascot
-                variant="kitab"
-                size="md"
+              <Callout
                 quote="Semangat belajar menulis mandiri! Kamu pasti bisa menghasilkan insya' yang mumtaz."
                 subquote="Pilih tema di bawah dan mulailah merangkai kalimat indahmu."
                 badge="Semangat"
@@ -824,74 +778,38 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               </div>
             </div>
 
-            {/* AI Features Highlights */}
+            {/* Fitur bantuan menulis */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-emerald-200/60 dark:border-emerald-900/40 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookOpen className="w-3 h-3 text-emerald-600" /> Bantuan Ide Paragraf AI
+                <BookOpen className="w-3 h-3 text-emerald-600" /> Bantuan Ide & Kerangka Paragraf
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Koreksi Nahwu & Imla' Otomatis
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Cek Nahwu, Imla' & Harakat Otomatis
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookMarked className="w-3 h-3 text-emerald-600" /> Prediksi Nilai Rubrik Analitis AI
+                <BookMarked className="w-3 h-3 text-emerald-600" /> Penilaian Rubrik Analitis Otomatis
               </span>
             </div>
           </div>
 
-          {/* Saved Solo Sessions */}
-          {savedSoloSessions.length > 0 && (
-            <div className="p-4 rounded-2xl bg-white dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2.5">
-              <div className="text-xs font-bold text-stone-600 dark:text-stone-300 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-500" /> Lanjutkan Latihan Mandiri Sebelumnya:
-                </span>
-                <span className="text-[11px] text-stone-400 font-normal">
-                  {savedSoloSessions.length} draf tersimpan
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {savedSoloSessions.map(item => {
-                  const themeObj = THEMES.find(t => t.id === item?.themeId);
-                  return (
-                    <div 
-                      key={item.sessionId}
-                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 flex items-center justify-between gap-2 text-xs"
-                    >
-                      <div className="truncate">
-                        <div className="font-bold text-stone-800 dark:text-stone-200 truncate">
-                          {themeObj?.titleIndo || 'Karangan Arab'}
-                        </div>
-                        <div className="text-[11px] text-stone-400 font-arabic truncate" dir="rtl">
-                          {themeObj?.titleArabic}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!item.studentId) {
-                              alert("Maaf, draf mandiri ini menggunakan format lama. Silakan hapus dan buat Latihan Mandiri baru.");
-                              return;
-                            }
-                            onJoinSession(item.sessionId, item.studentId);
-                          }}
-                          className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors"
-                        >
-                          Lanjut
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => removeSoloSession(item.studentId!, item.sessionId, e)}
-                          className="p-1.5 text-stone-400 hover:text-red-500 rounded-md"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+          {/* Buat tema sendiri */}
+          {showSoloThemeForm ? (
+            <CustomThemeForm
+              submitLabel="Mulai Menulis dengan Tema Ini"
+              onSubmit={(t) => {
+                setShowSoloThemeForm(false);
+                handleStartSoloPractice(t.id, t);
+              }}
+              onCancel={() => setShowSoloThemeForm(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowSoloThemeForm(true)}
+              className="w-full p-4 rounded-2xl border-2 border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-bold hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" /> Punya topik sendiri? Buat tema sendiri
+            </button>
           )}
 
           {/* Theme Topic Selection Header */}
@@ -913,12 +831,9 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
             />
           </div>
 
-          {/* 7 Themes Grid with Chibi Mascot Illustrations */}
+          {/* Daftar tema */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSoloThemes.map((topic, idx) => {
-              const chibiVariants: MascotVariant[] = ['writer', 'kitab', 'thinking', 'digitalPen', 'cheer', 'award', 'teacher'];
-              const currentVariant = chibiVariants[idx % chibiVariants.length];
-
               return (
                 <div 
                   key={topic.id}
@@ -927,7 +842,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <ChibiAvatar variant={currentVariant} size="xs" />
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
                           {topic.grade}
                         </span>
@@ -954,7 +868,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                     <div className="flex flex-wrap gap-1 pt-1">
                       {topic.mufradat.slice(0, 3).map((m) => (
                         <span key={m.word} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[11px] font-arabic font-semibold text-stone-600 dark:text-stone-300" dir="rtl">
-                          <span className="text-xs">{m.icon}</span>
                           <span>{m.word}</span>
                         </span>
                       ))}

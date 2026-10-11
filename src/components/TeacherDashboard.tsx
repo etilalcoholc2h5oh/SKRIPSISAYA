@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores } from '../lib/db';
-import { THEMES } from '../data';
-import { ChibiMascot } from './ChibiMascot';
+import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores, resolveTheme } from '../lib/db';
+import { Callout } from './Callout';
 import { 
   MessageCircle, CheckCircle2, Search, Edit3, Copy, Check, 
   Award, Users, Eye, PenTool, Send, FileText, Download,
@@ -9,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PrintPdfModal } from './PrintPdfModal';
+import { buildRecap, classStats, recapToCsv, suggestFor } from '../lib/recap';
 
 interface TeacherDashboardProps {
   session: ClassSession;
@@ -21,18 +21,18 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
   const [selectedStudent, setSelectedStudent] = useState<StudentProgress | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedPin, setCopiedPin] = useState(false);
-  const [showPin, setShowPin] = useState(false);
   
   // Feedback & Rubric state
   const [feedbackText, setFeedbackText] = useState('');
   const [rubric, setRubric] = useState<RubricScores>({
-    fikrah: 20,
-    tarkib: 20,
-    mufradat: 20,
-    imla: 20,
-    total: 80
+    fikrah: 0,
+    tarkib: 0,
+    mufradat: 0,
+    imla: 0,
+    total: 0
   });
+  const [autoNotice, setAutoNotice] = useState<string | null>(null);
+  const [isBulk, setIsBulk] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -53,11 +53,64 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
   const handleSelectStudent = (student: StudentProgress) => {
     setSelectedStudent(student);
     setFeedbackText(student.feedback || '');
+    setAutoNotice(null);
     if (student.rubricScores) {
       setRubric(student.rubricScores);
     } else {
-      setRubric({ fikrah: 20, tarkib: 20, mufradat: 20, imla: 20, total: 80 });
+      // Belum dinilai: isi dengan saran otomatis (aturan, tanpa AI). Guru tinggal menyesuaikan.
+      const sg = suggestFor(student, resolveTheme(session?.themeId, session));
+      if (sg) {
+        setRubric(sg.rubric);
+        setFeedbackText(sg.feedback);
+        setAutoNotice('Nilai diisi otomatis dari karangan siswa. Periksa dan sesuaikan sebelum dikirim.');
+      } else {
+        setRubric({ fikrah: 0, tarkib: 0, mufradat: 0, imla: 0, total: 0 });
+      }
     }
+  };
+
+  const handleAutoFill = () => {
+    if (!selectedStudent) return;
+    const sg = suggestFor(selectedStudent, resolveTheme(session?.themeId, session));
+    if (!sg) {
+      setAutoNotice('Tidak ada tulisan Arab untuk dinilai otomatis (misalnya karangan tulisan tangan). Isi nilai secara manual.');
+      return;
+    }
+    setRubric(sg.rubric);
+    setFeedbackText(sg.feedback);
+    setAutoNotice('Nilai diisi otomatis dari karangan siswa. Periksa dan sesuaikan sebelum dikirim.');
+  };
+
+  // Nilai otomatis untuk semua siswa yang sudah mengirim tetapi belum dinilai.
+  const handleBulkAuto = async () => {
+    const th = resolveTheme(session?.themeId, session);
+    const targets = students.filter((s) => s.status === 'submitted' && !s.rubricScores);
+    if (targets.length === 0) return;
+    setIsBulk(true);
+    try {
+      for (const s of targets) {
+        const sg = suggestFor(s, th);
+        if (!sg) continue;
+        await updateStudentProgress(session.id, s.id, { rubricScores: sg.rubric, feedback: sg.feedback, status: 'reviewed' });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsBulk(false);
+    }
+  };
+
+  const handleDownloadCsv = () => {
+    const rows = buildRecap(students, resolveTheme(session?.themeId, session));
+    const blob = new Blob([recapToCsv(rows)], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Rekap_Nilai_Insya_${session.id}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const updateRubricScore = (field: keyof Omit<RubricScores, 'total'>, val: number) => {
@@ -91,19 +144,13 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleCopyPin = () => {
-    navigator.clipboard.writeText(session.teacherPin || '1234');
-    setCopiedPin(true);
-    setTimeout(() => setCopiedPin(false), 2000);
-  };
-
   const insertQuickFeedback = (text: string) => {
     setFeedbackText(prev => prev ? `${prev}\n- ${text}` : `- ${text}`);
   };
 
   const borderColor = isDarkMode ? 'border-stone-800' : 'border-stone-200';
   const cardBg = isDarkMode ? 'bg-stone-900/60' : 'bg-white';
-  const theme = THEMES.find(t => t.id === session?.themeId) || THEMES[0];
+  const theme = resolveTheme(session?.themeId, session);
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -114,9 +161,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
       {/* Teacher Header Card with Mascot */}
       <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border ${borderColor} ${cardBg} shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <ChibiMascot
-            variant="teacher"
-            size="sm"
+          <Callout
             quote="Ahlan wa Sahlan Ustadz/Ustadzah! Pantau tulisan siswa secara langsung di bawah ini."
             badge="Guru"
           />
@@ -161,37 +206,76 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
             </button>
           </div>
 
-          {/* Teacher PIN Badge (Confidential) */}
-          <div className="flex items-center justify-between sm:justify-start gap-2.5 bg-purple-50 dark:bg-purple-950/40 p-3 rounded-xl sm:rounded-2xl border border-purple-200/80 dark:border-purple-900/60 flex-1">
-            <div>
-              <div className="text-[10px] uppercase tracking-wider font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1">
-                <Lock className="w-3 h-3" /> PIN Guru:
-              </div>
-              <div className="text-lg font-mono font-bold tracking-widest text-purple-900 dark:text-purple-200">
-                {showPin ? (session.teacherPin || '1234') : '••••'}
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowPin(!showPin)}
-                title={showPin ? "Sembunyikan PIN" : "Lihat PIN"}
-                className="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-200/50 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
-              >
-                {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-              <button
-                type="button"
-                onClick={handleCopyPin}
-                title="Salin PIN Pengajar"
-                className="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-200/50 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
-              >
-                {copiedPin ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Rekap nilai kelas */}
+      {students.length > 0 && (() => {
+        const rows = buildRecap(students, theme);
+        const st = classStats(rows);
+        const pending = students.filter((s) => s.status === 'submitted' && !s.rubricScores).length;
+        return (
+          <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border ${borderColor} ${cardBg} shadow-sm space-y-3`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Rekap Nilai Kelas</h2>
+                <p className="text-xs text-stone-500">
+                  {st.students} siswa, {st.graded} sudah dinilai guru
+                  {st.average !== null && <>; rata-rata {st.average}, tertinggi {st.highest}, terendah {st.lowest}</>}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleBulkAuto}
+                  disabled={isBulk || pending === 0}
+                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold disabled:opacity-40"
+                >
+                  {isBulk ? 'Menilai...' : `Nilai otomatis semua yang sudah kirim (${pending})`}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadCsv}
+                  className="px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 text-xs font-bold hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" /> Unduh rekap (Excel/CSV)
+                </button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead>
+                  <tr className="text-stone-500 border-b border-stone-200 dark:border-stone-700">
+                    <th className="py-1.5 pr-2">Nama</th>
+                    <th className="py-1.5 pr-2">Status</th>
+                    <th className="py-1.5 pr-2 text-right">Kata</th>
+                    <th className="py-1.5 pr-2 text-right">Fikrah</th>
+                    <th className="py-1.5 pr-2 text-right">Tarkib</th>
+                    <th className="py-1.5 pr-2 text-right">Mufradat</th>
+                    <th className="py-1.5 pr-2 text-right">Imla'</th>
+                    <th className="py-1.5 pr-2 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr key={r.name} className="border-b border-stone-100 dark:border-stone-800 text-stone-800 dark:text-stone-200">
+                      <td className="py-1.5 pr-2 font-semibold">{r.name}</td>
+                      <td className="py-1.5 pr-2">{r.status}</td>
+                      <td className="py-1.5 pr-2 text-right">{r.words}</td>
+                      <td className="py-1.5 pr-2 text-right">{r.fikrah}</td>
+                      <td className="py-1.5 pr-2 text-right">{r.tarkib}</td>
+                      <td className="py-1.5 pr-2 text-right">{r.mufradat}</td>
+                      <td className="py-1.5 pr-2 text-right">{r.imla}</td>
+                      <td className={`py-1.5 pr-2 text-right font-bold ${r.dinilaiGuru ? '' : 'text-stone-400'}`}>{r.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="text-[11px] text-stone-400 mt-2">Angka abu-abu adalah saran otomatis yang belum dikirim guru.</p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Main Workspace Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
@@ -224,9 +308,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
           <div className="flex-1 overflow-y-auto p-2.5 sm:p-3 space-y-2 max-h-[500px] lg:max-h-[650px]">
             {filteredStudents.length === 0 ? (
               <div className="p-6 sm:p-8 text-center text-stone-400 text-xs space-y-3 flex flex-col items-center justify-center">
-                <ChibiMascot
-                  variant="cheer"
-                  size="sm"
+                <Callout
                   quote="Menunggu siswa bergabung ke kelas..."
                   subquote={`Beri tahu kode kelas ${session.id} ke siswa ya!`}
                 />
@@ -428,6 +510,17 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                     </div>
                   </div>
 
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAutoFill}
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-stone-900 border border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/40"
+                    >
+                      Isi nilai otomatis
+                    </button>
+                    {autoNotice && <span className="text-[11px] text-stone-500 dark:text-stone-400">{autoNotice}</span>}
+                  </div>
+
                   {/* 4 Rubric Sliders / Number Pickers */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {[
@@ -527,8 +620,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
           onClose={() => setIsPrintModalOpen(false)}
           student={{
             ...selectedStudent,
-            rubricScores: rubric,
-            feedback: feedbackText || selectedStudent.feedback
+            rubricScores: selectedStudent.rubricScores ? rubric : undefined,
+            feedback: selectedStudent.rubricScores ? (feedbackText || selectedStudent.feedback) : selectedStudent.feedback
           }}
           theme={theme}
           sessionId={session.id}

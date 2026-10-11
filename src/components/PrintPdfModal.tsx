@@ -1,20 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { 
-  X, 
-  Printer, 
-  Download, 
-  ExternalLink, 
-  Copy, 
-  Check, 
-  Award, 
-  FileText, 
-  BookOpen, 
-  Sparkles, 
-  Calendar, 
-  User, 
-  GraduationCap,
-  PenTool
-} from 'lucide-react';
+import { X, Download, ExternalLink, Copy, Check, FileText } from 'lucide-react';
 import { StudentProgress } from '../lib/db';
 import { ThemeTopic } from '../data';
 import jsPDF from 'jspdf';
@@ -51,13 +36,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
     day: 'numeric'
   });
 
-  const rubric = student.rubricScores || {
-    fikrah: 20,
-    tarkib: 20,
-    mufradat: 20,
-    imla: 20,
-    total: 80
-  };
+  const rubric = student.rubricScores;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -114,7 +93,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
       const safeName = student.name.replace(/[^a-zA-Z0-9_-]/g, '_');
       const safeTheme = (theme.titleIndo || 'Karangan').replace(/[^a-zA-Z0-9_-]/g, '_');
       pdf.save(`Lembar_Insya_${safeName}_${safeTheme}.pdf`);
-      showToast('✓ Berhasil mengunduh file PDF!');
+      showToast('Berhasil mengunduh file PDF!');
     } catch (err) {
       console.error('Error generating PDF:', err);
       showToast('Gagal membuat file PDF. Silakan gunakan tombol Buka Tab Baru untuk cetak.');
@@ -149,7 +128,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
           <style>
             body { 
               font-family: 'Plus Jakarta Sans', sans-serif; 
-              background-color: #f8fafc;
+              background-color: #ffffff;
               color: #0f172a;
               padding: 20px;
             }
@@ -168,7 +147,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
               <p class="text-xs text-slate-500">Gunakan tombol Cetak di bawah atau tekan Ctrl+P</p>
             </div>
             <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm flex items-center gap-2">
-              🖨️ Cetak / Simpan PDF
+              Cetak / Simpan PDF
             </button>
           </div>
           <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
@@ -199,7 +178,7 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
   // 4. Copy text to clipboard
   const handleCopyAll = () => {
     const text = `
-LEMBAR KERJA SISWA - INSYA' MUWAJJAH
+LEMBAR KARANGAN INSYA'
 Nama Siswa: ${student.name}
 Kelas/Sesi: ${sessionId}
 Tema: ${theme.titleIndo} (${theme.titleArabic})
@@ -217,17 +196,17 @@ ${student.draft || '(Belum ada draf)'}
 
 ====================================
 Nilai Rubrik Insya':
-- Fikrah: ${rubric.fikrah}/25
+${rubric ? `- Fikrah: ${rubric.fikrah}/25
 - Tarkib: ${rubric.tarkib}/25
 - Mufradat: ${rubric.mufradat}/25
 - Imla': ${rubric.imla}/25
-Total Nilai: ${rubric.total}/100
+Total Nilai: ${rubric.total}/100` : '(Belum dinilai)'}
 Catatan: ${student.feedback || '-'}
     `.trim();
 
     navigator.clipboard.writeText(text);
     setCopied(true);
-    showToast('✓ Teks lembar kerja berhasil disalin!');
+    showToast('Teks lembar kerja berhasil disalin!');
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -302,211 +281,106 @@ Catatan: ${student.feedback || '-'}
           </div>
         )}
 
-        {/* Printable Paper Document Preview */}
+        {/* Pratinjau lembar cetak (polos, hitam putih) */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-stone-100 dark:bg-stone-950/80">
-          <div 
+          <div
             ref={printContentRef}
-            className="max-w-3xl mx-auto bg-white text-stone-900 p-6 sm:p-10 rounded-2xl shadow-md border border-stone-200 space-y-6 font-sans"
+            className="max-w-3xl mx-auto bg-white text-black p-8 sm:p-12 border border-stone-300 font-sans"
             style={{ minHeight: '840px' }}
           >
-            {/* Header Kop Lembar Kerja */}
-            <div className="border-b-2 border-stone-900 pb-4 text-center space-y-1">
-              <div className="flex items-center justify-between text-xs font-bold text-stone-600 uppercase tracking-widest border-b border-stone-200 pb-1.5 mb-2">
-                <span>KITABAH INSYA' • MADRASAH / KBM</span>
-                <span>إِنْشَاءٌ مُوَجَّهٌ</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-stone-900 uppercase">
-                LEMBAR KERJA SISWA — INSYA' MUWAJJAH
-              </h1>
-              <p className="text-xs text-stone-600 font-medium">
-                Pembelajaran Maharah Al-Kitabah Berbasis Panduan & Rubrik Analitis
-              </p>
-            </div>
+            <h1 className="text-xl font-bold text-center text-black">Lembar Karangan Insya'</h1>
+            <hr className="border-black my-3" />
 
-            {/* Student & Class Identity Box */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-stone-200 bg-stone-50 text-xs">
-              <div className="space-y-1">
-                <div>
-                  <span className="text-stone-500">Nama Siswa: </span>
-                  <strong className="text-stone-900 font-bold text-sm">{student.name}</strong>
-                </div>
-                <div>
-                  <span className="text-stone-500">Kelas / Sesi: </span>
-                  <strong className="font-mono text-stone-800 font-bold">{sessionId}</strong>
-                </div>
-              </div>
+            <table className="w-full text-sm mb-5">
+              <tbody>
+                <tr>
+                  <td className="w-28 py-0.5 align-top">Nama</td>
+                  <td className="py-0.5">: {student.name}</td>
+                </tr>
+                <tr>
+                  <td className="py-0.5 align-top">Kelas / Sesi</td>
+                  <td className="py-0.5">: {sessionId}</td>
+                </tr>
+                <tr>
+                  <td className="py-0.5 align-top">Tema</td>
+                  <td className="py-0.5">: {theme.titleIndo} ({theme.titleArabic})</td>
+                </tr>
+                <tr>
+                  <td className="py-0.5 align-top">Tanggal</td>
+                  <td className="py-0.5">: {currentDate}</td>
+                </tr>
+              </tbody>
+            </table>
 
-              <div className="space-y-1 text-right">
-                <div>
-                  <span className="text-stone-500">Tema: </span>
-                  <strong className="text-stone-900 font-bold">{theme.titleIndo}</strong>
-                </div>
-                <div className="font-arabic text-sm font-bold text-stone-800" dir="rtl">
-                  {theme.titleArabic} ({theme.grade})
-                </div>
-                <div className="text-[11px] text-stone-500">
-                  {currentDate}
-                </div>
-              </div>
-            </div>
+            <h2 className="text-sm font-bold mb-1">Kerangka Gagasan</h2>
+            <ol className="list-decimal ml-5 text-sm mb-5 space-y-0.5">
+              <li>Pembuka: {student.ideas?.[0] || '-'}</li>
+              <li>Isi: {student.ideas?.[1] || '-'}</li>
+              <li>Penutup: {student.ideas?.[2] || '-'}</li>
+            </ol>
 
-            {/* Section 1: Alur Gagasan */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between border-b border-stone-200 pb-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-stone-800 flex items-center gap-1.5">
-                  <span>1. Kerangka Gagasan (الأفكار)</span>
-                </h3>
-                <span className="text-[11px] text-stone-500 font-arabic">الفكرة الأساسية</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
-                <div className="p-2.5 rounded-lg border border-stone-200 bg-amber-50/50 space-y-1">
-                  <div className="font-bold text-amber-800 text-[11px] flex items-center justify-between">
-                    <span>Awal (المقدمة)</span>
-                  </div>
-                  <p className="text-stone-700 leading-snug">
-                    {student.ideas?.[0] || <span className="text-stone-400 italic">Belum diisi</span>}
-                  </p>
-                </div>
-
-                <div className="p-2.5 rounded-lg border border-stone-200 bg-blue-50/50 space-y-1">
-                  <div className="font-bold text-blue-800 text-[11px] flex items-center justify-between">
-                    <span>Inti (الموضوع)</span>
-                  </div>
-                  <p className="text-stone-700 leading-snug">
-                    {student.ideas?.[1] || <span className="text-stone-400 italic">Belum diisi</span>}
-                  </p>
-                </div>
-
-                <div className="p-2.5 rounded-lg border border-stone-200 bg-emerald-50/50 space-y-1">
-                  <div className="font-bold text-emerald-800 text-[11px] flex items-center justify-between">
-                    <span>Penutup (الخاتمة)</span>
-                  </div>
-                  <p className="text-stone-700 leading-snug">
-                    {student.ideas?.[2] || <span className="text-stone-400 italic">Belum diisi</span>}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Kosakata & Pola Terpilih */}
-            {(student.selectedMufradat?.length || student.selectedTarkib?.length) ? (
-              <div className="space-y-1.5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-stone-800 border-b border-stone-200 pb-1">
-                  2. Kosakata & Kaidah Kalimat Terpilih (المفردات والتركيب)
-                </h3>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(student.selectedMufradat || []).map((m) => (
-                    <span key={m} className="px-2 py-0.5 rounded-md bg-stone-100 border border-stone-300 font-arabic text-sm font-bold text-stone-800" dir="rtl">
-                      {m}
-                    </span>
-                  ))}
-                  {(student.selectedTarkib || []).map((t) => (
-                    <span key={t} className="px-2 py-0.5 rounded-md bg-stone-100 border border-stone-300 text-[11px] font-semibold text-stone-700">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {/* Section 3: Naskah Karangan Insya' (Utama) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between border-b-2 border-stone-800 pb-1">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900">
-                  3. Naskah Karangan Insya' (نَصُّ الْإِنْشَاءِ)
-                </h3>
-                <span className="text-xs font-arabic font-bold text-stone-700">
-                  كِتَابَةُ الطَّالِبِ
-                </span>
-              </div>
-
-              <div className="p-6 rounded-xl border border-stone-300 bg-stone-50/40 min-h-[220px]">
-                {student.draft ? (
-                  <p className="font-arabic text-2xl sm:text-3xl leading-[2.4] text-stone-900 text-right whitespace-pre-wrap" dir="rtl">
-                    {student.draft}
-                  </p>
-                ) : (
-                  <p className="text-xs text-stone-400 italic text-center py-10">
-                    (Belum ada draf karangan yang ditulis)
-                  </p>
-                )}
-              </div>
-
-              {/* Handwriting snapshot if available */}
+            <h2 className="text-sm font-bold mb-1">Karangan</h2>
+            <div className="border border-black p-4 min-h-[220px] mb-5">
+              {student.draft ? (
+                <p className="font-arabic text-2xl leading-[2.3] text-right whitespace-pre-wrap" dir="rtl">
+                  {student.draft}
+                </p>
+              ) : (
+                <p className="text-sm text-stone-500">(Belum ada karangan)</p>
+              )}
               {student.handwritingDataUrl && (
-                <div className="p-3 rounded-xl border border-stone-200 space-y-1">
-                  <div className="text-[11px] font-bold text-stone-600">Hasil Khat / Tulis Tangan:</div>
-                  <img
-                    src={student.handwritingDataUrl}
-                    alt="Tulis Tangan Siswa"
-                    className="max-h-40 w-auto mx-auto rounded border border-stone-200"
-                  />
-                </div>
+                <img
+                  src={student.handwritingDataUrl}
+                  alt="Tulisan tangan"
+                  className="max-h-40 w-auto mt-3 border border-stone-300"
+                />
               )}
             </div>
 
-            {/* Section 4: Rubrik Penilaian & Catatan Evaluasi */}
-            <div className="border-t-2 border-stone-800 pt-3 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900 flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-purple-600" />
-                  <span>4. Evaluasi & Rubrik Penilaian Analitis</span>
-                </h3>
-                <div className="text-right">
-                  <span className="text-xs text-stone-500 mr-1">Skor Akhir:</span>
-                  <strong className="text-lg font-bold text-stone-900">{rubric.total}</strong>
-                  <span className="text-xs text-stone-500 font-normal"> / 100</span>
-                </div>
+            {student.rubricScores && (
+              <>
+                <h2 className="text-sm font-bold mb-1">Penilaian</h2>
+                <table className="w-full text-sm border border-black border-collapse mb-5">
+                  <tbody>
+                    {[
+                      ['Fikrah (isi)', student.rubricScores.fikrah],
+                      ['Tarkib (struktur)', student.rubricScores.tarkib],
+                      ['Mufradat (kosakata)', student.rubricScores.mufradat],
+                      ["Imla' (ejaan)", student.rubricScores.imla],
+                    ].map(([label, v]) => (
+                      <tr key={label as string}>
+                        <td className="border border-black px-2 py-1">{label}</td>
+                        <td className="border border-black px-2 py-1 w-24 text-center">{v} / 25</td>
+                      </tr>
+                    ))}
+                    <tr className="font-bold">
+                      <td className="border border-black px-2 py-1">Total</td>
+                      <td className="border border-black px-2 py-1 text-center">{student.rubricScores.total} / 100</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </>
+            )}
+
+            {student.feedback && (
+              <div className="mb-5 text-sm">
+                <h2 className="font-bold mb-1">Catatan</h2>
+                <p className="whitespace-pre-wrap leading-relaxed">{student.feedback}</p>
               </div>
+            )}
 
-              {/* Rubric Breakdown Grid */}
-              <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                <div className="p-2 rounded-lg border border-stone-200 bg-stone-50">
-                  <div className="text-[10px] text-stone-500">Gagasan (الفكرة)</div>
-                  <div className="font-bold text-sm text-stone-800 mt-0.5">{rubric.fikrah} / 25</div>
-                </div>
-                <div className="p-2 rounded-lg border border-stone-200 bg-stone-50">
-                  <div className="text-[10px] text-stone-500">Kaidah (التركيب)</div>
-                  <div className="font-bold text-sm text-stone-800 mt-0.5">{rubric.tarkib} / 25</div>
-                </div>
-                <div className="p-2 rounded-lg border border-stone-200 bg-stone-50">
-                  <div className="text-[10px] text-stone-500">Kosakata (المفردات)</div>
-                  <div className="font-bold text-sm text-stone-800 mt-0.5">{rubric.mufradat} / 25</div>
-                </div>
-                <div className="p-2 rounded-lg border border-stone-200 bg-stone-50">
-                  <div className="text-[10px] text-stone-500">Imla' & Khat (الإملاء)</div>
-                  <div className="font-bold text-sm text-stone-800 mt-0.5">{rubric.imla} / 25</div>
-                </div>
+            <div className="grid grid-cols-2 gap-6 pt-8 text-center text-sm">
+              <div className="space-y-12">
+                <div>Siswa</div>
+                <div className="border-b border-black w-40 mx-auto"></div>
+                <div>{student.name}</div>
               </div>
-
-              {/* Teacher Feedback Text */}
-              {student.feedback && (
-                <div className="p-3 rounded-lg border border-stone-200 bg-purple-50/40 text-xs space-y-1">
-                  <div className="font-bold text-purple-900 text-[11px]">Catatan / Umpan Balik Guru:</div>
-                  <p className="text-stone-800 whitespace-pre-wrap leading-relaxed">
-                    {student.feedback}
-                  </p>
-                </div>
-              )}
-
-              {/* Signature section for Official Worksheet */}
-              <div className="grid grid-cols-2 gap-6 pt-6 text-center text-xs text-stone-600">
-                <div className="space-y-12">
-                  <div>Siswa / Penulis</div>
-                  <div className="border-b border-stone-400 w-36 mx-auto"></div>
-                  <div className="font-bold text-stone-800">{student.name}</div>
-                </div>
-                <div className="space-y-12">
-                  <div>Guru Pengajar / Pembimbing</div>
-                  <div className="border-b border-stone-400 w-36 mx-auto"></div>
-                  <div className="font-bold text-stone-800">
-                    {isTeacher ? 'Ustadz / Ustadzah' : 'Guru Bahasa Arab'}
-                  </div>
-                </div>
+              <div className="space-y-12">
+                <div>Guru</div>
+                <div className="border-b border-black w-40 mx-auto"></div>
+                <div>&nbsp;</div>
               </div>
             </div>
-
           </div>
         </div>
 
