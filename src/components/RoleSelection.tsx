@@ -255,7 +255,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
         />
         <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-[11px] sm:text-xs font-bold shadow-sm">
-            <BookOpen className="w-3.5 h-3.5 text-blue-500" /> Kurikulum MA Kelas XI (Kelas 11) • Insya' Muwajjah
+            Kurikulum MA Kelas XI (Kelas 11), Insya' Muwajjah
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-stone-900 dark:text-white leading-tight">
             Selamat Datang di <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">Kitabah Insya'</span>
@@ -277,7 +277,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
           }`}
         >
-          <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-blue-500" />
           <span>Mode KBM (Kelas)</span>
         </button>
 
@@ -290,7 +289,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
           }`}
         >
-          <PenTool className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-emerald-500" />
           <span>Latihan Mandiri</span>
         </button>
       </div>
@@ -329,7 +327,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                 >
                   <div className="absolute top-3 right-3">
                     <span className="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-300 text-[10px] font-bold flex items-center gap-0.5">
-                      <Lock className="w-3 h-3" /> PIN Guru
+                      PIN Guru
                     </span>
                   </div>
                   <span className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mb-1.5">Guru</span>
@@ -345,7 +343,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               {/* KBM Features Banner with Illustrations */}
               <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 space-y-3">
                 <div className="text-xs sm:text-sm font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-blue-500" /> Alur Kegiatan Belajar Mengajar (KBM) Kitabah Insya':
+                  Alur Kegiatan Belajar Mengajar (KBM) Kitabah Insya':
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-stone-600 dark:text-stone-300">
                   <div className="p-3 rounded-2xl bg-white dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 shadow-sm">
@@ -390,16 +388,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                 onClick={() => { setKbmRole(null); setJoinError(null); setExistingCodeError(null); }} 
                 className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 font-bold text-xs flex items-center gap-1.5 transition-colors p-1"
               >
-                &larr; Kembali ke Pilihan Peran KBM
+                Kembali ke Pilihan Peran KBM
               </button>
 
               {kbmRole === 'student' ? (
                 /* STUDENT KBM FORM */
                 <div className="bg-white dark:bg-stone-900/70 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-stone-200 dark:border-stone-800 shadow-xl space-y-5 sm:space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                      <Users className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">Masuk Ruang Siswa</h3>
                       <p className="text-xs text-stone-500">Mulai alur penulisan terarah kelas</p>
@@ -408,7 +403,6 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
 
                   {joinError && (
                     <div className="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-600 dark:text-red-300 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{joinError}</span>
                     </div>
                   )}
@@ -437,8 +431,8 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                         required
                         value={joinCode} 
                         onChange={e => setJoinCode(e.target.value.toUpperCase())} 
-                        placeholder="Misal: AB12CD" 
-                        className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center uppercase font-bold focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Contoh: AB12CD" 
+                        className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm uppercase placeholder:normal-case focus:outline-none focus:ring-2 focus:ring-blue-500" 
                       />
                       <p className="text-[11px] text-stone-400 mt-1.5">
                         * Siswa hanya memerlukan Kode Kelas dari guru untuk mulai mengerjakan.
@@ -458,7 +452,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                   {savedStudentSessions.length > 0 && (
                     <div className="pt-4 border-t border-stone-100 dark:border-stone-800 space-y-2">
                       <div className="text-xs font-bold text-stone-500 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> Lanjutkan Draf Siswa Tersimpan:
+                        Lanjutkan Draf Siswa Tersimpan:
                       </div>
                       <div className="space-y-1.5 max-h-48 overflow-y-auto">
                         {savedStudentSessions.map(item => {
@@ -504,16 +498,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                 <div className="bg-white dark:bg-stone-900/70 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-stone-200 dark:border-stone-800 shadow-xl space-y-5 sm:space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                        <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </div>
                       <div>
                         <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">Panel Guru KBM</h3>
                         <p className="text-xs text-stone-500">Kelola dan pantau ruang kelas menulis</p>
                       </div>
                     </div>
                     <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-2.5 py-1 rounded-xl border border-purple-200 dark:border-purple-800">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Akses Guru
+                      Akses Guru
                     </div>
                   </div>
 
@@ -528,7 +519,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
                       }`}
                     >
-                      <PlusCircle className="w-3.5 h-3.5" /> Buat Kelas Baru
+                      Buat Kelas Baru
                     </button>
                     <button
                       type="button"
@@ -539,13 +530,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
                       }`}
                     >
-                      <Key className="w-3.5 h-3.5" /> Buka Kelas Lama
+                      Buka Kelas Lama
                     </button>
                   </div>
 
                   {existingCodeError && (
                     <div className="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-600 dark:text-red-300 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{existingCodeError}</span>
                     </div>
                   )}
@@ -609,7 +599,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                             <div className="mt-3 p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 flex items-center justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="text-xs font-bold text-stone-900 dark:text-white truncate">{teacherCustomTheme.titleIndo}</div>
-                                <div className="text-[11px] text-stone-500">{teacherCustomTheme.mufradat.length} kosakata • tema sendiri</div>
+                                <div className="text-[11px] text-stone-500">{teacherCustomTheme.mufradat.length} kosakata, tema sendiri</div>
                               </div>
                               <button
                                 type="button"
@@ -629,7 +619,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                             Atur PIN Rahasia Guru
                           </label>
                           <span className="text-[11px] text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1">
-                            <Lock className="w-3 h-3" /> Wajib dijaga
+                            Wajib dijaga
                           </span>
                         </div>
                         <input 
@@ -638,7 +628,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           value={teacherPin} 
                           onChange={e => setTeacherPin(e.target.value)} 
                           placeholder="Buat PIN rahasia" 
-                          className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                          className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" 
                         />
                         <p className="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
                           Siswa hanya diberikan <strong>Kode Kelas</strong> untuk menulis. PIN ini khusus disimpan oleh Guru agar siswa tidak dapat masuk ke Panel Guru.
@@ -666,7 +656,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                             value={existingTeacherCode} 
                             onChange={e => setExistingTeacherCode(e.target.value.toUpperCase())} 
                             placeholder="Contoh: AB12CD" 
-                            className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center uppercase font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                            className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm uppercase placeholder:normal-case focus:outline-none focus:ring-2 focus:ring-purple-500" 
                           />
                         </div>
 
@@ -683,7 +673,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                               value={existingTeacherPin} 
                               onChange={e => setExistingTeacherPin(e.target.value)} 
                               placeholder="Masukkan PIN Guru" 
-                              className="w-full p-3.5 pr-11 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-mono tracking-widest text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                              className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" 
                             />
                           </div>
                         </div>
@@ -701,7 +691,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                       {savedTeacherSessions.length > 0 && (
                         <div className="pt-4 border-t border-stone-100 dark:border-stone-800 space-y-2">
                           <div className="text-xs font-bold text-stone-500 flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" /> Riwayat Kelas Guru di Perangkat Ini:
+                            Riwayat Kelas Guru di Perangkat Ini:
                           </div>
                           <div className="space-y-1.5 max-h-48 overflow-y-auto">
                             {savedTeacherSessions.map(item => {
@@ -781,13 +771,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
             {/* Fitur bantuan menulis */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-emerald-200/60 dark:border-emerald-900/40 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookOpen className="w-3 h-3 text-emerald-600" /> Bantuan Ide & Kerangka Paragraf
+                Bantuan Ide & Kerangka Paragraf
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Cek Nahwu, Imla' & Harakat Otomatis
+                Cek Nahwu, Imla' & Harakat Otomatis
               </span>
               <span className="inline-flex items-center gap-1 bg-white/80 dark:bg-stone-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                <BookMarked className="w-3 h-3 text-emerald-600" /> Penilaian Rubrik Analitis Otomatis
+                Penilaian Rubrik Analitis Otomatis
               </span>
             </div>
           </div>
@@ -808,7 +798,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
               onClick={() => setShowSoloThemeForm(true)}
               className="w-full p-4 rounded-2xl border-2 border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-bold hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors flex items-center justify-center gap-2"
             >
-              <PlusCircle className="w-4 h-4" /> Punya topik sendiri? Buat tema sendiri
+              Punya topik sendiri? Buat tema sendiri
             </button>
           )}
 

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { analyze, annotateText, MarkKind } from '../lib/analyzer';
 import type { ThemeTopic } from '../data';
+import { useDebounced } from '../lib/useDebounced';
 
 interface TextMapProps {
   text: string;
@@ -16,11 +17,13 @@ const wordClass: Record<MarkKind, string> = {
 };
 
 // Peta Tulisan: menandai kosakata tema, kata penghubung, dan kata yang perlu diperiksa.
-export const TextMap: React.FC<TextMapProps> = ({ text, theme, selectedMufradat }) => {
+const TextMapBase: React.FC<TextMapProps> = ({ text: liveText, theme, selectedMufradat }) => {
+  const text = useDebounced(liveText, 600);
+  const selKey = (selectedMufradat || []).join('|');
   const { analysis, sentences } = useMemo(() => {
-    const a = analyze({ text, theme, selectedMufradat: selectedMufradat || [] });
+    const a = analyze({ text, theme, selectedMufradat: selKey ? selKey.split('|') : [] });
     return { analysis: a, sentences: annotateText(text, theme, a.findings) };
-  }, [text, theme, selectedMufradat]);
+  }, [text, theme, selKey]);
 
   if (!text || text.trim().length < 3) return null;
 
@@ -90,3 +93,5 @@ export const TextMap: React.FC<TextMapProps> = ({ text, theme, selectedMufradat 
     </div>
   );
 };
+
+export const TextMap = React.memo(TextMapBase);

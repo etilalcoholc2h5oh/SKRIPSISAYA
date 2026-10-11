@@ -95,6 +95,12 @@ Mendigitalkan pekerjaan guru yang biasanya manual, di `src/lib/recap.ts`, tanpa 
 - Karangan tulisan tangan tidak bisa dibaca mesin, sehingga nilainya diisi guru secara manual (tanpa nilai bawaan palsu).
 - Siswa KBM juga mendapat panel misi (kata tantangan, XP, bintang). Hasil permainan hanya di perangkat siswa dan tidak mengubah nilai dari guru.
 
+## 4e. Anti-contek dan performa
+
+- Contoh karangan acuan tema hanya terlihat di panel guru, tidak di layar siswa.
+- Kotak menulis menolak tempel (paste), seret teks, dan penambahan teks yang melonjak sekaligus (lebih dari 25 karakter). Siswa harus mengetik sendiri. Mode tulis tangan tidak terpengaruh.
+- Analisis (misi, Peta Tulisan) berjalan setelah siswa berhenti mengetik 0,6 detik, supaya pengetikan tetap lancar.
+
 ## 5. Batasan (jujur)
 
 - Mesin **tidak memahami makna**. Kesesuaian dengan tema hanya diukur dari kosakata tema yang dipakai.

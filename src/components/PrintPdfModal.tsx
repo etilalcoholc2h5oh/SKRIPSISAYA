@@ -43,12 +43,12 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 1. Generate & Download PDF using html2canvas & jsPDF
+  // 1. Buat PDF (A4, margin 10 mm). Pemotongan halaman dicari di baris kosong agar teks tidak terbelah.
   const handleDownloadPdf = async () => {
     if (!printContentRef.current) return;
     try {
       setIsGeneratingPdf(true);
-      showToast('Sedang memproses & menyusun dokumen PDF...');
+      showToast('Menyusun PDF...');
 
       const element = printContentRef.current;
       const canvas = await html2canvas(element, {
@@ -60,43 +60,79 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
         windowHeight: element.scrollHeight
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const margin = 10;
+      const usableW = pdf.internal.pageSize.getWidth() - margin * 2; // 190 mm
+      const usableH = pdf.internal.pageSize.getHeight() - margin * 2; // 277 mm
+      const pxPerMm = canvas.width / usableW;
+      const pageHpx = Math.floor(usableH * pxPerMm);
+      const ctx = canvas.getContext('2d');
 
-      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
-      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-      
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const totalPdfHeight = (canvasHeight * pageWidth) / canvasWidth;
+      // Cari baris yang seluruhnya putih di dekat batas halaman, supaya garis potong tidak memotong huruf.
+      const findCut = (from: number): number => {
+        const ideal = from + pageHpx;
+        if (ideal >= canvas.height || !ctx) return Math.min(ideal, canvas.height);
+        const lookBack = Math.floor(pageHpx * 0.15);
+        for (let y = ideal; y > ideal - lookBack; y--) {
+          const row = ctx.getImageData(0, y, canvas.width, 1).data;
+          let blank = true;
+          for (let i = 0; i < row.length; i += 4) {
+            if (row[i] < 245 || row[i + 1] < 245 || row[i + 2] < 245) { blank = false; break; }
+          }
+          if (blank) return y;
+        }
+        return ideal;
+      };
 
-      // Handle multi-page pagination seamlessly if content is longer than 1 A4 page
-      let heightLeft = totalPdfHeight;
-      let position = 0;
-
-      // First page
-      pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
-
-      // Subsequent pages if any
-      while (heightLeft > 0) {
-        position = heightLeft - totalPdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
+      let y = 0;
+      let first = true;
+      while (y < canvas.height) {
+        const cut = findCut(y);
+        const sliceH = Math.max(1, cut - y);
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = sliceH;
+        const sctx = slice.getContext('2d');
+        if (!sctx) throw new Error('canvas');
+        sctx.fillStyle = '#ffffff';
+        sctx.fillRect(0, 0, slice.width, slice.height);
+        sctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        if (!first) pdf.addPage();
+        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerMm, undefined, 'FAST');
+        first = false;
+        y = cut;
       }
 
       const safeName = student.name.replace(/[^a-zA-Z0-9_-]/g, '_');
       const safeTheme = (theme.titleIndo || 'Karangan').replace(/[^a-zA-Z0-9_-]/g, '_');
-      pdf.save(`Lembar_Insya_${safeName}_${safeTheme}.pdf`);
-      showToast('Berhasil mengunduh file PDF!');
+      const fileName = `Lembar_Insya_${safeName}_${safeTheme}.pdf`;
+      const blob = pdf.output('blob');
+
+      // HP: buka lembar bagikan agar PDF bisa disimpan ke berkas atau dikirim langsung.
+      const file = new File([blob], fileName, { type: 'application/pdf' });
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        try {
+          await nav.share({ files: [file], title: fileName });
+          showToast('PDF siap disimpan atau dibagikan.');
+          return;
+        } catch (e: any) {
+          if (e && e.name === 'AbortError') return; // pengguna menutup lembar bagikan
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      showToast('PDF diunduh. Jika tidak muncul, tekan tombol Buka Tab Cetak lalu Cetak / Simpan PDF.');
     } catch (err) {
       console.error('Error generating PDF:', err);
-      showToast('Gagal membuat file PDF. Silakan gunakan tombol Buka Tab Baru untuk cetak.');
+      showToast('Gagal membuat PDF. Gunakan tombol Buka Tab Cetak.');
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -225,7 +261,7 @@ Catatan: ${student.feedback || '-'}
                 Dokumen Lembar Kerja Insya'
               </h2>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                Siswa: <strong className="text-stone-700 dark:text-stone-300">{student.name}</strong> • Tema: {theme.titleIndo}
+                Siswa: <strong className="text-stone-700 dark:text-stone-300">{student.name}</strong>, Tema: {theme.titleIndo}
               </p>
             </div>
           </div>
@@ -285,7 +321,7 @@ Catatan: ${student.feedback || '-'}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-stone-100 dark:bg-stone-950/80">
           <div
             ref={printContentRef}
-            className="max-w-3xl mx-auto bg-white text-black p-8 sm:p-12 border border-stone-300 font-sans"
+            className="max-w-3xl mx-auto bg-white text-black p-8 sm:p-12 border border-stone-300 font-sans overflow-hidden break-words [overflow-wrap:anywhere]"
             style={{ minHeight: '840px' }}
           >
             <h1 className="text-xl font-bold text-center text-black">Lembar Karangan Insya'</h1>
@@ -322,7 +358,7 @@ Catatan: ${student.feedback || '-'}
             <h2 className="text-sm font-bold mb-1">Karangan</h2>
             <div className="border border-black p-4 min-h-[220px] mb-5">
               {student.draft ? (
-                <p className="font-arabic text-2xl leading-[2.3] text-right whitespace-pre-wrap" dir="rtl">
+                <p className="font-arabic text-2xl leading-[2.3] text-right whitespace-pre-wrap break-words [overflow-wrap:anywhere]" dir="rtl">
                   {student.draft}
                 </p>
               ) : (
@@ -332,7 +368,7 @@ Catatan: ${student.feedback || '-'}
                 <img
                   src={student.handwritingDataUrl}
                   alt="Tulisan tangan"
-                  className="max-h-40 w-auto mt-3 border border-stone-300"
+                  className="max-h-40 max-w-full w-auto mt-3 border border-stone-300"
                 />
               )}
             </div>

@@ -201,7 +201,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
               title="Salin Kode Siswa"
               className="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
             >
-              {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               <span>{copiedCode ? 'Tersalin' : 'Salin'}</span>
             </button>
           </div>
@@ -238,7 +237,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                   onClick={handleDownloadCsv}
                   className="px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 text-xs font-bold hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-1.5"
                 >
-                  <Download className="w-3.5 h-3.5" /> Unduh rekap (Excel/CSV)
+                  Unduh rekap (Excel/CSV)
                 </button>
               </div>
             </div>
@@ -284,7 +283,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
           <div className={`p-3.5 sm:p-4 border-b ${borderColor} bg-stone-50/70 dark:bg-stone-900/60 space-y-2.5 sm:space-y-3`}>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-purple-500" /> Daftar Siswa ({students.length})
+                Daftar Siswa ({students.length})
               </span>
               <span className="text-[11px] text-stone-400 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -354,7 +353,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                       </span>
                       {student.writingMode === 'handwriting' && (
                         <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1 text-[10px]">
-                          <PenTool className="w-3 h-3" /> Khat
+                          Khat
                         </span>
                       )}
                     </div>
@@ -369,7 +368,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
         <div className={`lg:col-span-8 rounded-2xl sm:rounded-3xl border ${borderColor} ${cardBg} shadow-sm overflow-hidden flex flex-col ${!selectedStudent ? 'hidden lg:flex min-h-[300px] lg:min-h-[600px]' : 'flex'}`}>
           {!selectedStudent ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-12 text-center text-stone-400 space-y-3">
-              <Eye className="w-10 h-10 sm:w-12 sm:h-12 opacity-20" />
               <h3 className="font-bold text-sm sm:text-base text-stone-600 dark:text-stone-400">Pilih Siswa untuk Ditinjau</h3>
               <p className="text-xs max-w-sm">
                 Klik salah satu siswa dari daftar di sebelah kiri untuk melihat gagasan, kosakata pilihan, dan draf tulisan Arab mereka secara real-time.
@@ -386,7 +384,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                     className="lg:hidden p-1.5 -ml-1 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800"
                     title="Kembali ke Daftar Siswa"
                   >
-                    ← Daftar
+                    Daftar
                   </button>
                   <div>
                     <span className="text-[10px] sm:text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
@@ -405,7 +403,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-bold transition-all shadow-xs"
                     title="Cetak atau Unduh PDF Lembar Kerja Siswa"
                   >
-                    <Printer className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                     <span>Cetak / PDF</span>
                   </button>
 
@@ -485,7 +482,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                   {selectedStudent.handwritingDataUrl && (
                     <div className="mt-3 p-3 rounded-xl sm:rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
                       <div className="text-xs font-bold text-stone-500 mb-2 flex items-center gap-1.5">
-                        <PenTool className="w-3.5 h-3.5 text-purple-500" /> Hasil Tulis Tangan Siswa (Khat Canvas):
+                        Hasil Tulis Tangan Siswa (Khat Canvas):
                       </div>
                       <img
                         src={selectedStudent.handwritingDataUrl}
@@ -496,11 +493,22 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                   )}
                 </div>
 
+                {theme.contohInsya && (
+                  <details className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/40 p-3.5">
+                    <summary className="cursor-pointer text-xs font-bold text-stone-700 dark:text-stone-200">
+                      Contoh karangan acuan (hanya terlihat oleh guru)
+                    </summary>
+                    <p dir="rtl" className="mt-2 font-arabic text-lg leading-relaxed text-stone-800 dark:text-stone-200">
+                      {theme.contohInsya}
+                    </p>
+                  </details>
+                )}
+
                 {/* Assessment Form & Rubric */}
                 <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50 space-y-4 sm:space-y-5">
                   <div className="flex items-center justify-between border-b border-purple-200/60 dark:border-purple-900/40 pb-3">
                     <h3 className="font-bold text-xs sm:text-sm text-purple-800 dark:text-purple-300 flex items-center gap-1.5 sm:gap-2">
-                      <Award className="w-4 h-4 text-purple-600 shrink-0" /> Rubrik Penilaian Analitis Insya'
+                      Rubrik Penilaian Analitis Insya'
                     </h3>
                     <div className="text-right">
                       <span className="text-[11px] sm:text-xs text-stone-500 mr-1 sm:mr-2">Total:</span>
@@ -588,7 +596,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
                     {saveSuccess ? (
                       <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 shrink-0" /> Penilaian berhasil dikirim ke layar {selectedStudent.name}!
+                        Penilaian berhasil dikirim ke layar {selectedStudent.name}!
                       </span>
                     ) : (
                       <span className="text-[11px] text-stone-400">
@@ -602,7 +610,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                       disabled={isSaving}
                       className="flex items-center justify-center gap-2 px-5 sm:px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all disabled:opacity-40 shrink-0"
                     >
-                      <Send className="w-3.5 h-3.5" />
                       {isSaving ? 'Menyimpan...' : 'Kirim Penilaian & Feedback'}
                     </button>
                   </div>
