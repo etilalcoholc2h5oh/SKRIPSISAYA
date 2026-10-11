@@ -135,6 +135,45 @@ export const joinSession = async (sessionId: string, studentName: string) => {
   return { studentId, cleanSessionId, themeId };
 };
 
+// Latihan Mandiri: sesi dan data siswa dibuat sekaligus, tanpa menunggu balasan server.
+// Firestore langsung menayangkan data lokal ke layar, jadi siswa bisa mulai menulis seketika.
+export const startSoloPractice = (studentName: string, themeId: string, customTheme?: ThemeTopic) => {
+  const sessionId = `SL${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  const studentId = Math.random().toString(36).substring(2, 9);
+  const finalThemeId = customTheme ? customTheme.id : (themeId || THEMES[0].id);
+
+  const sessionData = {
+    id: sessionId,
+    teacherName: 'Latihan Mandiri',
+    active: true,
+    themeId: finalThemeId,
+    isSoloPractice: true,
+    ...(customTheme ? { customTheme } : {}),
+    createdAt: serverTimestamp()
+  };
+  const studentData: StudentProgress = {
+    id: studentId,
+    name: studentName.trim() || 'Siswa Mandiri',
+    themeId: finalThemeId,
+    step: 1,
+    ideas: ['', '', ''],
+    selectedMufradat: [],
+    selectedTarkib: [],
+    draft: '',
+    writingMode: 'type',
+    feedback: '',
+    status: 'draft',
+    lastUpdated: serverTimestamp()
+  };
+
+  Promise.all([
+    setDoc(doc(firestore, 'sessions', sessionId), sessionData),
+    setDoc(doc(firestore, `sessions/${sessionId}/students`, studentId), studentData)
+  ]).catch((e) => console.error('Gagal menyimpan sesi latihan mandiri:', e));
+
+  return { sessionId, studentId };
+};
+
 export const updateStudentProgress = async (sessionId: string, studentId: string, data: Partial<StudentProgress>) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const studentRef = doc(firestore, `sessions/${cleanSessionId}/students`, studentId);

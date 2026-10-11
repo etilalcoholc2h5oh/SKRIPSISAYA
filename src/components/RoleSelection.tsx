@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createSession, joinSession, verifyTeacherAccess } from '../lib/db';
+import { createSession, joinSession, startSoloPractice, verifyTeacherAccess } from '../lib/db';
 import { THEMES, ThemeTopic } from '../data';
 import { Callout } from './Callout';
 import { CustomThemeForm } from './CustomThemeForm';
@@ -224,18 +224,9 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     setTeacherTab('existing');
   };
 
-  const handleStartSoloPractice = async (themeId: string, customTheme?: ThemeTopic) => {
-    const sName = soloStudentName.trim() || 'Siswa Mandiri';
-    setIsCreating(true);
-    try {
-      const sessionId = await createSession('Latihan Mandiri', customTheme ? customTheme.id : themeId, '1234', true, customTheme);
-      const result = await joinSession(sessionId, sName);
-      onJoinSession(result.cleanSessionId, result.studentId);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsCreating(false);
-    }
+  const handleStartSoloPractice = (themeId: string, customTheme?: ThemeTopic) => {
+    const { sessionId, studentId } = startSoloPractice(soloStudentName, themeId, customTheme);
+    onJoinSession(sessionId, studentId);
   };
 
   const filteredSoloThemes = THEMES.filter(t => 

@@ -112,6 +112,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
   const [submitNotice, setSubmitNotice] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
   const [stepLockWarning, setStepLockWarning] = useState<string | null>(null);
+  const [pasteNotice, setPasteNotice] = useState(false);
+  const blockPaste = () => {
+    setPasteNotice(true);
+    setTimeout(() => setPasteNotice(false), 3500);
+  };
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
 
@@ -208,12 +213,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
       updateStudentProgress(sessionId, studentId, { ideas: newIdeas });
       ideasTimeoutRef.current = null;
     }, 400);
-  };
-
-  const [pasteNotice, setPasteNotice] = useState(false);
-  const blockPaste = () => {
-    setPasteNotice(true);
-    setTimeout(() => setPasteNotice(false), 3500);
   };
 
   const handleDraftChange = (newVal: string) => {
