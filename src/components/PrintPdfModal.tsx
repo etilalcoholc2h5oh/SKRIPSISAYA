@@ -3,45 +3,8 @@ import { X, Download, ExternalLink, Copy, Check, FileText } from 'lucide-react';
 import { StudentProgress } from '../lib/db';
 import { ThemeTopic } from '../data';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { renderWorksheetPages } from '../lib/worksheetRender';
 
-
-// html2canvas belum bisa membaca warna modern (oklch, color-mix) yang dipakai Tailwind v4 dan akan gagal.
-// Sebelum difoto, semua warna di salinan dokumen diubah menjadi rgb biasa.
-const MODERN_COLOR = /oklch|oklab|color\(|lab\(|lch\(|color-mix/;
-const COLOR_PROPS = [
-  'color', 'background-color', 'border-top-color', 'border-right-color',
-  'border-bottom-color', 'border-left-color', 'outline-color', 'text-decoration-color'
-];
-
-function toRgb(value: string): string {
-  const c = document.createElement('canvas');
-  c.width = c.height = 1;
-  const x = c.getContext('2d');
-  if (!x) return 'rgb(0,0,0)';
-  x.clearRect(0, 0, 1, 1);
-  x.fillStyle = '#000000';
-  x.fillStyle = value;
-  x.fillRect(0, 0, 1, 1);
-  const [r, g, b, a] = x.getImageData(0, 0, 1, 1).data;
-  return `rgba(${r},${g},${b},${(a / 255).toFixed(3)})`;
-}
-
-function sanitizeColors(doc: Document) {
-  const win = doc.defaultView;
-  if (!win) return;
-  doc.querySelectorAll<HTMLElement>('*').forEach((node) => {
-    const cs = win.getComputedStyle(node);
-    for (const prop of COLOR_PROPS) {
-      const v = cs.getPropertyValue(prop);
-      if (v && MODERN_COLOR.test(v)) node.style.setProperty(prop, toRgb(v), 'important');
-    }
-    if (MODERN_COLOR.test(cs.boxShadow) || MODERN_COLOR.test(cs.backgroundImage)) {
-      node.style.setProperty('box-shadow', 'none', 'important');
-      if (MODERN_COLOR.test(cs.backgroundImage)) node.style.setProperty('background-image', 'none', 'important');
-    }
-  });
-}
 
 interface PrintPdfModalProps {
   isOpen: boolean;
@@ -81,84 +44,37 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 1. Buat PDF (A4, margin 10 mm). Pemotongan halaman dicari di baris kosong agar teks tidak terbelah.
+  // 1. Buat PDF A4 lalu langsung diunduh. Lembar digambar sendiri (tanpa html2canvas), jadi tidak bergantung pada CSS.
   const handleDownloadPdf = async () => {
-    if (!printContentRef.current) return;
     try {
       setIsGeneratingPdf(true);
       showToast('Menyusun PDF...');
 
-      const element = printContentRef.current;
-      const canvas = await html2canvas(element, {
-        scale: Math.min(2, 1800 / Math.max(1, element.scrollWidth)),
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        onclone: (clonedDoc) => sanitizeColors(clonedDoc)
+      const pages = await renderWorksheetPages({
+        name: student.name,
+        session: sessionId,
+        themeTitle: theme.titleIndo,
+        themeArabic: theme.titleArabic,
+        date: currentDate,
+        ideas: student.ideas || [],
+        draft: student.draft || '',
+        handwritingDataUrl: student.handwritingDataUrl,
+        rubric: student.rubricScores,
+        feedback: student.feedback
       });
 
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const margin = 10;
-      const usableW = pdf.internal.pageSize.getWidth() - margin * 2; // 190 mm
-      const usableH = pdf.internal.pageSize.getHeight() - margin * 2; // 277 mm
-      const pxPerMm = canvas.width / usableW;
-      const pageHpx = Math.floor(usableH * pxPerMm);
-      const ctx = canvas.getContext('2d');
-
-      // Cari baris yang seluruhnya putih di dekat batas halaman, supaya garis potong tidak memotong huruf.
-      const findCut = (from: number): number => {
-        const ideal = from + pageHpx;
-        if (ideal >= canvas.height || !ctx) return Math.min(ideal, canvas.height);
-        const lookBack = Math.floor(pageHpx * 0.15);
-        for (let y = ideal; y > ideal - lookBack; y--) {
-          const row = ctx.getImageData(0, y, canvas.width, 1).data;
-          let blank = true;
-          for (let i = 0; i < row.length; i += 4) {
-            if (row[i] < 245 || row[i + 1] < 245 || row[i + 2] < 245) { blank = false; break; }
-          }
-          if (blank) return y;
-        }
-        return ideal;
-      };
-
-      let y = 0;
-      let first = true;
-      while (y < canvas.height) {
-        const cut = findCut(y);
-        const sliceH = Math.max(1, cut - y);
-        const slice = document.createElement('canvas');
-        slice.width = canvas.width;
-        slice.height = sliceH;
-        const sctx = slice.getContext('2d');
-        if (!sctx) throw new Error('canvas');
-        sctx.fillStyle = '#ffffff';
-        sctx.fillRect(0, 0, slice.width, slice.height);
-        sctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
-        if (!first) pdf.addPage();
-        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerMm, undefined, 'FAST');
-        first = false;
-        y = cut;
-      }
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      pages.forEach((pg, i) => {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(pg.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+      });
 
       const safeName = student.name.replace(/[^a-zA-Z0-9_-]/g, '_');
       const safeTheme = (theme.titleIndo || 'Karangan').replace(/[^a-zA-Z0-9_-]/g, '_');
       const fileName = `Lembar_Insya_${safeName}_${safeTheme}.pdf`;
       const blob = pdf.output('blob');
-
-      // HP: buka lembar bagikan agar PDF bisa disimpan ke berkas atau dikirim langsung.
-      const file = new File([blob], fileName, { type: 'application/pdf' });
-      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-      if (nav.canShare && nav.canShare({ files: [file] })) {
-        try {
-          await nav.share({ files: [file], title: fileName });
-          showToast('PDF siap disimpan atau dibagikan.');
-          return;
-        } catch (e: any) {
-          if (e && e.name === 'AbortError') return; // pengguna menutup lembar bagikan
-        }
-      }
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -168,9 +84,8 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
-      showToast('PDF diunduh. Jika tidak muncul, tekan tombol Buka Tab Cetak lalu Cetak / Simpan PDF.');
+      showToast('PDF diunduh. Cek notifikasi atau folder Unduhan.');
     } catch (err) {
-      console.error('Error generating PDF:', err);
       const msg = err instanceof Error ? err.message : String(err);
       console.error('PDF otomatis gagal:', msg);
       showToast('PDF otomatis gagal, membuka dialog cetak. Pilih "Simpan sebagai PDF".');
