@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { THEMES, ThemeTopic, Mufradat, TarkibPattern } from '../data';
 import { TextMap } from './TextMap';
+import { QuestPanel } from './QuestPanel';
 import { updateStudentProgress, subscribeToStudent, subscribeToSession, resolveTheme, StudentProgress, ClassSession } from '../lib/db';
 import { Callout } from './Callout';
 import { analyze, formatEvaluation, formatRubricFeedback, formatHarakatReport, suggestIdeas } from '../lib/analyzer';
@@ -1125,6 +1126,16 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* Writing Interface */}
               {(progress.writingMode || 'type') === 'type' ? (
                 <div className="space-y-3">
+                  {isSolo && (
+                    <QuestPanel
+                      text={localDraft || progress?.draft || ''}
+                      theme={theme}
+                      seed={sessionId}
+                      selectedMufradat={progress?.selectedMufradat}
+                      onClaim={handleRequestAiRubric}
+                    />
+                  )}
+
                   {/* Diacritics Bar */}
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 sm:gap-1.5 p-1.5 sm:p-2 bg-stone-50 dark:bg-stone-850 rounded-xl border border-stone-200 dark:border-stone-800">
                     <span className="text-[10px] sm:text-[11px] font-bold text-stone-400 px-1">Harakat:</span>

@@ -65,6 +65,17 @@ Penjagaan agar tidak salah tandai: `مَنِ الْمُعَلِّمُ` ("siapa g
 - **Peta Tulisan**: menampilkan karangan per kalimat dengan penanda kosakata tema (hijau), kata penghubung (biru), dan kata yang perlu diperiksa (garis merah bergelombang beserta alasannya). Dihitung dari mesin yang sama (`annotateText`), tanpa gambar.
 - **Tema sendiri**: guru atau siswa mengisi judul, arahan, dan kosakata (`كِتَابٌ = buku`). Tema tersimpan di sesi dan dinilai dengan mesin yang sama.
 
+## 4b. Mode permainan (Latihan Mandiri)
+
+Dihitung di `src/lib/quests.ts` dari hasil `analyze()`, tanpa AI.
+
+- **Misi** (7): 40 kata (15 XP), 5 kosakata tema (20), 2 kata penghubung (15), kalimat penutup (10), harakat 80% (15), tanpa kesalahan terdeteksi dengan minimal 15 kata (25), semua **kata tantangan** (30). Kata tantangan = 3 kosakata tema yang dipilih tetap per kode sesi.
+- **XP ronde** = XP misi selesai + total nilai / 5. **Bintang**: 85+ = 3, 70+ = 2, 55+ = 1.
+- **Level**: level n mulai di 60·(n-1)² XP (0, 60, 240, 540, ...).
+- **Lencana**: Langkah Pertama, Tiga Bintang, Tanpa Cela, Semua Misi, Penjelajah Tema (3 tema).
+- XP hanya bertambah sebesar selisih dari ronde terbaik di tema yang sama, sehingga klaim berulang tidak bisa menambang XP.
+- Yang disimpan di perangkat hanya angka (XP, lencana, nilai terbaik per tema), bukan isi karangan.
+
 ## 5. Batasan (jujur)
 
 - Mesin **tidak memahami makna**. Kesesuaian dengan tema hanya diukur dari kosakata tema yang dipakai.

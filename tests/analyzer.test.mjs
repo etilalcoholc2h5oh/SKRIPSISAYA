@@ -194,3 +194,21 @@ test('peta tulisan: kosakata tema, kata penghubung, dan kesalahan diberi penanda
   assert.deepEqual(annotateText('', safar, []), []);
   assert.deepEqual(annotateText('hello world', safar, []), []);
 });
+
+test('gamifikasi: misi, level, XP', async () => {
+  const { buildQuests, challengeWords, levelInfo, roundXp, stars } = await import('../src/lib/quests.ts');
+  const theme = THEMES.find((t) => t.id === 'safar') || THEMES[0];
+  const ch = challengeWords(theme, 'ABC123');
+  assert.equal(ch.length, 3);
+  assert.deepEqual(ch.map((m) => m.word), challengeWords(theme, 'ABC123').map((m) => m.word)); // stabil
+  const empty = buildQuests(analyze({ text: '', theme }), theme, ch);
+  assert.equal(empty.filter((q) => q.done).length, 0);
+  const full = buildQuests(analyze({ text: theme.contohInsya, theme }), theme, ch);
+  assert.ok(full.some((q) => q.done), 'contoh karangan menyelesaikan minimal satu misi');
+  assert.equal(levelInfo(0).level, 1);
+  assert.equal(levelInfo(60).level, 2);
+  assert.equal(levelInfo(240).level, 3);
+  assert.equal(stars(90), 3);
+  assert.equal(stars(40), 0);
+  assert.equal(roundXp(empty, 0), 0);
+});
