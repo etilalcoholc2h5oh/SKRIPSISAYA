@@ -4,6 +4,7 @@ import { analyze } from '../lib/analyzer';
 import type { ThemeTopic } from '../data';
 import { BADGES, buildQuests, challengeWords, levelInfo, stars as starsFor } from '../lib/quests';
 import { ClaimResult, claimRound, loadGame } from '../lib/gameProgress';
+import { useDebounced } from '../lib/useDebounced';
 
 interface QuestPanelProps {
   text: string;
@@ -14,14 +15,16 @@ interface QuestPanelProps {
 }
 
 // Mode permainan Latihan Mandiri: misi, XP, level, bintang, lencana.
-export const QuestPanel: React.FC<QuestPanelProps> = ({ text, theme, seed, selectedMufradat, onClaim }) => {
+const QuestPanelBase: React.FC<QuestPanelProps> = ({ text: liveText, theme, seed, selectedMufradat, onClaim }) => {
+  const text = useDebounced(liveText, 600);
+  const selKey = (selectedMufradat || []).join('|');
   const [game, setGame] = useState(loadGame);
   const [result, setResult] = useState<ClaimResult | null>(null);
 
   const challenge = useMemo(() => challengeWords(theme, seed), [theme, seed]);
   const analysis = useMemo(
-    () => analyze({ text, theme, selectedMufradat: selectedMufradat || [] }),
-    [text, theme, selectedMufradat]
+    () => analyze({ text, theme, selectedMufradat: selKey ? selKey.split('|') : [] }),
+    [text, theme, selKey]
   );
   const quests = useMemo(() => buildQuests(analysis, theme, challenge), [analysis, theme, challenge]);
 
@@ -42,7 +45,6 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ text, theme, seed, selec
       {/* Level */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-amber-600" />
           <div>
             <div className="text-sm font-bold text-stone-900 dark:text-stone-100">Level {lv.level}: {lv.name}</div>
             <div className="text-[11px] text-stone-500 dark:text-stone-400">{game.xp} XP total</div>
@@ -65,7 +67,7 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ text, theme, seed, selec
       {challenge.length > 0 && (
         <div className="mt-4 rounded-lg bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 p-3">
           <div className="flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-200">
-            <Target className="w-4 h-4" /> Kata tantangan ronde ini
+            Kata tantangan ronde ini
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {challenge.map((m) => {
@@ -167,3 +169,5 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ text, theme, seed, selec
     </div>
   );
 };
+
+export const QuestPanel = React.memo(QuestPanelBase);

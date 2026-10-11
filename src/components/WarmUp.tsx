@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Check, X, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import type { ThemeTopic } from '../data';
 import { makeMeaningQuiz, makeOrderItems, MEANING_XP, ORDER_XP } from '../lib/warmup';
 import { claimWarmup } from '../lib/gameProgress';
@@ -183,18 +183,27 @@ export const WarmUp: React.FC<WarmUpProps> = ({ theme, seed }) => {
                       Periksa
                     </button>
                   ) : right ? (
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1"><Check className="w-4 h-4" /> Benar</span>
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">Benar</span>
                   ) : (
-                    <span className="text-xs text-red-700 dark:text-red-300 flex items-start gap-1">
-                      <X className="w-4 h-4 shrink-0" />
-                      <span>Urutan di contoh: <span dir="rtl" className="font-arabic text-base">{it.words.join(' ')}</span></span>
+                    <span className="text-xs text-red-700 dark:text-red-300 flex items-center gap-2">
+                      <span>Urutannya belum tepat.</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBuilt({ ...built, [i]: [] });
+                          setChecked({ ...checked, [i]: false });
+                        }}
+                        className={`${btn} border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200`}
+                      >
+                        Coba lagi
+                      </button>
                     </span>
                   )}
                 </div>
               </div>
             );
           })}
-          {Object.keys(checked).length === items.length && (
+          {Object.values(checked).filter(Boolean).length === items.length && (
             <p className="text-sm font-bold text-stone-800 dark:text-stone-100">
               Benar {correctOrder} / {items.length}. {xpMsg}
             </p>

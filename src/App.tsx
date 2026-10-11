@@ -102,7 +102,7 @@ export default function App() {
                   Kelas XI
                 </span>
               </div>
-              <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium hidden sm:block mt-0.5">MA Kelas XI • Insya' Muwajjah PWA</p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium hidden sm:block mt-0.5">MA Kelas XI, Insya' Muwajjah</p>
             </div>
           </button>
 

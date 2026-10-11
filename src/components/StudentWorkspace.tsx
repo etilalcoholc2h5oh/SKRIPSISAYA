@@ -210,7 +210,18 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     }, 400);
   };
 
+  const [pasteNotice, setPasteNotice] = useState(false);
+  const blockPaste = () => {
+    setPasteNotice(true);
+    setTimeout(() => setPasteNotice(false), 3500);
+  };
+
   const handleDraftChange = (newVal: string) => {
+    // Tempel/seret teks dinonaktifkan: tambahan teks yang melonjak sekaligus ditolak.
+    if (newVal.length - localDraft.length > 25) {
+      blockPaste();
+      return;
+    }
     setLocalDraft(newVal);
     if (draftTimeoutRef.current) {
       clearTimeout(draftTimeoutRef.current);
@@ -412,11 +423,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               {isSolo ? (
                 <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5" /> Latihan Mandiri
+                  Latihan Mandiri
                 </span>
               ) : (
                 <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <GraduationCap className="w-3.5 h-3.5" /> Kelas KBM: {sessionId}
+                  Kelas KBM: {sessionId}
                 </span>
               )}
               <span className="text-xs text-stone-500 dark:text-stone-400">
@@ -424,12 +435,12 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               </span>
               {progress.status === 'submitted' && (
                 <span className="px-2.5 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-[11px] font-semibold flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Terkirim ke Guru
+                  Terkirim ke Guru
                 </span>
               )}
               {isSolo && progress.rubricScores && (
                 <span className="px-2.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full text-[11px] font-bold flex items-center gap-1">
-                  <Award className="w-3 h-3" /> Nilai Rubrik: {progress.rubricScores.total}/100
+                  Nilai Rubrik: {progress.rubricScores.total}/100
                 </span>
               )}
             </div>
@@ -466,13 +477,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-1 text-[11px] sm:text-xs">
-                    {!isAccessible ? (
-                      <Lock className="w-3 h-3 text-stone-400 shrink-0" />
-                    ) : isDone && !isActive ? (
-                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                    ) : (
-                      <Icon className="w-3.5 h-3.5 shrink-0" />
-                    )}
                     <span className="whitespace-nowrap">{label}</span>
                   </div>
                   <span className="text-[10px] font-arabic opacity-80 mt-0.5 leading-none">{arabic}</span>
@@ -490,7 +494,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
             className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 flex items-start justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs md:text-sm font-medium shadow-sm"
           >
             <div className="flex items-start gap-2">
-              <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <span>{stepLockWarning}</span>
             </div>
             <button
@@ -504,9 +507,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
         {/* Prompt Card */}
         <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3">
-          <div className="p-1.5 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 shrink-0 mt-0.5">
-            <HelpCircle className="w-4 h-4" />
-          </div>
           <div className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
             <strong className="text-blue-700 dark:text-blue-300 font-bold">Petunjuk Insya' Muwajjah: </strong>
             {theme.prompt}
@@ -521,9 +521,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
             className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-purple-500/10 to-emerald-500/15 border-2 border-amber-400 dark:border-amber-500/60 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-md shrink-0">
-                <Award className="w-6 h-6 animate-pulse" />
-              </div>
               <div className="space-y-0.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs sm:text-sm font-extrabold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
@@ -550,7 +547,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 onClick={() => setIsScoreModalOpen(true)}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition-all"
               >
-                <Award className="w-4 h-4" /> Lihat Rapor & Nilai
+                Lihat Rapor & Nilai
               </button>
               <button
                 type="button"
@@ -558,7 +555,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 className="px-3 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-amber-50 dark:hover:bg-stone-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
                 title="Download PDF Rapor"
               >
-                <Printer className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Cetak PDF
+                Cetak PDF
               </button>
             </div>
           </motion.div>
@@ -580,7 +577,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 shrink-0" /> Langkah 1: Brainstorming Gagasan Utama
+                    Langkah 1: Brainstorming Gagasan Utama
                   </h2>
                   <p className="text-xs sm:text-sm text-stone-500 mt-1">
                     Tentukan 3 poin alur cerita karanganmu sebelum menyusun kalimat bahasa Arab (boleh dicatat dalam Bahasa Indonesia atau Arab).
@@ -593,7 +590,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   disabled={loadingAi}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0"
                 >
-                  <Lightbulb className="w-4 h-4" />
                   {loadingAi && aiActionType === 'ide' ? 'Mencari Ide...' : 'Bantuan Ide'}
                 </button>
               </div>
@@ -664,24 +660,12 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 ))}
               </div>
 
-              {/* Contoh Insya' Reference Accordion */}
-              {theme.contohInsya && (
-                <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/50 space-y-2">
-                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-blue-500" /> Contoh Model Karangan (Sebagai Referensi)
-                  </span>
-                  <p className="font-arabic text-base sm:text-lg leading-relaxed text-stone-800 dark:text-stone-200" dir="rtl">
-                    {theme.contohInsya}
-                  </p>
-                </div>
-              )}
-
               {/* Kotak saran / hasil pemeriksaan */}
               {aiSuggestion && aiActionType === 'ide' && (
                 <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-2">
                   <div className="flex items-center justify-between text-amber-700 dark:text-amber-300 font-bold text-xs sm:text-sm">
                     <span className="flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4 text-amber-600" /> Saran Ide untukmu:
+                      Saran Ide untukmu:
                     </span>
                     <button onClick={() => setAiSuggestion(null)} className="text-stone-400 hover:text-stone-600 text-xs">
                       Tutup
@@ -698,11 +682,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 <div className="text-xs text-stone-500 font-medium text-center sm:text-left">
                   {!isStep1Done ? (
                     <span className="text-amber-600 dark:text-amber-400 flex items-center justify-center sm:justify-start gap-1.5 font-bold">
-                      <Lock className="w-3.5 h-3.5" /> Lengkapi minimal 2 gagasan di atas (Terisi: {filledIdeasCount}/3)
+                      Lengkapi minimal 2 gagasan di atas (Terisi: {filledIdeasCount}/3)
                     </span>
                   ) : (
                     <span className="text-emerald-600 dark:text-emerald-400 flex items-center justify-center sm:justify-start gap-1.5 font-bold">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Gagasan siap ({filledIdeasCount}/3 gagasan terisi)
+                      Gagasan siap ({filledIdeasCount}/3 gagasan terisi)
                     </span>
                   )}
                 </div>
@@ -715,7 +699,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 >
                   {!isStep1Done ? (
                     <>
-                      <Lock className="w-4 h-4" /> Lengkapi Gagasan untuk Lanjut
+                      Lengkapi Gagasan untuk Lanjut
                     </>
                   ) : (
                     <>
@@ -742,7 +726,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 shrink-0" /> Langkah 2: Pilih Kosakata & Pola Kalimat
+                    Langkah 2: Pilih Kosakata & Pola Kalimat
                   </h2>
                   <p className="text-xs sm:text-sm text-stone-500 mt-1">
                     Pilih kosakata (Mufradat) dan kaidah kalimat (Tarkib) yang akan kamu gunakan.
@@ -762,7 +746,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* Mascot Guidance for Step 2 */}
               <div className="p-3.5 sm:p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/50">
                 <Callout
-                  quote="Pilih kosakata bergambar dan kaidah kalimat (tarkib) untuk karanganmu!"
+                  quote="Pilih kosakata dan kaidah kalimat (tarkib) untuk karanganmu!"
                   subquote="Klik kartu untuk memilih kata, dan tekan tombol suara untuk mendengarkan cara membacanya."
                   badge="Bank Kosakata"
                 />
@@ -772,7 +756,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <h3 className="text-sm sm:text-base font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-purple-500 shrink-0" /> Bank Kosakata Bergambar ({theme.titleIndo})
+                    Bank Kosakata ({theme.titleIndo})
                   </h3>
 
                   {/* Search Bar */}
@@ -831,32 +815,8 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                             </div>
                           </div>
 
-                          {/* Center: Contextual Real Photo/Illustration & Arabic word */}
+                          {/* Kata Arab */}
                           <div className="flex flex-col items-center justify-center my-1 text-center w-full">
-                            <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden mb-2 bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700/60 relative shadow-2xs group-hover:shadow-md transition-all">
-                              {item.imageUrl ? (
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.meaning}
-                                  referrerPolicy="no-referrer"
-                                  loading="lazy"
-                                  className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                                  onError={(e) => {
-                                    const target = e.currentTarget;
-                                    target.style.display = 'none';
-                                    const fallback = target.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                              ) : null}
-                              <div 
-                                className={`w-full h-full ${item.imageUrl ? 'hidden' : 'flex'} items-center justify-center bg-gradient-to-br ${catStyle.bg}`}
-                              >
-                                <span className="text-xs font-bold text-stone-600 dark:text-stone-300">
-                                  {item.category || 'مفردات'}
-                                </span>
-                              </div>
-                            </div>
                             <span className="font-arabic text-xl sm:text-2xl font-bold text-stone-900 dark:text-white leading-tight mt-0.5" dir="rtl">
                               {item.word}
                             </span>
@@ -913,7 +873,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* Section 2: Tarkib / Pola Kalimat */}
               <div className="space-y-3 sm:space-y-4 pt-4 border-t border-stone-200 dark:border-stone-800">
                 <h3 className="text-sm sm:text-base font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                  <Type className="w-4 h-4 text-blue-500 shrink-0" /> Pola Kalimat / Kaidah Tarkib Rekomendasi
+                  Pola Kalimat / Kaidah Tarkib Rekomendasi
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -972,11 +932,11 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   <div className="text-xs text-stone-500 font-medium text-center sm:text-right">
                     {!isStep2Done ? (
                       <span className="text-amber-600 dark:text-amber-400 flex items-center justify-center sm:justify-end gap-1.5 font-bold">
-                        <Lock className="w-3.5 h-3.5" /> Pilih minimal 2 kosakata/pola (Terpilih: {selectedVocabCount}/2)
+                        Pilih minimal 2 kosakata/pola (Terpilih: {selectedVocabCount}/2)
                       </span>
                     ) : (
                       <span className="text-emerald-600 dark:text-emerald-400 flex items-center justify-center sm:justify-end gap-1.5 font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> {selectedVocabCount} Kosakata & Pola Siap
+                        {selectedVocabCount} Kosakata & Pola Siap
                       </span>
                     )}
                   </div>
@@ -989,7 +949,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                   >
                     {!isStep2Done ? (
                       <>
-                        <Lock className="w-4 h-4" /> Pilih Kosakata untuk Lanjut
+                        Pilih Kosakata untuk Lanjut
                       </>
                     ) : (
                       <>
@@ -1018,7 +978,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-                    <Type className="w-5 h-5 shrink-0" /> Langkah 3: Menulis & Menyempurnakan Draf Insya'
+                    Langkah 3: Menulis & Menyempurnakan Draf Insya'
                   </h2>
                   <p className="text-xs sm:text-sm text-stone-500 mt-1">
                     Rangkai gagasan dan kosakata pilihanmu menjadi satu karangan yang utuh dan padu.
@@ -1034,7 +994,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     title="Periksa kelengkapan dan ketepatan harakat"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
-                    <Wand2 className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{loadingAi && aiActionType === 'harakat' ? 'Memproses...' : 'Cek Harakat'}</span>
                   </button>
 
@@ -1045,7 +1004,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     title="Periksa tata bahasa, kaidah nahwu, dan kesesuaian makna"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{loadingAi && aiActionType === 'evaluasi' ? 'Menganalisis...' : 'Cek Tulisan'}</span>
                   </button>
 
@@ -1056,7 +1014,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     title="Bantuan ide jika kamu mengalami writer's block"
                     className="flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-2 sm:px-3.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 text-[11px] sm:text-xs font-bold rounded-xl transition-all disabled:opacity-40"
                   >
-                    <Lightbulb className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{loadingAi && aiActionType === 'ide' ? 'Berpikir...' : 'Ide'}</span>
                   </button>
                 </div>
@@ -1105,7 +1062,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                         : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
                   >
-                    <Keyboard className="w-3.5 h-3.5" /> Ketik Arab
+                    Ketik Arab
                   </button>
 
                   <button
@@ -1117,7 +1074,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                         : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
                   >
-                    <PenTool className="w-3.5 h-3.5" /> Tulis Tangan
+                    Tulis Tangan
                   </button>
                 </div>
 
@@ -1157,10 +1114,27 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     dir="rtl"
                     value={localDraft}
                     onChange={(e) => handleDraftChange(e.target.value)}
+                    onPaste={(e) => { e.preventDefault(); blockPaste(); }}
+                    onDrop={(e) => { e.preventDefault(); blockPaste(); }}
+                    onBeforeInput={(e) => {
+                      const it = (e.nativeEvent as InputEvent).inputType || '';
+                      if (it === 'insertFromPaste' || it === 'insertFromDrop' || it === 'insertFromPasteAsQuotation') {
+                        e.preventDefault();
+                        blockPaste();
+                      }
+                    }}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
                     onBlur={() => flushDraftImmediately()}
                     placeholder="اكتب هنا... (Mulai tulis karanganmu dalam bahasa Arab di sini)"
                     className={`w-full min-h-[220px] sm:min-h-[320px] p-4 sm:p-6 rounded-xl sm:rounded-2xl border ${borderColor} bg-transparent resize-y focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic text-2xl sm:text-3xl leading-[2.3] sm:leading-[2.7] tracking-wide`}
                   />
+                  {pasteNotice && (
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      Tempel teks dinonaktifkan. Ketik karanganmu sendiri.
+                    </p>
+                  )}
 
                   <TextMap text={localDraft || progress?.draft || ''} theme={theme} selectedMufradat={progress?.selectedMufradat} />
                 </div>
@@ -1185,7 +1159,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                     aiActionType === 'evaluasi' ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-700 dark:text-emerald-300'
                   }`}>
                     <span className="flex items-center gap-2">
-                      <Bot className="w-4 h-4" /> 
                       {aiActionType === 'evaluasi' ? 'Hasil Pemeriksaan Otomatis:' : aiActionType === 'harakat' ? 'Hasil Cek Harakat:' : 'Penilaian Otomatis:'}
                     </span>
                     <button onClick={() => setAiSuggestion(null)} className="text-stone-400 hover:text-stone-600 text-xs">
@@ -1208,7 +1181,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                       />
                       <div>
                         <h3 className="font-bold text-sm sm:text-base text-amber-800 dark:text-amber-300 flex items-center gap-2">
-                          <Award className="w-5 h-5 text-amber-600 shrink-0" /> 
                           {isSolo ? 'Evaluasi & Rubrik Otomatis (Mandiri)' : 'Umpan Balik & Evaluasi Guru'}
                         </h3>
                         <p className="text-[11px] text-stone-500">Hasil penilaian karangan insya' muwajjah</p>
@@ -1254,7 +1226,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                       disabled={!progress.draft}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors disabled:opacity-40"
                     >
-                      <Copy className="w-3.5 h-3.5" /> Salin Teks
+                      Salin Teks
                     </button>
 
                     <button
@@ -1263,7 +1235,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                       disabled={!progress.draft}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors disabled:opacity-40"
                     >
-                      <Printer className="w-3.5 h-3.5" /> Cetak / PDF
+                      Cetak / PDF
                     </button>
 
                     {copyToast && (
@@ -1292,7 +1264,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                         disabled={isSubmitting || !progress.draft}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl sm:rounded-2xl shadow-lg transition-all text-xs sm:text-sm disabled:opacity-40"
                       >
-                        <Send className="w-4 h-4" />
                         {isSubmitting ? 'Mengirim...' : progress.status === 'submitted' ? 'Kirim Ulang ke Guru' : 'Kirim Karangan ke Guru'}
                       </button>
                     </div>
@@ -1304,11 +1275,9 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                         disabled={loadingRubric || !progress.draft}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl sm:rounded-2xl shadow-lg transition-all text-xs sm:text-sm disabled:opacity-40"
                       >
-                        <Bot className="w-4 h-4" />
                         {loadingRubric ? 'Menghitung...' : 'Hitung Penilaian & Rubrik'}
                       </button>
                       <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-stone-500 dark:text-stone-400">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                         <span>Progres dan draf Anda tersimpan otomatis di perangkat ini.</span>
                       </div>
                     </div>
@@ -1350,9 +1319,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
             {/* Modal Header */}
             <div className="p-5 border-b border-stone-200 dark:border-stone-800 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-blue-500/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
-                  <Award className="w-5 h-5" />
-                </div>
                 <div>
                   <h3 className="font-extrabold text-base sm:text-lg text-stone-900 dark:text-white">
                     Rapor Hasil Penilaian Karangan
@@ -1395,7 +1361,6 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 </div>
 
                 <div className="shrink-0 flex flex-col items-center gap-1 bg-white/15 backdrop-blur-xs p-3 rounded-2xl border border-white/20">
-                  <GraduationCap className="w-8 h-8 text-amber-100" />
                   <span className="text-[11px] font-bold text-white">{theme.titleIndo}</span>
                 </div>
               </div>
@@ -1403,7 +1368,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* 4 Rubric Indicators Breakdown */}
               <div className="space-y-2.5">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
-                  <BookOpen className="w-4 h-4 text-blue-500" /> Rincian 4 Aspek Rubrik Penilaian
+                  Rincian 4 Aspek Rubrik Penilaian
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {[
@@ -1428,7 +1393,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               {/* Teacher's Feedback / Catatan Guru */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
-                  <PenTool className="w-4 h-4 text-purple-500" /> Catatan & Umpan Balik Guru
+                  Catatan & Umpan Balik Guru
                 </h4>
                 <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-stone-800 dark:text-stone-200 text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
                   {progress.feedback ? progress.feedback : 'Belum ada catatan tertulis khusus dari guru.'}
@@ -1454,7 +1419,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
                 }}
                 className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-md flex items-center gap-2 transition-all"
               >
-                <Printer className="w-4 h-4" /> Download / Cetak PDF Rapor Siswa
+                Download / Cetak PDF Rapor Siswa
               </button>
             </div>
           </div>

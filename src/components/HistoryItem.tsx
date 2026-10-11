@@ -47,7 +47,7 @@ export function HistoryItem({ item, onDelete, onUpdate, isDarkMode, borderColor,
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-bold">{item.themeTitle}</span>
-            <span className="text-sm text-stone-500">• {new Date(item.timestamp).toLocaleString()}</span>
+            <span className="text-sm text-stone-500">{new Date(item.timestamp).toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-2">
             {!isEditing && (
