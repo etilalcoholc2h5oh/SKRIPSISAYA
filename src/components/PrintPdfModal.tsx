@@ -3,7 +3,8 @@ import { X, Download, ExternalLink, Copy, Check, FileText } from 'lucide-react';
 import { StudentProgress } from '../lib/db';
 import { ThemeTopic } from '../data';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { renderWorksheetPages } from '../lib/worksheetRender';
+
 
 interface PrintPdfModalProps {
   isOpen: boolean;
@@ -43,83 +44,37 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 1. Buat PDF (A4, margin 10 mm). Pemotongan halaman dicari di baris kosong agar teks tidak terbelah.
+  // 1. Buat PDF A4 lalu langsung diunduh. Lembar digambar sendiri (tanpa html2canvas), jadi tidak bergantung pada CSS.
   const handleDownloadPdf = async () => {
-    if (!printContentRef.current) return;
     try {
       setIsGeneratingPdf(true);
       showToast('Menyusun PDF...');
 
-      const element = printContentRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
+      const pages = await renderWorksheetPages({
+        name: student.name,
+        session: sessionId,
+        themeTitle: theme.titleIndo,
+        themeArabic: theme.titleArabic,
+        date: currentDate,
+        ideas: student.ideas || [],
+        draft: student.draft || '',
+        handwritingDataUrl: student.handwritingDataUrl,
+        rubric: student.rubricScores,
+        feedback: student.feedback
       });
 
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const margin = 10;
-      const usableW = pdf.internal.pageSize.getWidth() - margin * 2; // 190 mm
-      const usableH = pdf.internal.pageSize.getHeight() - margin * 2; // 277 mm
-      const pxPerMm = canvas.width / usableW;
-      const pageHpx = Math.floor(usableH * pxPerMm);
-      const ctx = canvas.getContext('2d');
-
-      // Cari baris yang seluruhnya putih di dekat batas halaman, supaya garis potong tidak memotong huruf.
-      const findCut = (from: number): number => {
-        const ideal = from + pageHpx;
-        if (ideal >= canvas.height || !ctx) return Math.min(ideal, canvas.height);
-        const lookBack = Math.floor(pageHpx * 0.15);
-        for (let y = ideal; y > ideal - lookBack; y--) {
-          const row = ctx.getImageData(0, y, canvas.width, 1).data;
-          let blank = true;
-          for (let i = 0; i < row.length; i += 4) {
-            if (row[i] < 245 || row[i + 1] < 245 || row[i + 2] < 245) { blank = false; break; }
-          }
-          if (blank) return y;
-        }
-        return ideal;
-      };
-
-      let y = 0;
-      let first = true;
-      while (y < canvas.height) {
-        const cut = findCut(y);
-        const sliceH = Math.max(1, cut - y);
-        const slice = document.createElement('canvas');
-        slice.width = canvas.width;
-        slice.height = sliceH;
-        const sctx = slice.getContext('2d');
-        if (!sctx) throw new Error('canvas');
-        sctx.fillStyle = '#ffffff';
-        sctx.fillRect(0, 0, slice.width, slice.height);
-        sctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
-        if (!first) pdf.addPage();
-        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerMm, undefined, 'FAST');
-        first = false;
-        y = cut;
-      }
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      pages.forEach((pg, i) => {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(pg.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+      });
 
       const safeName = student.name.replace(/[^a-zA-Z0-9_-]/g, '_');
       const safeTheme = (theme.titleIndo || 'Karangan').replace(/[^a-zA-Z0-9_-]/g, '_');
       const fileName = `Lembar_Insya_${safeName}_${safeTheme}.pdf`;
       const blob = pdf.output('blob');
-
-      // HP: buka lembar bagikan agar PDF bisa disimpan ke berkas atau dikirim langsung.
-      const file = new File([blob], fileName, { type: 'application/pdf' });
-      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-      if (nav.canShare && nav.canShare({ files: [file] })) {
-        try {
-          await nav.share({ files: [file], title: fileName });
-          showToast('PDF siap disimpan atau dibagikan.');
-          return;
-        } catch (e: any) {
-          if (e && e.name === 'AbortError') return; // pengguna menutup lembar bagikan
-        }
-      }
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -129,76 +84,59 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
-      showToast('PDF diunduh. Jika tidak muncul, tekan tombol Buka Tab Cetak lalu Cetak / Simpan PDF.');
+      showToast('PDF diunduh. Cek notifikasi atau folder Unduhan.');
     } catch (err) {
-      console.error('Error generating PDF:', err);
-      showToast('Gagal membuat PDF. Gunakan tombol Buka Tab Cetak.');
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('PDF otomatis gagal:', msg);
+      showToast('PDF otomatis gagal, membuka dialog cetak. Pilih "Simpan sebagai PDF".');
+      handleOpenInNewTab();
     } finally {
       setIsGeneratingPdf(false);
     }
   };
 
-  // 2. Open printable standalone document in new window/tab
+  // 2. Cetak lewat dialog cetak browser (di HP: pilih "Simpan sebagai PDF"). Tidak memakai html2canvas,
+  // jadi tetap bekerja walau pembuatan PDF otomatis gagal. Memakai iframe tersembunyi, tanpa pop-up.
   const handleOpenInNewTab = () => {
-    if (!printContentRef.current) return;
-    const contentHtml = printContentRef.current.innerHTML;
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      // If popup blocked, fallback to direct print
+    const el = printContentRef.current;
+    if (!el) return;
+    try {
+      const headStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+        .map((n) => n.outerHTML)
+        .join('\n');
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('aria-hidden', 'true');
+      iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+      document.body.appendChild(iframe);
+      const doc = iframe.contentDocument;
+      const win = iframe.contentWindow;
+      if (!doc || !win) throw new Error('iframe');
+      doc.open();
+      doc.write(`<!DOCTYPE html><html lang="id"><head><meta charset="utf-8" />
+<title>Lembar Karangan Insya' - ${student.name.replace(/[<>&"]/g, '')}</title>
+${headStyles}
+<style>
+  html, body { background: #ffffff !important; margin: 0; }
+  body > div { border: 0 !important; box-shadow: none !important; max-width: none !important; min-height: 0 !important; padding: 0 !important; }
+  @page { size: A4; margin: 15mm; }
+</style></head><body>${el.outerHTML}</body></html>`);
+      doc.close();
+      const go = () => {
+        try {
+          win.focus();
+          win.print();
+        } catch (e) {
+          console.error(e);
+          showToast('Gagal membuka dialog cetak.');
+        }
+        setTimeout(() => iframe.remove(), 60000);
+      };
+      // beri waktu agar stylesheet dan font termuat
+      setTimeout(go, 700);
+    } catch (e) {
+      console.error(e);
       window.print();
-      return;
     }
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="id">
-        <head>
-          <meta charset="utf-8" />
-          <title>Lembar Kerja Insya' - ${student.name}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-          <script src="https://cdn.tailwindcss.com"></script>
-          <style>
-            body { 
-              font-family: 'Plus Jakarta Sans', sans-serif; 
-              background-color: #ffffff;
-              color: #0f172a;
-              padding: 20px;
-            }
-            .font-arabic { font-family: 'Amiri', serif; }
-            @media print {
-              body { background-color: #ffffff; padding: 0; }
-              .no-print { display: none !important; }
-              @page { margin: 15mm; size: A4; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="max-w-3xl mx-auto mb-6 flex items-center justify-between no-print bg-white p-4 rounded-xl shadow-md border border-slate-200">
-            <div>
-              <h2 class="font-bold text-slate-800 text-base">Pratinjau Cetak Lembar Insya'</h2>
-              <p class="text-xs text-slate-500">Gunakan tombol Cetak di bawah atau tekan Ctrl+P</p>
-            </div>
-            <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm flex items-center gap-2">
-              Cetak / Simpan PDF
-            </button>
-          </div>
-          <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-            ${contentHtml}
-          </div>
-          <script>
-            // Auto trigger print after short delay
-            setTimeout(() => {
-              window.print();
-            }, 800);
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
   };
 
   // 3. Direct Print
@@ -286,7 +224,7 @@ Catatan: ${student.feedback || '-'}
               title="Buka pratinjau cetak di tab baru browser"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Buka Tab Cetak</span>
+              <span>Cetak / Simpan PDF</span>
             </button>
 
             <button
