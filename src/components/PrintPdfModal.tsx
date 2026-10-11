@@ -5,6 +5,44 @@ import { ThemeTopic } from '../data';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+
+// html2canvas belum bisa membaca warna modern (oklch, color-mix) yang dipakai Tailwind v4 dan akan gagal.
+// Sebelum difoto, semua warna di salinan dokumen diubah menjadi rgb biasa.
+const MODERN_COLOR = /oklch|oklab|color\(|lab\(|lch\(|color-mix/;
+const COLOR_PROPS = [
+  'color', 'background-color', 'border-top-color', 'border-right-color',
+  'border-bottom-color', 'border-left-color', 'outline-color', 'text-decoration-color'
+];
+
+function toRgb(value: string): string {
+  const c = document.createElement('canvas');
+  c.width = c.height = 1;
+  const x = c.getContext('2d');
+  if (!x) return 'rgb(0,0,0)';
+  x.clearRect(0, 0, 1, 1);
+  x.fillStyle = '#000000';
+  x.fillStyle = value;
+  x.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = x.getImageData(0, 0, 1, 1).data;
+  return `rgba(${r},${g},${b},${(a / 255).toFixed(3)})`;
+}
+
+function sanitizeColors(doc: Document) {
+  const win = doc.defaultView;
+  if (!win) return;
+  doc.querySelectorAll<HTMLElement>('*').forEach((node) => {
+    const cs = win.getComputedStyle(node);
+    for (const prop of COLOR_PROPS) {
+      const v = cs.getPropertyValue(prop);
+      if (v && MODERN_COLOR.test(v)) node.style.setProperty(prop, toRgb(v), 'important');
+    }
+    if (MODERN_COLOR.test(cs.boxShadow) || MODERN_COLOR.test(cs.backgroundImage)) {
+      node.style.setProperty('box-shadow', 'none', 'important');
+      if (MODERN_COLOR.test(cs.backgroundImage)) node.style.setProperty('background-image', 'none', 'important');
+    }
+  });
+}
+
 interface PrintPdfModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -52,12 +90,13 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
 
       const element = printContentRef.current;
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: Math.min(2, 1800 / Math.max(1, element.scrollWidth)),
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
         windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
+        windowHeight: element.scrollHeight,
+        onclone: (clonedDoc) => sanitizeColors(clonedDoc)
       });
 
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -132,7 +171,8 @@ export const PrintPdfModal: React.FC<PrintPdfModalProps> = ({
       showToast('PDF diunduh. Jika tidak muncul, tekan tombol Buka Tab Cetak lalu Cetak / Simpan PDF.');
     } catch (err) {
       console.error('Error generating PDF:', err);
-      showToast('Gagal membuat PDF. Gunakan tombol Buka Tab Cetak.');
+      const msg = err instanceof Error ? err.message : String(err);
+      showToast(`Gagal membuat PDF (${msg.slice(0, 80)}). Gunakan tombol Buka Tab Cetak.`);
     } finally {
       setIsGeneratingPdf(false);
     }
