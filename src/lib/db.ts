@@ -40,6 +40,20 @@ export interface ClassSession {
   createdAt: any;
 }
 
+// Operasi yang menunggu balasan server tidak boleh menggantung selamanya: setelah batas waktu,
+// pengguna mendapat pesan yang jelas, bukan layar "memuat" tanpa akhir.
+const withTimeout = <T,>(p: Promise<T>, ms = 15000): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const id = setTimeout(
+      () => reject(new Error('Server tidak merespons. Periksa internet, lalu pastikan database Firestore sudah dibuat dan aturannya dipublikasikan.')),
+      ms
+    );
+    p.then(
+      (v) => { clearTimeout(id); resolve(v); },
+      (e) => { clearTimeout(id); reject(e); }
+    );
+  });
+
 // PIN guru disimpan sebagai hash SHA-256 (bukan teks biasa) agar tidak terbaca di database.
 const hashPin = async (sessionId: string, pin: string): Promise<string> => {
   const data = new TextEncoder().encode(`kitabah:${sessionId.toUpperCase()}:${pin.trim()}`);
@@ -53,7 +67,7 @@ export const createSession = async (teacherName: string, themeId: string, custom
   const sessionId = isSoloPractice ? `${prefix}${randomPart}` : Math.random().toString(36).substring(2, 8).toUpperCase();
   const pin = customPin?.trim() || Math.floor(1000 + Math.random() * 9000).toString();
   const sessionRef = doc(firestore, 'sessions', sessionId);
-  await setDoc(sessionRef, {
+  await withTimeout(setDoc(sessionRef, {
     id: sessionId,
     teacherName: teacherName.trim(),
     teacherPinHash: await hashPin(sessionId, pin),
@@ -63,7 +77,7 @@ export const createSession = async (teacherName: string, themeId: string, custom
     // Firestore menolak nilai undefined, jadi hanya disertakan bila ada.
     ...(customTheme ? { customTheme } : {}),
     createdAt: serverTimestamp()
-  });
+  }));
   return sessionId;
 };
 
@@ -93,7 +107,7 @@ export const verifyTeacherAccess = async (sessionId: string, enteredPin: string)
 export const getSession = async (sessionId: string): Promise<ClassSession | null> => {
   const cleanId = sessionId.trim().toUpperCase();
   const sessionRef = doc(firestore, 'sessions', cleanId);
-  const snap = await getDoc(sessionRef);
+  const snap = await withTimeout(getDoc(sessionRef));
   if (snap.exists()) {
     return snap.data() as ClassSession;
   }
@@ -103,7 +117,7 @@ export const getSession = async (sessionId: string): Promise<ClassSession | null
 export const joinSession = async (sessionId: string, studentName: string) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const sessionRef = doc(firestore, 'sessions', cleanSessionId);
-  const sessionSnap = await getDoc(sessionRef);
+  const sessionSnap = await withTimeout(getDoc(sessionRef));
 
   let themeId = THEMES[0].id;
   if (!sessionSnap.exists()) {
@@ -133,7 +147,7 @@ export const joinSession = async (sessionId: string, studentName: string) => {
     lastUpdated: serverTimestamp()
   };
 
-  await setDoc(studentRef, initialData);
+  await withTimeout(setDoc(studentRef, initialData));
   return { studentId, cleanSessionId, themeId };
 };
 

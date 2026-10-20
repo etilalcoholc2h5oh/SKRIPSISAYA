@@ -15,10 +15,11 @@ const app = initializeApp(firebaseConfig);
 // lingkungan VITE_FIRESTORE_DATABASE_ID (mis. di Vercel) tanpa mengubah kode.
 const databaseId: string = (import.meta.env.VITE_FIRESTORE_DATABASE_ID as string | undefined)?.trim() || '(default)';
 
-// Sebagian jaringan seluler/sekolah memblokir koneksi streaming Firestore. Tanpa pengaturan ini,
-// data tampak tersimpan di perangkat sendiri tetapi tidak pernah sampai ke server dan perangkat lain.
-// Auto-detect long polling membuat klien beralih ke jalur yang lolos di jaringan seperti itu.
-export const firestore = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }, databaseId);
+// Sebagian jaringan seluler/sekolah memblokir koneksi streaming Firestore. Mode auto-detect menunggu
+// sekitar 10 detik sebelum menyerah pada streaming, sehingga membuat kelas terasa macet. Untuk aplikasi
+// kelas yang datanya kecil, long polling langsung dipakai sejak awal: lebih cepat dan lolos di semua jaringan.
+export const activeDatabaseId = databaseId;
+export const firestore = initializeFirestore(app, { experimentalForceLongPolling: true }, databaseId);
 
 // Enable offline persistence
 enableIndexedDbPersistence(firestore).catch((err) => {
