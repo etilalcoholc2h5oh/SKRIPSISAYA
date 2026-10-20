@@ -18,6 +18,9 @@ const databaseId: string = (import.meta.env.VITE_FIRESTORE_DATABASE_ID as string
 // Sebagian jaringan seluler/sekolah memblokir koneksi streaming Firestore. Mode auto-detect menunggu
 // sekitar 10 detik sebelum menyerah pada streaming, sehingga membuat kelas terasa macet. Untuk aplikasi
 // kelas yang datanya kecil, long polling langsung dipakai sejak awal: lebih cepat dan lolos di semua jaringan.
+export const firebaseProjectId = firebaseConfig.projectId;
+export const firebaseApiKey = firebaseConfig.apiKey;
+export const firebaseDatabaseId = databaseId;
 export const activeDatabaseId = `${firebaseConfig.projectId} / ${databaseId}`;
 export const firestore = initializeFirestore(app, { experimentalForceLongPolling: true }, databaseId);
 
