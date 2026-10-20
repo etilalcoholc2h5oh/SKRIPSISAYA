@@ -11,7 +11,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const databaseId = "ai-studio-kitabahtouch-123fde65-2231-4070-be3b-9bd9354fd54f";
+// Database Firestore milik proyek ini. Bawaan: database "(default)". Bisa diganti lewat variabel
+// lingkungan VITE_FIRESTORE_DATABASE_ID (mis. di Vercel) tanpa mengubah kode.
+const databaseId: string = (import.meta.env.VITE_FIRESTORE_DATABASE_ID as string | undefined)?.trim() || '(default)';
 
 // Sebagian jaringan seluler/sekolah memblokir koneksi streaming Firestore. Tanpa pengaturan ini,
 // data tampak tersimpan di perangkat sendiri tetapi tidak pernah sampai ke server dan perangkat lain.
