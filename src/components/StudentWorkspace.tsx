@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { HandwritingCanvas } from './HandwritingCanvas';
 import { PrintPdfModal } from './PrintPdfModal';
+import { SyncBadge } from './SyncBadge';
 
 const getCategoryStyle = (category?: string) => {
   switch (category?.toLowerCase()) {
@@ -260,11 +261,22 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
 
   const addCustomMufradat = () => {
     if (!customWord.trim()) return;
-    const formatted = customMeaning.trim() ? `${customWord.trim()} (${customMeaning.trim()})` : customWord.trim();
+    // Simpan kata Arabnya saja di daftar pilihan (agar cocok dengan analisis dan Peta Tulisan),
+    // sedangkan artinya disimpan terpisah dan kartunya muncul di Bank Kosakata.
+    const word = customWord.trim();
+    const meaning = customMeaning.trim();
     const current = progress.selectedMufradat || [];
-    if (!current.includes(formatted)) {
-      updateStudentProgress(sessionId, studentId, { selectedMufradat: [...current, formatted] });
+    const customs = progress.customMufradat || [];
+    const inTheme = (theme.mufradat || []).some((m) => m.word === word);
+    const patch: Partial<StudentProgress> = {};
+    if (!inTheme && !customs.some((c) => c.word === word)) {
+      patch.customMufradat = [...customs, { word, meaning }];
     }
+    if (!current.includes(word)) patch.selectedMufradat = [...current, word];
+    if (Object.keys(patch).length > 0) {
+      updateStudentProgress(sessionId, studentId, patch).catch(() => { /* ditampilkan oleh penanda sinkronisasi */ });
+    }
+    setMufradatSearch('');
     setCustomWord('');
     setCustomMeaning('');
     if (stepLockWarning) setStepLockWarning(null);
@@ -405,7 +417,15 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
     setTimeout(() => setSubmitNotice(false), 4000);
   };
 
-  const filteredMufradat = (theme.mufradat || []).filter(m => 
+  // Bank kosakata = kosakata tema + kosakata tambahan siswa.
+  const allMufradat: Mufradat[] = [
+    ...(theme.mufradat || []),
+    ...(progress.customMufradat || [])
+      .filter((c) => !(theme.mufradat || []).some((m) => m.word === c.word))
+      .map((c) => ({ word: c.word, meaning: c.meaning || 'Kosakata sendiri', pronunciation: '', icon: '', category: 'Tambahan' })),
+  ];
+
+  const filteredMufradat = allMufradat.filter(m => 
     m.word.toLowerCase().includes(mufradatSearch.toLowerCase()) ||
     m.meaning.toLowerCase().includes(mufradatSearch.toLowerCase()) ||
     m.pronunciation.toLowerCase().includes(mufradatSearch.toLowerCase())
@@ -432,6 +452,7 @@ export const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({
               <span className="text-xs text-stone-500 dark:text-stone-400">
                 {isSolo ? 'Penulis:' : 'Siswa:'} <strong className="text-stone-800 dark:text-stone-100">{progress.name}</strong>
               </span>
+              <SyncBadge />
               {progress.status === 'submitted' && (
                 <span className="px-2.5 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-[11px] font-semibold flex items-center gap-1">
                   Terkirim ke Guru

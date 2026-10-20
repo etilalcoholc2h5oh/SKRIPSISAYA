@@ -1,5 +1,6 @@
 import { collection, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp, firestore } from './firebase';
 import { THEMES, ThemeTopic } from '../data';
+import { reportError, reportSnapshot } from './syncStatus';
 
 export interface RubricScores {
   fikrah: number;    // Kesesuaian Isi & Gagasan (0-25)
@@ -16,6 +17,7 @@ export interface StudentProgress {
   step: number; // 1: Brainstorming, 2: Mufradat & Tarkib, 3: Drafting
   ideas: string[];
   selectedMufradat: string[];
+  customMufradat?: { word: string; meaning: string }[]; // kosakata tambahan dari siswa
   selectedTarkib: string[];
   draft: string;
   writingMode?: 'type' | 'handwriting';
@@ -177,46 +179,54 @@ export const startSoloPractice = (studentName: string, themeId: string, customTh
 export const updateStudentProgress = async (sessionId: string, studentId: string, data: Partial<StudentProgress>) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const studentRef = doc(firestore, `sessions/${cleanSessionId}/students`, studentId);
-  await updateDoc(studentRef, {
-    ...data,
-    lastUpdated: serverTimestamp()
-  });
+  try {
+    await updateDoc(studentRef, {
+      ...data,
+      lastUpdated: serverTimestamp()
+    });
+  } catch (e) {
+    reportError(e);
+    throw e;
+  }
 };
 
 export const subscribeToSession = (sessionId: string, callback: (session: ClassSession | null) => void) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const sessionRef = doc(firestore, 'sessions', cleanSessionId);
-  return onSnapshot(sessionRef, (docSnap) => {
+  return onSnapshot(sessionRef, { includeMetadataChanges: true }, (docSnap) => {
+    reportSnapshot(docSnap.metadata);
     if (docSnap.exists()) {
       callback(docSnap.data() as ClassSession);
     } else {
       callback(null);
     }
-  });
+  }, reportError);
 };
 
 export const subscribeToStudents = (sessionId: string, callback: (students: StudentProgress[]) => void) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const studentsRef = collection(firestore, `sessions/${cleanSessionId}/students`);
-  return onSnapshot(studentsRef, (snapshot) => {
+  return onSnapshot(studentsRef, { includeMetadataChanges: true }, (snapshot) => {
+    reportSnapshot(snapshot.metadata);
     const students: StudentProgress[] = [];
     snapshot.forEach((doc) => {
       students.push(doc.data() as StudentProgress);
     });
     callback(students);
-  });
+  }, reportError);
 };
 
 export const subscribeToStudent = (sessionId: string, studentId: string, callback: (student: StudentProgress | null) => void) => {
   const cleanSessionId = sessionId.trim().toUpperCase();
   const studentRef = doc(firestore, `sessions/${cleanSessionId}/students`, studentId);
-  return onSnapshot(studentRef, (docSnap) => {
+  return onSnapshot(studentRef, { includeMetadataChanges: true }, (docSnap) => {
+    reportSnapshot(docSnap.metadata);
     if (docSnap.exists()) {
       callback(docSnap.data() as StudentProgress);
     } else {
       callback(null);
     }
-  });
+  }, reportError);
 };
 
 // Cari tema berdasarkan id: bawaan dulu, lalu tema kustom milik sesi.
