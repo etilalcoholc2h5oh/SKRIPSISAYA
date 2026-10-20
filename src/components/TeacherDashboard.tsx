@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SyncBadge } from './SyncBadge';
 import { subscribeToStudents, updateStudentProgress, StudentProgress, ClassSession, RubricScores, resolveTheme } from '../lib/db';
 import { Callout } from './Callout';
 import { 
@@ -285,10 +286,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
               <span className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
                 Daftar Siswa ({students.length})
               </span>
-              <span className="text-[11px] text-stone-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live Sync
-              </span>
+              <SyncBadge />
             </div>
 
             {/* Student Search */}
@@ -439,11 +437,15 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ session, isD
                     2. Kosakata & Kaidah Tarkib Terpilih
                   </h4>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {(selectedStudent.selectedMufradat || []).map((m) => (
-                      <span key={m} className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-xs sm:text-sm font-arabic font-bold" dir="rtl">
-                        {m}
-                      </span>
-                    ))}
+                    {(selectedStudent.selectedMufradat || []).map((m) => {
+                      const custom = (selectedStudent.customMufradat || []).find((c) => c.word === m);
+                      return (
+                        <span key={m} className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-xs sm:text-sm font-bold">
+                          <span className="font-arabic" dir="rtl">{m}</span>
+                          {custom?.meaning ? <span className="ml-1.5 font-normal text-[11px]">({custom.meaning}, tambahan siswa)</span> : null}
+                        </span>
+                      );
+                    })}
                     {(selectedStudent.selectedTarkib || []).map((t) => (
                       <span key={t} className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[11px] sm:text-xs font-semibold">
                         {t}

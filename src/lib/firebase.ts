@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, where, getDocs, updateDoc, serverTimestamp, orderBy, enableIndexedDbPersistence } from 'firebase/firestore';
+import { initializeFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, where, getDocs, updateDoc, serverTimestamp, orderBy, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   projectId: "gen-lang-client-0420650550",
@@ -13,7 +13,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const databaseId = "ai-studio-kitabahtouch-123fde65-2231-4070-be3b-9bd9354fd54f";
 
-export const firestore = getFirestore(app, databaseId);
+// Sebagian jaringan seluler/sekolah memblokir koneksi streaming Firestore. Tanpa pengaturan ini,
+// data tampak tersimpan di perangkat sendiri tetapi tidak pernah sampai ke server dan perangkat lain.
+// Auto-detect long polling membuat klien beralih ke jalur yang lolos di jaringan seperti itu.
+export const firestore = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }, databaseId);
 
 // Enable offline persistence
 enableIndexedDbPersistence(firestore).catch((err) => {
