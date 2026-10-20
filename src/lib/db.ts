@@ -1,6 +1,7 @@
 import { collection, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp, firestore } from './firebase';
 import { THEMES, ThemeTopic } from '../data';
 import { reportError, reportSnapshot } from './syncStatus';
+import { diagnoseFirestore } from './diagnose';
 
 export interface RubricScores {
   fikrah: number;    // Kesesuaian Isi & Gagasan (0-25)
@@ -44,10 +45,13 @@ export interface ClassSession {
 // pengguna mendapat pesan yang jelas, bukan layar "memuat" tanpa akhir.
 const withTimeout = <T,>(p: Promise<T>, ms = 15000): Promise<T> =>
   new Promise<T>((resolve, reject) => {
-    const id = setTimeout(
-      () => reject(new Error('Server tidak merespons. Periksa internet, lalu pastikan database Firestore sudah dibuat dan aturannya dipublikasikan.')),
-      ms
-    );
+    const id = setTimeout(() => {
+      const base = 'Server tidak merespons.';
+      diagnoseFirestore().then(
+        (d) => reject(new Error(`${base} ${d}`)),
+        () => reject(new Error(`${base} Periksa internet, lalu pastikan database Firestore sudah dibuat dan aturannya dipublikasikan.`))
+      );
+    }, ms);
     p.then(
       (v) => { clearTimeout(id); resolve(v); },
       (e) => { clearTimeout(id); reject(e); }
