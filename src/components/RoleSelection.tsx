@@ -48,6 +48,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
   const [showSoloThemeForm, setShowSoloThemeForm] = useState(false);
   const [teacherPin, setTeacherPin] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Teacher KBM Form - Existing
   const [existingTeacherCode, setExistingTeacherCode] = useState('');
@@ -173,6 +174,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
     if (!teacherName.trim()) return;
 
     setIsCreating(true);
+    setCreateError(null);
     try {
       const cleanPin = teacherPin.trim() || '1234';
       const custom = selectedTheme === '__custom__' ? teacherCustomTheme : null;
@@ -184,8 +186,9 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
       const sessionId = await createSession(teacherName.trim(), themeId, cleanPin, false, custom || undefined);
       saveTeacherSessionToHistory(sessionId, themeId, teacherName.trim());
       onCreateSession(sessionId);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setCreateError(err?.message || 'Gagal membuat kelas. Coba lagi.');
     } finally {
       setIsCreating(false);
     }
@@ -625,6 +628,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onJoinSession, onC
                           Siswa hanya diberikan <strong>Kode Kelas</strong> untuk menulis. PIN ini khusus disimpan oleh Guru agar siswa tidak dapat masuk ke Panel Guru.
                         </p>
                       </div>
+
+                      {createError && (
+                        <div className="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-600 dark:text-red-300">
+                          {createError}
+                        </div>
+                      )}
 
                       <button 
                         type="submit" 
