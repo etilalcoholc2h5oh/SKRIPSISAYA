@@ -43,18 +43,38 @@ export interface ClassSession {
 
 // Operasi yang menunggu balasan server tidak boleh menggantung selamanya: setelah batas waktu,
 // pengguna mendapat pesan yang jelas, bukan layar "memuat" tanpa akhir.
+const isConnectionError = (e: unknown) => {
+  const code = String((e as { code?: string } | null)?.code || '');
+  const msg = String((e as { message?: string } | null)?.message || '');
+  return code.includes('unavailable') || /offline|unavailable/i.test(msg);
+};
+
+// Gagal terhubung: tanyakan langsung ke server Google dan sebutkan penyebab sebenarnya.
+const failWithDiagnosis = (reject: (e: Error) => void, fallback: string) => {
+  diagnoseFirestore().then(
+    (d) => reject(new Error(d)),
+    () => reject(new Error(fallback))
+  );
+};
+
 const withTimeout = <T,>(p: Promise<T>, ms = 15000): Promise<T> =>
   new Promise<T>((resolve, reject) => {
+    const fallback = 'Server tidak merespons. Periksa internet, lalu pastikan database Firestore sudah dibuat dan aturannya dipublikasikan.';
+    let done = false;
     const id = setTimeout(() => {
-      const base = 'Server tidak merespons.';
-      diagnoseFirestore().then(
-        (d) => reject(new Error(`${base} ${d}`)),
-        () => reject(new Error(`${base} Periksa internet, lalu pastikan database Firestore sudah dibuat dan aturannya dipublikasikan.`))
-      );
+      if (done) return;
+      done = true;
+      failWithDiagnosis(reject, fallback);
     }, ms);
     p.then(
-      (v) => { clearTimeout(id); resolve(v); },
-      (e) => { clearTimeout(id); reject(e); }
+      (v) => { if (done) return; done = true; clearTimeout(id); resolve(v); },
+      (e) => {
+        if (done) return;
+        done = true;
+        clearTimeout(id);
+        if (isConnectionError(e)) failWithDiagnosis(reject, fallback);
+        else reject(e);
+      }
     );
   });
 
