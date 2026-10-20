@@ -3,6 +3,7 @@
 // Bila server tidak terjangkau atau menolak, data tampak aman di layar sendiri tetapi tidak
 // pernah sampai ke perangkat lain. Modul ini mencatat keadaan itu agar bisa ditampilkan.
 import { useEffect, useState } from 'react';
+import { activeDatabaseId } from './firebase';
 
 export type SyncState = 'ok' | 'pending' | 'error';
 
@@ -23,7 +24,7 @@ const set = (state: SyncState, message = '') => {
 
 export const friendlyError = (e: unknown): string => {
   const code = (e as { code?: string } | null)?.code || '';
-  if (code.includes('permission-denied')) return 'Server menolak menyimpan (aturan database). Hubungi pengembang.';
+  if (code.includes('permission-denied')) return `Server menolak menyimpan (aturan database ${activeDatabaseId}). Hubungi pengembang.`;
   if (code.includes('unavailable')) return 'Tidak bisa terhubung ke server. Periksa internet.';
   if (code.includes('resource-exhausted')) return 'Kuota database habis untuk hari ini.';
   if (code.includes('not-found')) return 'Data kelas tidak ditemukan di server.';
